@@ -25,19 +25,19 @@ declare module "next-auth" {
 
 export const authOptions: NextAuthOptions = {
   pages: {
-    signIn: '/login',
-    signOut: '/',
+    signIn: "/login",
+    signOut: "/",
   },
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
   },
   adapter: PrismaAdapter(db),
   secret: "e3cd8aace069fd2056eab19e930a8abb",
 
   providers: [
     GoogleProvider({
-      clientId: "502784863652-4khsfe3ojq5uhe0vgguhvdkme66tuqv6.apps.googleusercontent.com",
-      clientSecret: "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",
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       allowDangerousEmailAccountLinking: true,
       profile(profile) {
         return {
