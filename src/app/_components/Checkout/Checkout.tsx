@@ -1,0 +1,538 @@
+"use client";
+import { Disclosure } from "@headlessui/react";
+import { UserIcon } from "lucide-react";
+import {
+  BookingStatus,
+  GuestHouse,
+  GuestProfile,
+  RoomCharges,
+  RoomDetails,
+} from "@prisma/client";
+// import { TypeOrg } from "@prisma/client";
+import { useSession } from "next-auth/react";
+// import { z } from 'zod';
+import { Button } from "~/components/ui/button";
+import { Checkbox } from "~/components/ui/checkbox";
+import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
+import { useToast } from "~/components/ui/use-toast";
+import { api } from "~/trpc/react";
+// import { CreateGuestValidator, TCreateGuestValidator } from '~/utils/validators/guestValidators';
+import { useEffect, useState } from "react";
+import GuestForm from "../guests/guestForm";
+// import { Input } from '~/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { useRouter } from "next/navigation";
+import { TbookingType } from "~/lib/utils";
+// import { RouterOutputs } from '~/trpc/shared';
+import { Card } from "~/components/ui/card";
+import { Separator } from "~/components/ui/separator";
+
+function datediff(first: Date, second: Date) {
+  //@ts-ignore
+  return Math.round((second - first) / (1000 * 60 * 60 * 24));
+}
+
+export default function Checkout({
+  roomDetails,
+  roomCharges,
+  checkin,
+  checkout,
+  bookingType,
+}: {
+  roomDetails: any;
+  roomCharges: RoomCharges;
+  checkin: Date;
+  checkout: Date;
+  bookingType: TbookingType;
+}) {
+  const [guests, setGuests] = useState<GuestProfile[]>([]);
+  const [selectedGuests, setSelectedGuests] = useState<GuestProfile[]>([]);
+  const [selectedNumberOfRoomsOrBeds, setSelectedNumberOfRoomsOrBeds] =
+    useState(1);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("offline");
+  const router = useRouter();
+  const { toast } = useToast();
+  const { data: session } = useSession();
+  const userId = session?.user.id;
+
+  const createBookingMutation = api.booking.createBooking.useMutation({
+    onSuccess: async ({ bookingDetails }) => {
+      toast({
+        title: "Booking Successful",
+      });
+      setTimeout(() => {
+        router.push(
+          selectedPaymentMethod == "offline"
+            ? `/payment/success/${bookingDetails.id}`
+            : `/payment?id=${bookingDetails.id}`,
+        );
+      });
+    },
+  });
+
+  const removeGuestMutation = api.guests.removeGuest.useMutation({
+    onSuccess: async () => {
+      if (userId) {
+        getGuestsMutation.mutate({ userId });
+      }
+    },
+  });
+
+  const removeGuest = (guestId: string) => {
+    removeGuestMutation.mutate(guestId, {
+      onSuccess: () => {
+        setGuests((prevGuests) =>
+          prevGuests.filter((guest) => guest.id !== guestId),
+        );
+        setSelectedGuests((prevSelectedGuests) =>
+          prevSelectedGuests.filter((guest) => guest.id !== guestId),
+        );
+      },
+    });
+  };
+
+  const getGuestsMutation = api.guests.getGuestsByUserId.useMutation({
+    onSuccess: async ({ guests }) => {
+      setGuests(guests);
+    },
+  });
+
+  useEffect(() => {
+    getGuestsMutation.mutate({ userId: session?.user.id ?? "" });
+  }, []);
+  if (roomDetails) {
+    // const subtotal = selectedGuests.reduce(
+    //   (total, guest) => total + roomCharges[guest.typeOrg!],
+    //   0,
+    // );
+    const subtotal = selectedGuests.reduce((total, guest) => {
+      // Use optional chaining and nullish coalescing operator
+      const charge = roomCharges?.[guest?.typeOrg] ?? 0;
+      return total + charge;
+    }, 0);
+    
+
+    const tax = subtotal * 0.18;
+    const total = subtotal + tax;
+    const guestLabel = selectedGuests.length === 1 ? "guest" : "guests";
+
+    const categoryConst: any = {
+      GOVERNMENT_OF_INDIA_OFFICIAL: "Government of India Official",
+      STATE_GOVERNMENT_OFFICIAL: "State Government Official",
+      CENTRAL_AUTONOMOUS_ORGANISATION_OFFICIAL:
+        "Central Autonomous Organisation Official",
+      CHAIRMAN_AND_MEMBER_OF_BOARD_OF_GOVERNORS:
+        "Chairman and Member of Board of Governors",
+      NITTR_STAFFS_AND_EX_STAFFS: "NITTR Staffs and Ex-Staffs",
+      PARTICIPANT_OF_SHORT_COURSE: "Participant of Short Course",
+      INDUCTION_PROGRAM_PARTICIPANTS: "Induction Program Participants",
+      MEETING_AND_CONFERENCE_UNDER_WORLD_BANK_AIDED_PROJECT:
+        "Meeting and Conference under World Bank Aided Project",
+      CONSULTANCY_PROGRAM: "Consultancy Program",
+      TEACHERS_OF_ENGINEERING_COLLEGES: "Teachers of Engineering Colleges",
+      INTERNATIONAL_PARTICIPANTS: "International Participants",
+      OTHER: "Other",
+    };
+
+    const typeBody = (category: any) => categoryConst[category?.typeOrg];
+
+    return (
+      <>
+        <main className="no-scrollbar lg:flex lg:min-h-full lg:flex-row-reverse">
+          <div className="px-4 py-6 sm:px-6 lg:hidden">
+            <div className="mx-auto flex max-w-lg">
+              <a href="#">
+                <span className="sr-only">Your Company</span>
+              </a>
+            </div>
+          </div>
+
+          <h1 className="sr-only">Checkout</h1>
+
+          {/* Mobile order summary */}
+          <section
+            aria-labelledby="order-heading"
+            className="bg-gray-50 px-4 py-6 sm:px-6 lg:hidden"
+          >
+            <Disclosure as="div" className="mx-auto max-w-lg">
+              {({ open }) => (
+                <>
+                  <div className="flex items-center justify-between">
+                    <h2
+                      id="order-heading"
+                      className="text-lg font-medium text-gray-900"
+                    >
+                      Your Order
+                    </h2>
+                    <Disclosure.Button className="font-medium text-indigo-600 hover:text-indigo-500">
+                      {open ? (
+                        <span>Hide full summary</span>
+                      ) : (
+                        <span>Show full summary</span>
+                      )}
+                    </Disclosure.Button>
+                  </div>
+
+                  <Disclosure.Panel>
+                    <ul
+                      role="list"
+                      className="divide-y divide-gray-200 border-b border-gray-200"
+                    >
+                      {[roomDetails].map((room, index) => (
+                        <li
+                          key={room.id + index}
+                          className="flex space-x-6 py-6"
+                        >
+                          <img
+                            src={roomDetails.roomImg[0]}
+                            alt={
+                              "https://plus.unsplash.com/premium_photo-1663126298656-33616be83c32?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            }
+                            className="h-40 w-40 flex-none rounded-md bg-gray-200 object-cover object-center"
+                          />
+                          <div className="flex flex-col justify-between space-y-4">
+                            <div className="space-y-1 text-sm font-medium">
+                              <h3 className="text-gray-900">{room.value}</h3>
+                              <h3 className="text-gray-900">{room.code}</h3>
+                            </div>
+                            <div className="flex space-x-4"></div>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <dl className="mt-10 space-y-6 text-sm font-medium text-gray-500">
+                      <div className="flex justify-between">
+                        <dt>Subtotal</dt>
+                        <dd className="text-gray-900">₹{subtotal}</dd>
+                      </div>
+                      <div className="flex justify-between">
+                        <dt>Taxes</dt>
+                        {/* <dd className="text-gray-900">
+                          ₹
+                          {selectedGuests.reduce((a, c) => {
+                            return a + roomCharges[c.typeOrg];
+                          }, 0)}
+                        </dd> */}
+                        <dd className="text-gray-900">
+                          ₹
+                          {selectedGuests.reduce((a, c) => {
+                            // Use optional chaining and nullish coalescing operator
+                            const charge = roomCharges?.[c?.typeOrg] ?? 0;
+                            return a + charge;
+                          }, 0)}
+                        </dd>
+                      </div>
+                    </dl>
+                  </Disclosure.Panel>
+                </>
+              )}
+            </Disclosure>
+          </section>
+
+          {/* Order summary */}
+
+          <Dialog>
+            <DialogContent
+              className="no-scrollbar  flex flex-wrap items-center justify-center p-10 text-gray-600 "
+              style={{ width: "50%", height: "90%" }}
+            >
+              <GuestForm roomCharges={roomCharges}></GuestForm>
+            </DialogContent>
+            <div className="mx-auto flex w-full max-w-[1280px] flex-col justify-center gap-8 sm:flex-row">
+              <section
+                aria-labelledby="payment-heading"
+                className="flex w-full flex-col py-4 pb-10 sm:w-3/5"
+              >
+                <div className="my-2 flex items-end justify-end">
+                  <div>
+                    <Select
+                      defaultValue={selectedPaymentMethod}
+                      onValueChange={(value) => {
+                        setSelectedPaymentMethod(value);
+                      }}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Choose payment Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="offline">Pay at Hostel</SelectItem>
+                        <SelectItem disabled value="online">
+                          Pay online
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>{" "}
+                  </div>
+                </div>
+                {/*JSON.stringify(checkin + ":" + checkout)*/}
+
+                <Card className="mt-4 flex w-full flex-col justify-center gap-5 p-6 shadow-2xl">
+                  <div className="flex flex-col ">
+                    <div>
+                      Hostel Name -{" "}
+                      <b>{roomDetails?.hostelName?.replace(/_/g, " ")}</b>
+                    </div>
+                    <div>
+                      Room Type - <b>{roomDetails?.value}</b>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex w-full gap-2 text-center">
+                      {checkin.toDateString()}
+                      <div className="flex w-full flex-1 items-center justify-center">
+                        <Separator></Separator>
+                      </div>
+                    </div>
+                    <div className="flex w-fit min-w-40 items-center justify-center text-center">
+                      {" "}
+                      {datediff(checkin, checkout)} nights
+                    </div>
+                    <div className="flex w-full gap-2 text-center">
+                      <div className="flex w-full flex-1 items-center justify-center">
+                        <Separator></Separator>
+                      </div>
+                      {checkout.toDateString()}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col justify-center gap-12 text-sm sm:flex-row ">
+                    <div className="flex flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl">
+                      <div>Floor</div>
+                      <div>
+                        <b>{roomDetails.floor?.replace(/_/g, " ")}</b>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl">
+                      <div>Bed Type</div>
+                      <div>
+                        <b>{roomDetails?.roomType?.replace(/_/g, " ")}</b>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl">
+                      <div>Available Beds</div>
+                      <div>
+                        <b>{roomDetails?.totalBed}</b>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl">
+                      <div>Occupancy</div>
+                      <div>
+                        <b>{roomDetails.occupancy}</b>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+
+                {guests.length < 1 && (
+                  <div className="m-4 mt-10 flex w-full items-center justify-center rounded-xl border border-gray-300 p-4">
+                    {!!!guests.length && <GuestForm roomCharges={roomCharges}></GuestForm>}
+                  </div>
+                )}
+
+                {guests.length > 0 && (
+                  <Card className="mt-10 flex flex-col justify-center gap-5 p-2 shadow-2xl sm:px-8 sm:py-4">
+                    <div className="w-full">
+                      {guests.map((g, index) => {
+                        return (
+                          <li
+                            key={g.id + index}
+                            className="flex items-center py-6"
+                          >
+                            <div className="">
+                              <UserIcon />
+                            </div>
+                            <div className="ml-4 flex flex-1 flex-col justify-center sm:ml-2">
+                              <div className="relative flex">
+                                <div className="w-4/5">
+                                  <div className="flex justify-between">
+                                    <h3 className="text-sm"></h3>
+                                  </div>
+                                  <div className="mt-1 flex w-full text-sm">
+                                    <p className="w-full text-gray-500">
+                                      {g.name}
+                                    </p>
+                                    <p className="ml-4 border-l border-gray-200 pl-4 text-gray-500">
+                                      {g.gender}
+                                    </p>
+                                    <p className="ml-4 w-full border-l border-gray-200 pl-4 text-gray-500">
+                                      {typeBody(g)}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <Checkbox
+                                    id={`terms-${g.id}`}
+                                    onCheckedChange={(checked: boolean) => {
+                                      setSelectedGuests((f) => {
+                                        if (checked) {
+                                          const updatedGuestList = [...f, g];
+                                          return updatedGuestList;
+                                        } else {
+                                          const updatedGuestList = f.filter(
+                                            (item) => item.id !== g.id,
+                                          );
+                                          return updatedGuestList;
+                                        }
+                                      });
+                                    }}
+                                  />
+                                  <label
+                                    htmlFor={`terms-${g.id}`}
+                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                  >
+                                    Add
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+                            <Button onClick={() => removeGuest(g.id)}>
+                              Remove
+                            </Button>
+                          </li>
+                        );
+                      })}
+                    </div>
+
+                    {!!guests.length && (
+                      <DialogTrigger className="w-full text-center text-sm font-bold hover:underline">
+                        + Add New Guest
+                      </DialogTrigger>
+                    )}
+                  </Card>
+                )}
+              </section>
+
+              <section
+                aria-labelledby="summary-heading"
+                className=" flex w-1/5 flex-col "
+              >
+                <h2 id="summary-heading" className="sr-only">
+                  Order summary
+                </h2>
+
+                <ul role="list" className="h-fit w-full ">
+                  {[roomDetails].map((room, index) => (
+                    <li key={room.id + index} className="flex space-x-2 py-6">
+                      <img
+                        src={roomDetails.roomImg[0]}
+                        alt={
+                          "https://plus.unsplash.com/premium_photo-1663126298656-33616be83c32?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        }
+                        className="h-24 w-24 flex-none rounded-md bg-gray-200 object-cover object-center"
+                      />
+                      <div className="flex flex-col gap-2">
+                        <div className="space-y-1 text-sm font-medium">
+                          <h3 className="text-gray-900">
+                            {room.value}{" "}
+                            <span className="font-bold">{room.code}</span>{" "}
+                          </h3>
+                        </div>
+                        <div className="flex items-center text-sm">
+                          Number of {bookingType} :{" "}
+                          <span className="ml-1 font-bold">
+                            {selectedGuests?.length}
+                          </span>
+                          <div className="">
+                            {/* <Select
+                              defaultValue={"1"}
+                              onValueChange={(value) => {
+                                setSelectedNumberOfRoomsOrBeds(+value);
+                              }}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="No. Rooms" />
+                              </SelectTrigger> */}
+                            {/* <SelectContent>
+                                {new Array(
+                                  +roomDetails.maxAdult -
+                                    roomDetails.guests.length,
+                                )
+                                  .fill(null)
+                                  .map((_n, i) => {
+                                    return (
+                                      <SelectItem
+                                        value={(i + 1).toString()}
+                                        key={i}
+                                      >
+                                        {i + 1}
+                                      </SelectItem>
+                                    );
+                                  })}
+                              </SelectContent> */}
+                            {/* </Select> */}
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                  <div className="!sticky top-10 mb-4 flex max-h-64 flex-col rounded-lg border border-b border-gray-200 bg-white px-4 pb-4 pt-1">
+                    <dl className="mt-4 flex flex-col gap-4 text-sm font-medium text-gray-500">
+                      <div className="flex justify-between">
+                        <dt>Subtotal</dt>
+                        <dd className="text-gray-900">₹{subtotal}</dd>
+                      </div>
+                      <div className="flex justify-between">
+                        <dt>Taxes (18%)</dt>
+                        <dd className="text-gray-900">₹{tax.toFixed(2)}</dd>
+                      </div>
+                      <div className="flex items-center justify-between border-t border-gray-200 py-6 text-gray-900">
+                        <dt className="text-base">
+                          Total (for {selectedGuests.length} {guestLabel})
+                        </dt>
+                        <dd className="text-gray-900">₹{total.toFixed(2)}</dd>
+                      </div>
+                    </dl>
+
+                    <Button
+                      onClick={() => {
+                        if (!selectedGuests.length) {
+                          return alert("Please Select atleast 1 Guest");
+                        }
+                        if (!selectedNumberOfRoomsOrBeds) {
+                          return alert("Please Select Number of Rooms");
+                        }
+                        if (selectedGuests.length > roomDetails?.totalBed) {
+                          return alert(
+                            "Number of Selected Guests and Number of Selected Beds should be equal",
+                          );
+                        }
+                        createBookingMutation.mutate({
+                          hostelName: roomDetails.hostelName,
+                          guestIds: selectedGuests.map((g) => g.id),
+                          bookingDate: new Date().toISOString(),
+                          bookedFromDt: checkin,
+                          bookedToDt: checkout,
+                          nosRooms: selectedNumberOfRoomsOrBeds,
+                          remark: "",
+                          bookingType: "BEDS",
+                          roomId: roomDetails.id,
+                          amount: total,
+                          roomType: roomDetails?.roomType,
+                          paymentStatus: "pending",
+                          subtotal: subtotal,
+                        });
+                      }}
+                    >
+                      Confirm Booking
+                    </Button>
+                  </div>
+                </ul>
+              </section>
+            </div>
+          </Dialog>
+          {/* Checkout form */}
+        </main>
+      </>
+    );
+  }
+}

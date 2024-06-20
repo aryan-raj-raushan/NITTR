@@ -1,0 +1,208 @@
+[
+    {
+      "_id": "clw7rqlvz000bsu7jywjdspsc",
+      "code": "RM1000",
+      "value": "Deluxe Room",
+      "ghName": "Grand Hotel",
+      "roomType": "SINGLE_BED",
+      "totalBed": 12,
+      "totalRoom": 12,
+      "occupancy": "SINGLE",
+      "roomImg": [
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/_DSC0346+(2).JPG",
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0127.JPG",
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0136.JPG",
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0137.JPG",
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0140.JPG"
+      ],
+      "hostelName": "SARAN_GUEST_HOUSE",
+      "floor": "FIRST_FLOOR",
+      "ac": "YES",
+      "geaser": "YES",
+      "airCooled": "NO",
+      "remark": "Experience comfort and convenience in our single rooms at NITTTR Bhopal. Perfect for solo travelers or individuals seeking privacy. Explore our affordable accommodation options today!",
+      "roomTarrif": "EXECTIVE_3500",
+      "price":{
+          "CENTRAL_GOVT": "",
+          "PRIVATE": "",
+          "STATE_GOVT": "",
+          "OTHER": ""
+      },
+      "bookingStatus": "EXPIRED",
+      "cleaningStatus": "READY",
+      "lastCleaningDate": {
+        "$date": "2024-05-15T11:58:56.073Z"
+      },
+      "createdAt": {
+        "$date": "2024-05-15T11:58:56.073Z"
+      },
+      "updatedAt": {
+        "$date": "2024-05-15T11:58:56.073Z"
+      }
+    },
+    {
+      "_id": "clw7rqm0w000dsu7jjvftggiw",
+      "code": "RM1000",
+      "value": "Deluxe Room",
+      "roomType": "DOUBLE_BED",
+      "ghName": "Grand Hotel",
+      "totalBed": 32,
+      "totalRoom": 16,
+      "occupancy": "DOUBLE",
+      "roomImg": [
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/_DSC0346+(2).JPG",
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0127.JPG",
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0136.JPG",
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0137.JPG",
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0140.JPG"
+      ],
+      "hostelName": "SARAN_GUEST_HOUSE",
+      "floor": "FIRST_FLOOR",
+      "ac": "YES",
+      "geaser": "YES",
+      "airCooled": "NO",
+      "remark": "Experience comfort and convenience in our single rooms at NITTTR Bhopal. Perfect for solo travelers or individuals seeking privacy. Explore our affordable accommodation options today!",
+      "roomTarrif": "EXECTIVE_3500",
+      "price":{
+          "CENTRAL_GOVT": "",
+          "PRIVATE": "",
+          "STATE_GOVT": "",
+          "OTHER": ""
+      },
+      "bookingStatus": "EXPIRED",
+      "cleaningStatus": "READY",
+      "lastCleaningDate": {
+        "$date": "2024-05-15T11:58:56.073Z"
+      },
+      "createdAt": {
+        "$date": "2024-05-15T11:58:56.073Z"
+      },
+      "updatedAt": {
+        "$date": "2024-05-15T11:58:56.073Z"
+      }
+    },
+    {
+      "_id": "clw7rqm5g000fsu7jz03au6ax",
+      "code": "RM1000",
+      "value": "Deluxe Room",
+      "roomType": "TRIPLE_BED",
+      "ghName": "Grand Hotel",
+      "totalBed": 51,
+      "totalRoom": 17,
+      "occupancy": "TRIPLE",
+      "roomImg": [
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/_DSC0346+(2).JPG",
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0127.JPG",
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0136.JPG",
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0137.JPG",
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0140.JPG"
+      ],
+      "hostelName": "SARAN_GUEST_HOUSE",
+      "floor": "FIRST_FLOOR",
+      "ac": "YES",
+      "geaser": "YES",
+      "airCooled": "NO",
+      "remark": "Experience comfort and convenience in our single rooms at NITTTR Bhopal. Perfect for solo travelers or individuals seeking privacy. Explore our affordable accommodation options today!",
+      "roomTarrif": "EXECTIVE_3500",
+      "price":{
+          "CENTRAL_GOVT": "",
+          "PRIVATE": "",
+          "STATE_GOVT": "",
+          "OTHER": ""
+      },
+      "bookingStatus": "EXPIRED",
+      "cleaningStatus": "READY",
+      "lastCleaningDate": {
+        "$date": "2024-05-15T11:58:56.073Z"
+      },
+      "createdAt": {
+        "$date": "2024-05-15T11:58:56.073Z"
+      },
+      "updatedAt": {
+        "$date": "2024-05-15T11:58:56.073Z"
+      }
+    },
+    {
+      "_id": "clw7rqn31000ssu7j6cwjj6sn",
+      "code": "RM2000",
+      "value": "Deluxe Room",
+      "roomType": "DOUBLE_BED",
+      "ghName": "Grand Hotel",
+      "totalBed": 52,
+      "totalRoom": 26,
+      "occupancy": "DOUBLE",
+      "roomImg": [
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/_DSC0346+(2).JPG",
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0127.JPG",
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0136.JPG",
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0137.JPG",
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0140.JPG"
+      ],
+      "hostelName": "VISHVESHVARAYA_GUEST_HOUSE",
+      "floor": "FIRST_FLOOR",
+      "ac": "YES",
+      "geaser": "YES",
+      "airCooled": "NO",
+      "remark": "Experience comfort and convenience in our single rooms at NITTTR Bhopal. Perfect for solo travelers or individuals seeking privacy. Explore our affordable accommodation options today!",
+      "roomTarrif": "EXECTIVE_3500",
+      "price":{
+          "CENTRAL_GOVT": "",
+          "PRIVATE": "",
+          "STATE_GOVT": "",
+          "OTHER": ""
+      },
+      "bookingStatus": "EXPIRED",
+      "cleaningStatus": "READY",
+      "lastCleaningDate": {
+        "$date": "2024-05-15T11:58:56.073Z"
+      },
+      "createdAt": {
+        "$date": "2024-05-15T11:58:56.073Z"
+      },
+      "updatedAt": {
+        "$date": "2024-05-15T11:58:56.073Z"
+      }
+    },
+    {
+      "_id": "clw7rqmob000nsu7jpqs9o4fs",
+      "code": "RM3000",
+      "value": "Deluxe Room",
+      "roomType": "DOUBLE_BED",
+      "ghName": "Grand Hotel",
+      "totalBed": 200,
+      "totalRoom": 100,
+      "occupancy": "DOUBLE",
+      "roomImg": [
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/_DSC0346+(2).JPG",
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0127.JPG",
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0136.JPG",
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0137.JPG",
+        "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0140.JPG"
+      ],
+      "hostelName": "EXECUTIVE_GUEST_HOUSE",
+      "floor": "FIRST_FLOOR",
+      "ac": "YES",
+      "geaser": "YES",
+      "airCooled": "NO",
+      "remark": "Experience comfort and convenience in our single rooms at NITTTR Bhopal. Perfect for solo travelers or individuals seeking privacy. Explore our affordable accommodation options today!",
+      "roomTarrif": "EXECTIVE_3500",
+      "price":{
+          "CENTRAL_GOVT": "",
+          "PRIVATE": "",
+          "STATE_GOVT": "",
+          "OTHER": ""
+      },
+      "bookingStatus": "EXPIRED",
+      "cleaningStatus": "READY",
+      "lastCleaningDate": {
+        "$date": "2024-05-15T11:58:56.073Z"
+      },
+      "createdAt": {
+        "$date": "2024-05-15T11:58:56.073Z"
+      },
+      "updatedAt": {
+        "$date": "2024-05-15T11:58:56.073Z"
+      }
+    }
+  ]
+  

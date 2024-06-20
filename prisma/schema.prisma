@@ -1,0 +1,344 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum UserPermissionRole {
+  USER
+  ADMIN
+  CREATOR
+}
+
+enum IDCardType {
+  // Add specific ID card types here
+  PASSPORT
+  DRIVING_LICENSE
+  AADHAR
+}
+
+enum Nationality {
+  // Add specific nationalities
+  INDIAN
+  FOREIGNER
+  NRI
+}
+
+enum Religion {
+  // Add specific religions
+  HINDU
+  MUSLIM
+  CHRISTIAN
+  JAIN
+  BHUDDHISM
+  OTHER
+}
+
+enum TypeOrg {
+  GOVERNMENT_OF_INDIA_OFFICIAL
+  STATE_GOVERNMENT_OFFICIAL
+  CENTRAL_AUTONOMOUS_ORGANISATION_OFFICIAL
+  CHAIRMAN_AND_MEMBER_OF_BOARD_OF_GOVERNORS
+  NITTR_STAFFS_AND_EX_STAFFS
+  PARTICIPANT_OF_SHORT_COURSE
+  INDUCTION_PROGRAM_PARTICIPANTS
+  MEETING_AND_CONFERENCE_UNDER_WORLD_BANK_AIDED_PROJECT
+  CONSULTANCY_PROGRAM
+  TEACHERS_OF_ENGINEERING_COLLEGES
+  INTERNATIONAL_PARTICIPANTS
+  OTHER
+}
+
+enum State {
+  // Add specific states
+
+  MADHYA_PRADESH
+  UTTAR_PRADESH
+  BIHAR
+  CHATISGARSH
+  MAHARASTRA
+}
+
+enum Country {
+  // Add specific countries
+
+  INDIA
+  AMERICA
+}
+
+enum PhysicalChallenged {
+  YES
+  NO
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum Category {
+  // Define categories if needed
+
+  SC
+  ST
+  OBC
+  GEN
+}
+
+enum Floor {
+  // Add floor numbers or labels
+
+  GROUND_FLOOR
+  UPPER_GROUND_FLOOR
+  FIRST_FLOOR
+}
+
+enum Occupancy {
+  SINGLE
+  DOUBLE
+  TRIPLE
+}
+
+enum RoomType {
+  SINGLE_BED
+  DOUBLE_BED
+  TRIPLE_BED
+  FOUR_BED
+}
+
+enum Answer {
+  YES
+  NO
+}
+
+enum RoomTariff {
+  SINGLE_BEDDED_1200
+  DOUBLE_BEDDED_2500
+  EXECTIVE_3500
+}
+
+enum BookingStatus {
+  UNCONFIRMED
+  CONFIRMED
+  CANCELED
+  EXPIRED
+}
+
+enum GuestHouse {
+  SARAN_GUEST_HOUSE
+  VISHVESHVARAYA_GUEST_HOUSE
+  EXECUTIVE_GUEST_HOUSE
+}
+
+enum CleaningStatus {
+  READY
+  UNDER_MAINTENANCE
+}
+
+enum MaritalStatus {
+  MARRIED
+  UNMARRIED
+}
+
+enum Title {
+  MR
+  MS
+  DR
+  MRS
+}
+
+// Necessary for Next auth
+model Account {
+  id                String  @id @default(cuid()) @map("_id")
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid()) @map("_id")
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model User {
+  id                String             @id @default(cuid()) @map("_id")
+  name              String?
+  email             String?            @unique
+  emailVerified     DateTime?
+  password          String?
+  number            String?
+  image             String?
+  isVerifed         Boolean?
+  role              UserPermissionRole @default(USER)
+  accounts          Account[]
+  sessions          Session[]
+  guestProfiles     GuestProfile[]
+  bookings          BookingDetails[]
+  verificationToken String?
+
+  @@map("users")
+}
+
+model VerificationToken {
+  id         String   @id @default(cuid()) @map("_id")
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verificationTokens")
+}
+
+model PasswordResetToken {
+  id         String   @id @default(cuid()) @map("_id")
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("passwordResetTokens")
+}
+
+model GuestProfile {
+  id                   String          @id @default(cuid()) @map("_id")
+  name                 String
+  email                String
+  alternativeEmail     String
+  mobileNo             String
+  alternativeMobileNo  String
+  identity_card_type   IDCardType
+  id_card_no           String
+  fatherHusbandName    String
+  nationality          Nationality
+  religion             Religion
+  typeOrg              TypeOrg
+  designation          String
+  orgName              String
+  orgEmail             String
+  orgPhone             String
+  orgWebsite           String
+  residentialCity      String
+  residentialDistt     String
+  residentialState     State
+  country              Country
+  orgAddress           String
+  physicallyChallenged Answer
+  gender               Gender
+  category             Category
+  localAddress         String
+  permanentAddress     String
+  dob                  DateTime
+  maritalStatus        MaritalStatus
+  remark               String
+  updateBy             String          @default("Candidate")
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  userId               String
+  user                 User            @relation(fields: [userId], references: [id])
+  bookingDetails       BookingDetails? @relation(fields: [bookingDetailsId], references: [id])
+  bookingDetailsId     String?
+  RoomDetails          RoomDetails?    @relation(fields: [roomDetailsId], references: [id])
+  roomDetailsId        String?
+
+  @@map("guestProfiles")
+}
+
+model BookingDetails {
+  id            String         @id @default(cuid()) @map("_id")
+  bookingStatus BookingStatus
+  hostelName    GuestHouse
+  updateBy      String         @default("Candidate")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  bookingDate   DateTime
+  bookedFromDt  DateTime
+  bookedToDt    DateTime
+  remark        String
+  bookPaymentId String?
+  amount        Float?
+  subtotal      Int?
+  guests        GuestProfile[]
+  rooms         RoomDetails[]
+  bookedBed     Int?
+  totalRoom     Int?
+  roomType      String?
+  bookedRoom    String?
+  guestsList    String[]
+  paymentStatus String?
+  userId        String
+  user          User           @relation(fields: [userId], references: [id])
+
+  @@map("bookingDetails")
+}
+
+model RoomCharges {
+  id                                                    String     @id @default(cuid()) @map("_id")
+  hostelName                                            GuestHouse
+  GOVERNMENT_OF_INDIA_OFFICIAL                          Int?
+  STATE_GOVERNMENT_OFFICIAL                             Int?
+  CENTRAL_AUTONOMOUS_ORGANISATION_OFFICIAL              Int?
+  CHAIRMAN_AND_MEMBER_OF_BOARD_OF_GOVERNORS             Int?
+  NITTR_STAFFS_AND_EX_STAFFS                            Int?
+  PARTICIPANT_OF_SHORT_COURSE                           Int?
+  INDUCTION_PROGRAM_PARTICIPANTS                        Int?
+  MEETING_AND_CONFERENCE_UNDER_WORLD_BANK_AIDED_PROJECT Int?
+  CONSULTANCY_PROGRAM                                   Int?
+  TEACHERS_OF_ENGINEERING_COLLEGES                      Int?
+  INTERNATIONAL_PARTICIPANTS                            Int?
+  OTHER                                                 Int?
+
+  @@map("masterPrice")
+}
+
+model RoomDetails {
+  id               String          @id @default(cuid()) @map("_id")
+  code             String?
+  value            String?
+  ghName           String?
+  totalBed         Int?
+  totalRoom        Int?
+  roomType         RoomType?
+  occupancy        Occupancy?
+  roomImg          String[]
+  hostelName       GuestHouse?
+  floor            Floor?
+  ac               Answer?
+  geaser           Answer?
+  airCooled        Answer?
+  remark           String?
+  roomTarrif       RoomTariff?
+  bookingStatus    BookingStatus?
+  cleaningStatus   CleaningStatus?
+  lastCleaningDate DateTime        @default(now())
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  guests           GuestProfile[]
+  BookingDetails   BookingDetails? @relation(fields: [bookingDetailsId], references: [id])
+  bookingDetailsId String?
+
+  @@map("roomDetails")
+}
