@@ -36,8 +36,8 @@ export const authOptions: NextAuthOptions = {
 
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientId: "502784863652-4khsfe3ojq5uhe0vgguhvdkme66tuqv6.apps.googleusercontent.com",
+      clientSecret: "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",
       allowDangerousEmailAccountLinking: true,
       profile(profile) {
         return {
