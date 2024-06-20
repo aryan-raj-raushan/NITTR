@@ -40,7 +40,7 @@ export default function Home() {
             <div className="font-bold text-primary text-lg sm:text-3xl md:text-4xl"> TECHNICAL TEACHERS TRAINING AND RESEARCH, BHOPAL</div>
           </motion.div>
 
-          <motion.div variants={itemAnimation} className="flex flex-col gap-2 justify-center items-center text-center max-w-[1280px] mx-auto">
+          <motion.div variants={itemAnimation} className="flex flex-col gap-2 justify-center items-center text-center max-w-[1280px] mx-auto mt-4">
             <div className="text-sm sm:text-base md:text-xl w-fit px-10">Established in 1965 by the Ministry of Education, Government of India, NITTTR, Bhopal stands as a distinguished Deemed University training teachers and enhancing the overall quality of the Technical Education System. Our commitment extends to the continual improvement of educational standards.</div>
           </motion.div>
 

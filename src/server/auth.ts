@@ -32,7 +32,7 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   adapter: PrismaAdapter(db),
-  secret: "e3cd8aace069fd2056eab19e930a8abb",
+  secret: `${process.env.NEXTAUTH_SECRET}`,
 
   providers: [
     GoogleProvider({
