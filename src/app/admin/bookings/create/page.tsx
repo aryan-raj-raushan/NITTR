@@ -1,49 +1,19 @@
 "use client";
-import { Disclosure } from "@headlessui/react";
 import { UserIcon } from "lucide-react";
-import {
-  BookingStatus,
-  GuestHouse,
-  GuestProfile,
-  RoomDetails,
-  RoomTariff,
-} from "@prisma/client";
-import { TypeOrg } from "@prisma/client";
-import { useSession } from "next-auth/react";
-import { z } from "zod";
-import { Button } from "~/components/ui/button";
+import { GuestProfile } from "@prisma/client";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
-import { useToast } from "~/components/ui/use-toast";
 import { api } from "~/trpc/react";
-// import {
-//   CreateGuestValidator,
-//   TCreateGuestValidator,
-// } from "~/utils/validators/guestValidators";
 import { useEffect, useState } from "react";
-// import { useRouter } from "next/router";
 import AdminGuestForm from "~/app/_components/guests/guestFormAdmin";
-import { Input } from "~/components/ui/input";
+import { useAppSelector } from "~/store";
+import SearchForm from "~/app/_components/SearchForm";
 
 export default function Page() {
   const [guests, setGuests] = useState<GuestProfile[]>([]);
   const [selectedGuests, setSelectedGuests] = useState<GuestProfile[]>([]);
-  const [selectedNumberOfRooms, setSelectedNumberOfRooms] = useState(1);
-  const { toast } = useToast();
-  const { data: session } = useSession();
-
-  // const createBookingMutation = api.booking.createBooking.useMutation({
-  //   onSuccess: async ({ bookingDetails }) => {
-  //     toast({
-  //       title: "Booking Successful",
-      
-  //     });
-
-  //     setTimeout(() => {
-  //       window.location.href = "/admin/bookings";
-  //     });
-  //   },
-  // });
+  const { id } = useAppSelector((store: any) => store.auth);
+  const userId = id;
 
   const getGuestsMutation = api.guests.getGuestsByUserId.useMutation({
     onSuccess: async ({ guests }) => {
@@ -51,12 +21,33 @@ export default function Page() {
     },
   });
 
+  const removeGuestMutation = api.guests.removeGuest.useMutation({
+    onSuccess: async () => {
+      if (userId) {
+        getGuestsMutation.mutate({ userId });
+      }
+    },
+  });
+
+  const removeGuest = (guestId: string) => {
+    removeGuestMutation.mutate(guestId, {
+      onSuccess: () => {
+        setGuests((prevGuests) =>
+          prevGuests.filter((guest) => guest.id !== guestId),
+        );
+        setSelectedGuests((prevSelectedGuests) =>
+          prevSelectedGuests.filter((guest) => guest.id !== guestId),
+        );
+      },
+    });
+  };
+
   useEffect(() => {
-    getGuestsMutation.mutate({ userId: session?.user.id ?? "" });
-  }, []);
+    getGuestsMutation.mutate({ userId: id ?? "" });
+  }, [id]);
   return (
     <>
-      <main className="items-center justify-center lg:flex lg:min-h-full   lg:overflow-hidden">
+      <main className="items-center justify-center lg:flex lg:min-h-[60vh] lg:overflow-hidden">
         <div className="px-4 py-6 sm:px-6 lg:hidden">
           <div className="mx-auto flex max-w-lg">
             <a href="#">
@@ -71,99 +62,85 @@ export default function Page() {
           >
             <AdminGuestForm></AdminGuestForm>
           </DialogContent>
-          <div className="min-w-[40rem] flex-col p-4">
-            <div className="mt-2 flex items-center justify-center gap-10">
-              <Button
-                onClick={() => {
-                  if (!selectedGuests.length) {
-                    return alert("Please Select atleast 1 Guest");
-                  }
-                  //createBookingMutation.mutate({
-                  //  hostelName: GuestHouse.SARAN_GUEST_HOUSE,
-                  //  guestIds: selectedGuests.map(g => g.id),
-                  //  bookingDate: new Date().toISOString(),
-                  //  bookedFromDt: new Date(),
-                  //  bookedToDt: new Date(),
-                  //  nosRooms: selectedNumberOfRooms,
-                  //  remark: "",
-                  //})
-                }}
-              >
-                Confirm Booking
-              </Button>
-
-              <Input
-                onChange={(e) => {
-                  setSelectedNumberOfRooms(Number(e.target.value));
-                }}
-                type="number"
-                placeholder="rooms"
-                className="w-24"
+          <div className="flex flex-col items-center justify-center gap-8">
+            <div className="pt-10 ">
+              <SearchForm
+                aboveClass="justify-center"
+                belowClass="w-fit"
+                guests={selectedGuests.length}
               />
             </div>
-            <div>
-              {!!guests.length && (
-                <DialogTrigger className="mt-6 w-full text-center text-sm font-bold">
-                  + Add New Guest
-                </DialogTrigger>
-              )}
-            </div>
-            <div className="w-full">
-              {!!!guests.length && <AdminGuestForm></AdminGuestForm>}
-            </div>
+            <div className="flex min-w-[40rem] flex-col items-center justify-center ">
+              <div>
+                {!!guests.length && (
+                  <DialogTrigger className="mt-6 w-full text-center text-sm font-bold">
+                    + Add New Guest
+                  </DialogTrigger>
+                )}
+              </div>
 
-            <div className="w-full">
-              {guests.map((g, index) => {
-                return (
-                  <li key={g.id + index} className="flex py-6 sm:py-10">
-                    <div className="flex-shrink-0">
-                      <UserIcon></UserIcon>
-                    </div>
-                    <div className="ml-4 flex flex-1 flex-col justify-between sm:ml-6">
-                      <div className="relative pr-9 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:pr-0">
-                        <div>
-                          <div className="flex justify-between">
-                            <h3 className="text-sm"></h3>
+              {!!!guests.length && (
+                <div className="mx-auto flex w-full items-center justify-center border py-5">
+                  <AdminGuestForm></AdminGuestForm>
+                </div>
+              )}
+
+              <div className="w-full border mt-4">
+                {guests.map((g, index) => {
+                  return (
+                    <li key={g.id + index} className="flex py-4 sm:py-4 px-4">
+                      <div className="flex-shrink-0">
+                        <UserIcon></UserIcon>
+                      </div>
+                      <div className="ml-4 flex flex-1 flex-col justify-between sm:ml-6">
+                        <div className="relative pr-9 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:pr-0">
+                          <div>
+                            <div className="flex justify-between">
+                              <h3 className="text-sm"></h3>
+                            </div>
+                            <div className="mt-1 flex text-sm">
+                              <p className="text-gray-500">{g.name}</p>
+                              <p className="ml-4 border-l border-gray-200 pl-4 text-gray-500">
+                                {g.gender}
+                              </p>
+                            </div>
                           </div>
-                          <div className="mt-1 flex text-sm">
-                            <p className="text-gray-500">{g.name}</p>
-                            <p className="ml-4 border-l border-gray-200 pl-4 text-gray-500">
-                              {g.gender}
-                            </p>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="terms"
+                              onCheckedChange={(checked: boolean) => {
+                                setSelectedGuests((f) => {
+                                  if (checked) {
+                                    const updatedGuestList = [...f, g];
+                                    return updatedGuestList;
+                                  } else {
+                                    const updatedGuestList = f.filter(
+                                      (item) => item.id !== g.id,
+                                    );
+                                    return updatedGuestList;
+                                  }
+                                });
+                              }}
+                            />
+                            <label
+                              htmlFor="terms"
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                              Add
+                            </label>
                           </div>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="terms"
-                            onCheckedChange={(checked: boolean) => {
-                              setSelectedGuests((f) => {
-                                if (checked) {
-                                  const updatedGuestList = [...f, g];
-                                  return updatedGuestList;
-                                } else {
-                                  const updatedGuestList = f.filter(
-                                    (item) => item.id !== g.id,
-                                  );
-                                  return updatedGuestList;
-                                }
-                              });
-                            }}
-                          />
-                          <label
-                            htmlFor="terms"
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                          >
-                            Add
-                          </label>
                         </div>
                       </div>
-                    </div>
-                    <div className="border border-red-400 p-1 text-xs font-bold text-red-400 hover:cursor-pointer hover:bg-red-400 hover:text-white">
-                      x
-                    </div>
-                  </li>
-                );
-              })}
+                      <div
+                        className="border border-red-400 p-1 text-xs font-bold text-red-400 hover:cursor-pointer hover:bg-red-400 hover:text-white"
+                        onClick={() => removeGuest(g.id)}
+                      >
+                        x
+                      </div>
+                    </li>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </Dialog>

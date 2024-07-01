@@ -1,23 +1,12 @@
 "use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
+// import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
-import { ZodError } from "zod";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
-import { api } from "~/trpc/react";
-import { Button } from "~/components/ui/button";
-import { sendMail } from "~/lib/mail";
 import { Bounce, toast } from "react-toastify";
-
-import crypto from 'crypto';
-
-function generateVerificationToken() {
-  return crypto.randomBytes(32).toString('hex');
-}
+import { ResendEmail } from "~/utils/url/authurl";
+import { useEffect, useState } from "react";
 
 export const AuthCredentialsValidator = z
   .object({
@@ -71,15 +60,38 @@ export default function RegisterComponent({
   } = useForm<TAuthCredentialsValidator>({
     resolver: zodResolver(AuthCredentialsValidator),
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [countdown, setCountdown] = useState<number>(300);
+  const [email, setEmail] = useState<string | null>(null);
 
   const router = useRouter();
 
-  const sendMailMutation = api.mail.sendMail.useMutation();
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedEmail = sessionStorage.getItem("email");
+      setEmail(storedEmail);
+    }
+  }, []);
 
-  const { mutate } = api.auth.createUser.useMutation({
-    onError: (err) => {
-      if (err.data?.code === "CONFLICT") {
-        toast.error("Conflict", {
+  
+
+  const handleResendVerification = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(ResendEmail, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.code === 200) {
+        toast.success("Resend email successfully sent!", {
           position: "top-center",
           autoClose: 5000,
           hideProgressBar: false,
@@ -90,24 +102,9 @@ export default function RegisterComponent({
           theme: "light",
           transition: Bounce,
         });
-        return;
+        setCountdown(119);
       }
-
-      if (err instanceof ZodError) {
-        toast.error("Invalid Credentials", {
-          position: "top-center",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          transition: Bounce,
-        });
-        return;
-      }
-
+    } catch (error) {
       toast.error("Failed", {
         position: "top-center",
         autoClose: 5000,
@@ -119,286 +116,97 @@ export default function RegisterComponent({
         theme: "light",
         transition: Bounce,
       });
-    },
-    onSuccess: async ({ email, password }) => {
-      await signIn("credentials", {
-        email,
-        password,
-        callbackUrl: callbackUrl ? callbackUrl : "/",
-      });
-
-    // Generate verification token (implement this function)
-    const verificationToken = generateVerificationToken();
-
-    // Construct verification URL
-    const verificationUrl = `http://localhost:3000/verify-email?token=${verificationToken}`;
-
-    // Send verification email
-    sendMailMutation.mutate(
-      {
-        to: email,
-        subject: "Email Verification",
-        text: `Please verify your email by clicking on the following link: ${verificationUrl}`,
-      },)
-
-      // sendMailMutation.mutate({
-      //   subject: "Registration NITTTR",
-      //   text: "You have successfull logged into NITTTR/hostels",
-      //   to:email
-      // });
-
-      toast("You have successfully registration", {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-        transition: Bounce,
-      });
-    },
-  });
-
-  const onSubmit = async ({
-    name,
-    email,
-    number,
-    password,
-    confirmPassword,
-  }: TAuthCredentialsValidator) => {
-    mutate({ name, email,number, password, confirmPassword });
+      console.error("Error fetching search results:", error);
+    }
+    setIsLoading(false);
   };
 
-  // const { mutate: createUser } = api.auth.createUser.useMutation({
-  //   onSuccess: async ({ email, password }: TAuthCredentialsValidator) => {
-  //     await signIn('credentials', { email, password, callbackUrl: callbackUrl ?? '/' });
+  const handleOpenGmailBox = () => {
+    const gmailInboxURL = "https://mail.google.com/mail/u/0/";
+    window.open(gmailInboxURL, "_blank");
+  };
 
-  //     // Generate verification token (you should implement this function)
-  //     const verificationToken = generateVerificationToken();
+  useEffect(() => {
+    let timer: NodeJS.Timeout | undefined;
+    if (countdown > 0) {
+      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [countdown]);
 
-  //     // Construct verification URL
-  //     const verificationUrl = `http://localhost:3000/verify-email?token=${verificationToken}`;
-
-  //     // Send verification email
-  //     const templatePath = 'path/to/verification_email.hbs'; // Replace with your actual path
-     
-  //     const result = await sendMail({
-  //       to: email,
-  //       subject: 'Email Verification',
-  //       text: verificationUrl,
-  //       templatePath,
-  //     });
-
-  //     if (result.success) {
-  //       toast('Registration successful. Verification email sent.', {
-  //         position: 'top-center',
-  //         autoClose: 5000,
-  //         hideProgressBar: false,
-  //         closeOnClick: true,
-  //         pauseOnHover: true,
-  //         draggable: true,
-  //         progress: undefined,
-  //         theme: 'light',
-  //         transition: Bounce,
-  //       });
-  //     } else {
-  //       toast.error('Failed to send verification email', {
-  //         position: 'top-center',
-  //         autoClose: 5000,
-  //         hideProgressBar: false,
-  //         closeOnClick: true,
-  //         pauseOnHover: true,
-  //         draggable: true,
-  //         progress: undefined,
-  //         theme: 'light',
-  //         transition: Bounce,
-  //       });
-  //     }
-  //   },
-  //   onError: (error) => {
-  //     // Handle registration errors
-  //     console.error('Registration error:', error);
-  //     toast.error('Registration failed', {
-  //       position: 'top-center',
-  //       autoClose: 5000,
-  //       hideProgressBar: false,
-  //       closeOnClick: true,
-  //       pauseOnHover: true,
-  //       draggable: true,
-  //       progress: undefined,
-  //       theme: 'light',
-  //       transition: Bounce,
-  //     });
-  //   },
-  // });
-
-
-  // const onSubmit = (data: TAuthCredentialsValidator) => {
-  //   createUser(data);
-  // };
-
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
+  };
 
   return (
-    <>
-      <form
-        className="my-6 w-full space-y-6 md:w-[25%]"
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <div>
-          <label
-            htmlFor="name"
-            className="block text-sm font-medium leading-6 text-gray-900"
-          >
-            Name
-          </label>
-          <div className="mt-2">
-            <input
-              {...register("name")}
-              id="name"
-              name="name"
-              type="text"
-              autoComplete="name"
-              required
-              className="block w-full rounded-md border-0 p-1 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-            />
-          </div>
-          {errors?.name && (
-            <p className="text-sm text-red-500">{errors.name.message}</p>
-          )}
-        </div>
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium leading-6 text-gray-900"
-          >
-            Email address
-          </label>
-          <div className="mt-2">
-            <input
-              {...register("email")}
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              className="block w-full rounded-md border-0 p-1 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-            />
-          </div>
-          {errors?.email && (
-            <p className="text-sm text-red-500">{errors.email.message}</p>
-          )}
-        </div>
+          <div className="m-4 w-[600px] border p-4 shadow-lg">
+            <div className="flex flex-col gap-5 max-sm:w-full">
+              <div className="flex flex-col items-center gap-5">
+                <div className="flex w-fit items-center justify-center rounded-full bg-[#F0FDF4] p-4">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="48"
+                    height="48"
+                    viewBox="0 0 48 48"
+                    fill="none"
+                  >
+                    <rect
+                      x="6"
+                      y="10"
+                      width="36"
+                      height="28"
+                      rx="2.66667"
+                      stroke="#22C35E"
+                      strokeWidth="3.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M6 14L24 26L42 14"
+                      stroke="#22C35E"
+                      strokeWidth="3.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                <p className="text-center text-2xl font-medium text-primary">
+                  {formatTime(countdown)}
+                </p>
+                <p className="text-center text-[25px] font-medium text-primary">
+                  Verify your email to proceed
+                </p>
+                <p className="text-center">
+                  We just sent an email to the address{" "}
+                  <span className="font-bold text-primary">{email}</span>
+                  <br />
+                  Please check your email and click on the link provided <br />{" "}
+                  to verify your address
+                </p>
+              </div>
 
-        <div>
-          <label
-            htmlFor="phone"
-            className="block text-sm font-medium leading-6 text-gray-900"
-          >
-            Phone Number
-          </label>
-          <div className="mt-2">
-            <input
-              {...register('number')}
-              id="number"
-              name="number"
-              type="string"
-              autoComplete="number"
-              required
-              className="block w-full rounded-md border-0 p-1 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-            />
+              <div className="flex w-full justify-evenly gap-5 max-sm:w-full max-sm:flex-col">
+                <button
+                  className={`w-full ${isLoading ? "loading" : ""} rounded-md border border-gray-300 px-4 py-2`}
+                  type="submit"
+                  onClick={handleResendVerification}
+                  disabled={countdown > 0}
+                >
+                  {isLoading
+                    ? "Resending Email..."
+                    : "Resend Verification Email"}
+                </button>
+                <button
+                  className="w-full rounded-md bg-primary px-4 py-2 text-white"
+                  type="submit"
+                  onClick={handleOpenGmailBox}
+                >
+                  Go to My Inbox
+                </button>
+              </div>
+            </div>
           </div>
-
-          {errors?.number && (
-            <p className="text-sm text-red-500">Phone number is required</p>
-          )}
-        </div>
-
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium leading-6 text-gray-900"
-          >
-            Password
-          </label>
-          <div className="mt-2">
-            <input
-              {...register("password")}
-              id="password"
-              name="password"
-              type="password"
-              required
-              className="block w-full rounded-md border-0 p-1 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-            />
-          </div>
-          {errors?.password && (
-            <p className="text-sm text-red-500">{errors.password.message}</p>
-          )}
-        </div>
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium leading-6 text-gray-900"
-          >
-            Confirm Password
-          </label>
-          <div className="mt-2">
-            <input
-              {...register("confirmPassword")}
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              required
-              className="block w-full rounded-md border-0 p-1 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-            />
-          </div>
-          {errors?.confirmPassword && (
-            <p className="text-sm text-red-500">
-              {errors.confirmPassword.message}
-            </p>
-          )}
-          {errors?.root && (
-            <p className="text-sm text-red-500">{errors.root.message}</p>
-          )}
-        </div>
-
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center">
-            <input
-              id="remember-me"
-              name="remember-me"
-              type="checkbox"
-              className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-            />
-            <label
-              htmlFor="remember-me"
-              className="ml-3 block text-sm leading-6 text-gray-900"
-            >
-              Remember me
-            </label>
-          </div>
-
-          <div className="text-sm leading-6">
-            <a
-              href="#"
-              className="font-semibold text-indigo-600 hover:text-indigo-500"
-            >
-              Forgot password?
-            </a>
-          </div>
-        </div>
-
-        <div>
-          <Button
-            type="submit"
-            className="flex w-full justify-center rounded-md  px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >
-            Register
-          </Button>
-        </div>
-      </form>
-    </>
   );
 }
- 

@@ -14,6 +14,7 @@ const HeroSection = ({ images }: any) => {
     }, 3000);
     return () => clearInterval(interval);
   }, []);
+
   return (
     <>
       <motion.div className="mx-auto mb-4 mt-10 max-w-[1280px] sm:p-6">
@@ -29,7 +30,7 @@ const HeroSection = ({ images }: any) => {
         <div className=" ">
           <div className="flex w-fit flex-col items-center justify-end md:flex-row">
             <div className="relative flex w-[80%] flex-col gap-2 rounded-l-xl bg-blue-50 p-8 pb-12 sm:w-[40%]">
-              <h1 className="mb-4 text-4xl font-bold ">
+              <h1 className="mb-4 sm:text-4xl text-2xl font-bold ">
                 NITTTR — Comfortable accommodations for visitors
               </h1>
               <p className="mb-8 border-l-2 border-black pl-2 text-gray-600">
@@ -38,9 +39,9 @@ const HeroSection = ({ images }: any) => {
                 convenient location on campus. Ideal for professionals and
                 guests attending training and events.
               </p>
-              <div className="z-10 ml-0 sm:ml-10">
+              <div className="z-10">
                 <Suspense>
-                  <SearchForm />
+                  <SearchForm aboveClass="flex-col justify-start" belowClass="w-full" />
                 </Suspense>
               </div>
             </div>

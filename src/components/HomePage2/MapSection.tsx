@@ -19,7 +19,7 @@ const MapSection = () => {
           </p>
         </div>
         <div className="flex w-full flex-col items-start justify-center gap-x-4 sm:flex-row">
-          <div className="mb-8 flex w-1/2 items-center justify-center px-4">
+          <div className="mb-8 flex sm:w-1/2 w-full items-center justify-center px-4">
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3666.118440497404!2d77.39142980000001!3d23.238776700000003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x397c42bac1af5c0b%3A0xa5aa6a3443eeba1b!2sSaran%20Guest%20House%2C%20Science%20Center%20Rd%2C%20NITTTR%20Campus%2C%20Shymala%20Hills%2C%20Bhopal%2C%20Madhya%20Pradesh%20462002!5e0!3m2!1sen!2sin!4v1718854769937!5m2!1sen!2sin"
               width="100%"
@@ -28,7 +28,7 @@ const MapSection = () => {
               loading="lazy"
             ></iframe>
           </div>
-          <div className="flex  flex-col">
+          <div className="flex sm:pl-0 pl-4  flex-col">
             <div className="mb-4">
               <div className="flex items-center gap-1">
                 <RiContactsBook2Fill className="text-3xl" />

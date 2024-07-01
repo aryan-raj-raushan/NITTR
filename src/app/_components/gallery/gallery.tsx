@@ -34,7 +34,7 @@ export default function Gallery({
   }, []);
 
   return (
-    <div className="flex-gol flex flex-wrap gap-10 my-10 max-w-[1280px] mx-auto">
+    <div className="flex-gol flex flex-wrap gap-10 my-10 max-w-[1280px] mx-auto px-5">
       <div className="flex w-full items-center  justify-center">
         <Link
           className="rounded bg-primary p-3 text-white"

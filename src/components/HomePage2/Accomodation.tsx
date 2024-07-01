@@ -139,7 +139,7 @@ const Accomodation = ({ showModal, setShowModal }: any) => {
               &times;
             </button>
             <div className='pt-1'>
-              <SearchForm />
+              <SearchForm aboveClass="justify-center" belowClass="w-fit" />
             </div>
           </div>
         </div>

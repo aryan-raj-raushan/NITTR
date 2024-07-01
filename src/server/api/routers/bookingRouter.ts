@@ -4,6 +4,7 @@ import { z } from "zod";
 import nodemailer from "nodemailer";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { CreateBookingValidator } from "~/utils/validators/bookingValidators";
+import { startOfDay } from "date-fns";
 
 function getRoomCapacity(roomType: string): number {
   switch (roomType) {
@@ -31,7 +32,7 @@ const transporter: any = nodemailer.createTransport({
 export const bookingRouter = createTRPCRouter({
   createBooking: protectedProcedure
     .input(CreateBookingValidator)
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ ctx, input }: any) => {
       const {
         hostelName,
         nosRooms,
@@ -43,12 +44,14 @@ export const bookingRouter = createTRPCRouter({
         bookingDate,
         bookedFromDt,
         amount,
+        userId,
         paymentStatus,
         subtotal,
+        userName,
+        userEmail,
         roomType,
       } = input;
-      const userEmail = ctx.session.user.email;
-      const userName = ctx.session.user.name;
+
       const rooms = await ctx.db.roomDetails.findMany({
         where: { hostelName },
         take: nosRooms,
@@ -67,7 +70,6 @@ export const bookingRouter = createTRPCRouter({
         totalRoom = Math.ceil(totalGuests / 4);
       }
 
-      // Handle leftover guests scenario
       if (totalGuests % getRoomCapacity(roomType) !== 0) {
         totalRoom += 1;
       }
@@ -83,8 +85,10 @@ export const bookingRouter = createTRPCRouter({
           bookedRoom: roomId,
           bookedBed: guestIds?.length,
           bookPaymentId: "",
-          guestsList: guestIds.map((g) => g),
-          userId: ctx.session.user.id,
+          guestsList: guestIds.map((g: any) => g),
+          userId: userId!,
+          userName,
+          userEmail,
           amount,
           roomType: roomType,
           totalRoom: totalRoom,
@@ -96,7 +100,7 @@ export const bookingRouter = createTRPCRouter({
       if (rooms.length === nosRooms) {
         await ctx.db.roomDetails.updateMany({
           where: {
-            id: { in: rooms.map((r) => r.id) },
+            id: { in: rooms.map((r: any) => r.id) },
           },
           data: {
             bookingDetailsId: bookingDetails.id,
@@ -121,12 +125,12 @@ export const bookingRouter = createTRPCRouter({
           },
           data: {
             guests: {
-              set: guestIds.map((id) => ({ id })),
+              set: guestIds.map((id: any) => ({ id })),
             },
           },
         });
       }
-      return { bookingDetails: { ...bookingDetails, userEmail, userName } };
+      return { bookingDetails: { ...bookingDetails } };
     }),
 
   getAllBookings: protectedProcedure
@@ -136,7 +140,7 @@ export const bookingRouter = createTRPCRouter({
         month: z.number().optional(),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .query(async ({ ctx, input }: any) => {
       let bookings;
       if (ctx.session.user.role !== "ADMIN") {
         bookings = await ctx.db.bookingDetails.findMany({
@@ -159,16 +163,36 @@ export const bookingRouter = createTRPCRouter({
           },
         });
       }
-      if (input.month) {
-        bookings = bookings.filter(
-          (b) => b.bookingDate.getMonth() === input.month,
-        );
-      }
+
       return {
-        bookings: bookings.map((booking) => ({
+        bookings: bookings.map((booking: any) => ({
           ...booking,
-          userEmail: booking.user.email, 
-          userName: booking.user.name,
+        })),
+      };
+    }),
+
+  getUserBookings: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }: any) => {
+      const { userId } = input;
+
+      let bookings = await ctx.db.bookingDetails.findMany({
+        where: {
+          userId: userId,
+        },
+        include: {
+          guests: true,
+          rooms: true,
+        },
+      });
+
+      return {
+        bookings: bookings.map((booking: any) => ({
+          ...booking,
         })),
       };
     }),
@@ -198,63 +222,149 @@ export const bookingRouter = createTRPCRouter({
       return {
         booking: {
           ...booking,
-          userEmail: booking.user.email,
-          userName: booking.user.name,
+          userEmail: booking?.userEmail ?? "N/A",
+          userName: booking?.userName ?? "N/A",
         },
       };
     }),
 
-  updateBookingById: protectedProcedure
-    .input(
-      z.object({ id: z.string(), bookingStatus: z.custom<BookingStatus>() }),
-    )
+    updateBookingById: protectedProcedure
+    .input(z.object({ id: z.string(), bookingStatus: z.custom<BookingStatus>() }))
     .mutation(async ({ ctx, input }) => {
       const { id, bookingStatus } = input;
-
-      // Update booking status
-      const booking = await ctx.db.bookingDetails.update({
-        where: {
-          id,
-        },
-        data: {
-          bookingStatus,
-        },
+  
+      // Fetch the booking details
+      const booking = await ctx.db.bookingDetails.findUnique({
+        where: { id },
         include: {
           user: true,
           guests: true,
         },
       });
-
-      if (bookingStatus === BookingStatus.CONFIRMED) {
-        console.log("email sent");
-        const userEmail = process.env.EMAIL_USER;
-        const recipientEmail = booking.user.email;
-        const roomId = booking?.bookedRoom;
-     
-        const updatedRoom = await ctx.db.roomDetails.update({
-          where: { id: roomId! },
-          data: {
-            totalBed: {
-              decrement: booking?.bookedBed!,
-            },
-            totalRoom: {
-              decrement: booking?.totalRoom!,
-            },
-          },
+  
+      if (!booking) {
+        throw new Error("Booking not found");
+      }
+  
+      const roomDetails = await ctx.db.roomDetails.findMany({
+        where: { hostelName: booking.hostelName },
+      });
+  
+      const confirmedBookings = await ctx.db.bookingDetails.findMany({
+        where: {
+          hostelName: booking.hostelName,
+          bookingStatus: BookingStatus.CONFIRMED,
+          id: { not: booking.id },
+        },
+      });
+  
+      const calculateAvailability = (
+        roomDetails: any[],
+        confirmedBookings: any[],
+        checkInDate: Date,
+        checkOutDate: Date
+      ) => {
+        return roomDetails.map((roomDetail) => {
+          let availableRooms = roomDetail.totalBed;
+  
+          confirmedBookings.forEach((confirmedBooking) => {
+            const bookedFrom = startOfDay(new Date(confirmedBooking.bookedFromDt));
+            const bookedTo = startOfDay(new Date(confirmedBooking.bookedToDt));
+            const desiredFrom = startOfDay(new Date(checkInDate));
+            const desiredTo = startOfDay(new Date(checkOutDate));
+  
+            if (desiredFrom < bookedTo && desiredTo > bookedFrom) {
+              if (confirmedBooking.roomType === roomDetail.roomType) {
+                availableRooms -= confirmedBooking.bookedBed;
+              }
+            }
+          });
+  
+          return {
+            roomType: roomDetail.roomType,
+            availableRooms: availableRooms,
+          };
         });
+      };
+  
+      const availability = calculateAvailability(
+        roomDetails,
+        confirmedBookings,
+        new Date(booking.bookedFromDt),
+        new Date(booking.bookedToDt)
+      );
+  
+      const requestedRoomType = roomDetails.find(
+        (roomDetail) => roomDetail.roomType === booking.roomType
+      );
+  
+      if (!requestedRoomType) {
+        throw new Error("Room type not found");
+      }
+  
+      const availableRoomsForRequestedType = availability.find(
+        (room) => room.roomType === requestedRoomType.roomType
+      )?.availableRooms;
+  
+      if (
+        availableRoomsForRequestedType === undefined ||
+        availableRoomsForRequestedType < booking?.bookedBed
+      ) {
+        throw new Error("Not enough available rooms for the requested booking");
+      }
+  
+      // Proceed with the update if the rooms are available
+      const updatedBooking = await ctx.db.bookingDetails.update({
+        where: { id },
+        data: { bookingStatus },
+        include: { user: true, guests: true },
+      });
+  
+      const sendEmail = async (subject: string, text: string) => {
+        const userEmail = process.env.EMAIL_USER;
+        const recipientEmail = booking.userEmail ?? "no-reply@example.com";
+  
         try {
           await transporter.sendMail({
             from: userEmail,
             to: recipientEmail,
-            subject: "Booking Confirmation",
-            text: `Your booking with ID ${booking.id} has been confirmed.`,
+            subject,
+            text,
           });
           console.log(`Email sent to ${recipientEmail}`);
         } catch (error) {
           console.error(`Failed to send email to ${recipientEmail}:`, error);
         }
+      };
+  
+      switch (bookingStatus) {
+        case BookingStatus.CHECKOUT:
+          await sendEmail(
+            "Checkout Confirmation",
+            `Your checkout for booking ID ${booking.id} has been confirmed. Thank you for staying with us!`
+          );
+          break;
+  
+        case BookingStatus.CONFIRMED:
+          await sendEmail(
+            "Booking Confirmation",
+            `Your booking with ID ${booking.id} has been confirmed.`
+          );
+          break;
+  
+        case BookingStatus.CANCELED:
+          await sendEmail(
+            "Booking Cancellation",
+            `Your booking with ID ${booking.id} has been canceled.`
+          );
+          break;
+  
+        default:
+          console.log("Unknown booking status");
       }
-
+  
       return { booking };
-    }),
+    })
 });
+
+

@@ -8,31 +8,33 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { UserPermissionRole } from "@prisma/client";
 import { db } from "~/server/db";
-import bcrypt from 'bcryptjs'; // Add bcrypt for password hashing
+// import bcrypt from 'bcryptjs'; // Add bcrypt for password hashing
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
-      id: string,
+      id: string;
       role?: UserPermissionRole;
+      number?: string; // Add number to the user session
     } & DefaultSession["user"];
   }
 
   interface User {
     role: UserPermissionRole;
+    number?: string; // Add number to the user object
   }
 }
 
 export const authOptions: NextAuthOptions = {
   pages: {
-    signIn: "/login",
-    signOut: "/",
+    signIn: '/login',
+    signOut: '/',
   },
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
   },
   adapter: PrismaAdapter(db),
-  secret: `${process.env.NEXTAUTH_SECRET}`,
+  secret: "e3cd8aace069fd2056eab19e930a8abb",
 
   providers: [
     GoogleProvider({
@@ -45,6 +47,7 @@ export const authOptions: NextAuthOptions = {
           name: profile.given_name,
           email: profile.email,
           role: UserPermissionRole.USER,
+          number: profile.number as string | undefined,
         };
       },
     }),
@@ -67,9 +70,10 @@ export const authOptions: NextAuthOptions = {
 
         return {
           id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
+          name: user?.name,
+          email: user?.email,
+          role: user?.role,
+          number: user?.number ?? undefined, // Ensure number is string | undefined
         };
       },
     }),
@@ -81,6 +85,7 @@ export const authOptions: NextAuthOptions = {
     },
     session: ({ session, token }) => {
       session.user.role = token.role as UserPermissionRole;
+      session.user.number = token.number as string; // Add number to the session user
       return {
         ...session,
         user: {
@@ -93,6 +98,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.role = user.role;
         token.id = user.id;
+        token.number = user.number; // Add number to the token
       }
       return token;
     },

@@ -45,7 +45,7 @@ enum TypeOrg {
   STATE_GOVERNMENT_OFFICIAL
   CENTRAL_AUTONOMOUS_ORGANISATION_OFFICIAL
   CHAIRMAN_AND_MEMBER_OF_BOARD_OF_GOVERNORS
-  NITTR_STAFFS_AND_EX_STAFFS
+  NITTTR_STAFFS_AND_EX_STAFFS
   PARTICIPANT_OF_SHORT_COURSE
   INDUCTION_PROGRAM_PARTICIPANTS
   MEETING_AND_CONFERENCE_UNDER_WORLD_BANK_AIDED_PROJECT
@@ -129,6 +129,7 @@ enum BookingStatus {
   CONFIRMED
   CANCELED
   EXPIRED
+  CHECKOUT
 }
 
 enum GuestHouse {
@@ -226,34 +227,11 @@ model PasswordResetToken {
 model GuestProfile {
   id                   String          @id @default(cuid()) @map("_id")
   name                 String
-  email                String
-  alternativeEmail     String
-  mobileNo             String
-  alternativeMobileNo  String
-  identity_card_type   IDCardType
-  id_card_no           String
-  fatherHusbandName    String
-  nationality          Nationality
-  religion             Religion
+  email                String?
+  mobileNo             String?
   typeOrg              TypeOrg
-  designation          String
-  orgName              String
-  orgEmail             String
-  orgPhone             String
-  orgWebsite           String
-  residentialCity      String
-  residentialDistt     String
-  residentialState     State
-  country              Country
-  orgAddress           String
-  physicallyChallenged Answer
   gender               Gender
-  category             Category
-  localAddress         String
-  permanentAddress     String
-  dob                  DateTime
   maritalStatus        MaritalStatus
-  remark               String
   updateBy             String          @default("Candidate")
   createdAt            DateTime        @default(now())
   updatedAt            DateTime        @updatedAt
@@ -267,7 +245,7 @@ model GuestProfile {
   @@map("guestProfiles")
 }
 
-model BookingDetails {
+ model BookingDetails {
   id            String         @id @default(cuid()) @map("_id")
   bookingStatus BookingStatus
   hostelName    GuestHouse
@@ -289,8 +267,10 @@ model BookingDetails {
   bookedRoom    String?
   guestsList    String[]
   paymentStatus String?
-  userId        String
-  user          User           @relation(fields: [userId], references: [id])
+  userName      String?
+  userEmail     String?
+  userId        String?
+  user          User?           @relation(fields: [userId], references: [id])
 
   @@map("bookingDetails")
 }
@@ -302,7 +282,7 @@ model RoomCharges {
   STATE_GOVERNMENT_OFFICIAL                             Int?
   CENTRAL_AUTONOMOUS_ORGANISATION_OFFICIAL              Int?
   CHAIRMAN_AND_MEMBER_OF_BOARD_OF_GOVERNORS             Int?
-  NITTR_STAFFS_AND_EX_STAFFS                            Int?
+  NITTTR_STAFFS_AND_EX_STAFFS                            Int?
   PARTICIPANT_OF_SHORT_COURSE                           Int?
   INDUCTION_PROGRAM_PARTICIPANTS                        Int?
   MEETING_AND_CONFERENCE_UNDER_WORLD_BANK_AIDED_PROJECT Int?

@@ -11,13 +11,13 @@ const Footer = () => {
           <div className="flex items-start gap-4">
             <Image
               src={logo}
-              alt={"NITTR"}
+              alt={"NITTTR"}
               width={500}
               height={500}
-              className="h-10 w-10 mt-2"
+              className="mt-2 h-10 w-10"
             />
             <div className="flex flex-col">
-              <h2 className="text-xl font-bold">NITTR</h2>
+              <h2 className="text-xl font-bold">NITTTR</h2>
               <p className="text-sm">
                 Experience comfort and freedom in our vibrant hostel. Whether
                 you're traveling solo or in a group, our welcoming environment

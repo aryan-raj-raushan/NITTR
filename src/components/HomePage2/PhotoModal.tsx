@@ -118,9 +118,8 @@ const PhotoModal = ({ modalOpen, setModalOpen }: any) => {
           </p>
         </div>
 
-        <div className="grid grid-cols-3 justify-center space-x-4 overflow-x-auto py-5">
+        <div className="grid grid-cols-3 justify-center space-x-4 overflow-x-auto py-5 sm:px-10 px-0">
           {Choices.map((item) => {
-            console.log(item, "saurabh item")
             return (
               <div
                 key={item.id}

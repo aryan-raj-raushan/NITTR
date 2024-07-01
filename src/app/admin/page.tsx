@@ -9,18 +9,15 @@ export default async function Page({
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
   const hostelName = searchParams?.hostel as GuestHouse;
-  
-  const { roomCharges } = await api.room.getAllRooms.mutate();
 
-  if (hostelName && roomCharges) {
+  if (hostelName) {
     let { bookings } = await api.booking.getAllBookings.query({ hostelName });
-    bookings = bookings.map((b) => {
+    bookings = bookings.map((b:any) => {
       return { ...b, hostelName: removeUnderscore(b.hostelName as GuestHouse) };
     });
     return (
       <AdminDashboardV2
         hostelName={hostelName}
-        roomCharges={roomCharges}
         key={Math.random()}
         bookings={bookings}
       ></AdminDashboardV2>
@@ -29,7 +26,6 @@ export default async function Page({
     const { bookings } = await api.booking.getAllBookings.query({});
     return (
       <AdminDashboardV2
-        roomCharges={roomCharges}
         hostelName={hostelName}
         key={Math.random()}
         bookings={bookings}

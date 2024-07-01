@@ -1,9 +1,5 @@
 'use client';
-import { Fragment, useEffect, useState } from 'react';
-import { Dialog, Popover, Tab, Transition } from '@headlessui/react';
-import Link from 'next/link';
-import { signIn, useSession } from 'next-auth/react';
-import { cn as classNames } from '~/lib/utils';
+import { signIn } from 'next-auth/react';
 
 const LoginWithGoogle = () => {
 

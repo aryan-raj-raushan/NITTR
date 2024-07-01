@@ -11,7 +11,7 @@ import { TooltipProvider } from "@radix-ui/react-tooltip";
 export default function AdminNav() {
   return (
     <TooltipProvider>
-      <aside className="fixed left-0 w-14 flex-col bg-transparent sm:flex">
+      <aside className="fixed right-2 lg:-right-full lg:left-0 w-14 flex-col bg-transparent sm:flex">
         <nav className="flex flex-col items-center gap-10 px-2 sm:py-5">
           <Tooltip>
             <TooltipTrigger asChild>

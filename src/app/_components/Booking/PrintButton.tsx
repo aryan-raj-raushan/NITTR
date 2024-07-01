@@ -104,7 +104,7 @@ const BookingPDF = ({ booking, session }: any) => {
                         </View>
                         <View style={styles.tableRow}>
                             <Text style={styles.tableCol}>Booked By</Text>
-                            <Text style={styles.tableCol}>{session?.user.name}</Text>
+                            <Text style={styles.tableCol}>{session?.name}</Text>
                         </View>
                         <View style={styles.tableRow}>
                             <Text style={styles.tableCol}>Contact Number</Text>

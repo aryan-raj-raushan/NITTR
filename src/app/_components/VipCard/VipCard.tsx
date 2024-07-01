@@ -18,7 +18,7 @@ const vipData = [{
 }]
 
 export default function VipCard() {
-  return <Card className="flex items-center gap-2 sm:w-full w-[70%] p-7  max-w-[1280px] mx-auto mt-10">
+  return <Card className="flex sm:flex-row flex-col items-center gap-2 sm:w-full w-[70%] p-7  max-w-[1280px] mx-auto mt-10 ">
     <div className="w-full text-sm col-span-3 md:col-span-1 flex flex-col justify-center items-center basis-1/2">
       <div className="text-primary font-bold text-2xl">ABOUT NITTTR</div>
       <p className="text-gray-700 font-medium" >National Institute of Technical Teachers' Training and Research, Bhopal is a unique premier institution, established in 1965 by Ministry of Education, Government of India for teacher training </p>

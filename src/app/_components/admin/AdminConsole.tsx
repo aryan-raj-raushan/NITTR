@@ -88,7 +88,7 @@ export default function AdminConsole({ bookings, hostelName }: { bookings: Tbook
                 <CardHeader>
                   <CardTitle>Recent Bookings</CardTitle>
                   <CardDescription>
-                    Total {bookings.length}
+                    Total {bookings.length} 
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="h-full">

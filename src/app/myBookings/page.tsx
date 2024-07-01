@@ -7,6 +7,6 @@ export default async function Page() {
   if (!!bookings.length) {
     return <MyBookings bookings={bookings}></MyBookings>
   }
-  return <NoBookingsCard></NoBookingsCard>
+  return <NoBookingsCard />
 }
 export const dynamic = "force-dynamic"

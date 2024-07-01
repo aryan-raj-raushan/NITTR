@@ -1,7 +1,6 @@
 import { Card } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
-import Backpack from "public/backpack-icon-flat-style-vector-20186178.jpg"
-import Image from "next/image";
+
 import Link from "next/link";
 
 export default function NoBookingsCard() {

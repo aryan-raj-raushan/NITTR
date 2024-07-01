@@ -1,5 +1,4 @@
 "use client";
-import { useSession } from "next-auth/react";
 import React from "react";
 import {
   Accordion,
@@ -7,7 +6,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
-import { Fragment, useState } from "react";
 import { Tab } from "@headlessui/react";
 import { classNames } from "~/lib/classNames";
 import Link from "next/link";
@@ -16,6 +14,7 @@ import { TbookingType } from "~/lib/utils";
 import { FaUser, FaBed } from "react-icons/fa";
 import { AcIcon, GeyserIcon } from "~/components/Assets";
 import Image from "next/image";
+import { useAppSelector } from "~/store";
 
 const roomFeatures = {
   EXECUTIVE_GUEST_HOUSE: {
@@ -60,7 +59,7 @@ export default function ProductHeroSlider({
   checkout: Date;
   bookingType: TbookingType;
 }) {
-  const { data: session } = useSession();
+  const isLogin = useAppSelector((state: any) => state.auth.authState);
 
   const hostelName = roomDetails.hostelName ?? "";
   const features = roomFeatures[hostelName as keyof typeof roomFeatures]?.features ?? [];
@@ -194,7 +193,7 @@ export default function ProductHeroSlider({
                 <div className="mt-10 flex">
                   <Link
                     href={
-                      session
+                      isLogin
                         ? `/checkout?id=${roomDetails.id}&checkin=${checkin}&checkout=${checkout}&type=${bookingType}`
                         : "/login"
                     }

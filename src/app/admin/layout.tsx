@@ -1,19 +1,22 @@
 "use client";
 import "~/styles/globals.css";
-
-import AdminNav from "../_components/admin/AdminNav";
-import { useSession } from "next-auth/react";
 import { Bounce, ToastContainer, toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useAppSelector } from "~/store";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession();
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const isLogin = useAppSelector((state) => state.auth.authState);
+  const { role } = useAppSelector((state) => state.auth);
   const router = useRouter();
 
   useEffect(() => {
-    if (status === "authenticated" && session.user.role !== "ADMIN") {
+    if (isLogin && role !== "ADMIN") {
       toast.error("Unauthorized access. Redirecting to home page...", {
         position: "top-center",
         autoClose: 5000,
@@ -27,25 +30,28 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       });
 
       setTimeout(() => {
-        if (session.user.role !== "ADMIN") {
+        if (role !== "ADMIN") {
           router.push("/");
         }
       }, 3000);
     }
-  }, [status, session, router]);
+  }, [isLogin, role, router]);
 
-  if (status === "loading") {
-    return <div>Loading...</div>; 
+  if (!isLogin) {
+    return (
+      <div className="flex h-[60vh] items-center justify-center">
+        Loading...
+      </div>
+    );
   }
 
-  if (status === "unauthenticated" || (status === "authenticated" && session.user.role !== "ADMIN")) {
+  if (!isLogin || (isLogin && role !== "ADMIN")) {
     return <ToastContainer />;
   }
 
   return (
     <div>
       <ToastContainer />
-    
       {children}
     </div>
   );

@@ -1,7 +1,6 @@
-"use client"
-
-import { ColumnDef } from "@tanstack/react-table"
-import { MoreHorizontal } from "lucide-react";
+"use client";
+import { ColumnDef } from "@tanstack/react-table";
+import { FaChevronDown } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,6 +11,12 @@ import {
 import { BookingStatus } from "@prisma/client";
 import { TbookingsValidator } from "~/utils/validators/bookingValidators";
 import { api } from "~/trpc/react";
+import { useState } from "react";
+
+const formatDate = (dateString: Date) => {
+  const options: any = { day: "numeric", month: "long", year: "numeric" };
+  return new Date(dateString).toLocaleDateString("en-GB", options);
+};
 
 export function columns(): ColumnDef<TbookingsValidator>[] {
   const utils = api.useUtils();
@@ -29,39 +34,42 @@ export function columns(): ColumnDef<TbookingsValidator>[] {
       header: "Booking Id",
     },
     {
-      accessorKey: "hostelName",
-      header: "Hostel Name",
-    },
-    {
-      accessorKey: "bookingDate",
-      header: "Booking Date",
+      accessorKey: "userName",
+      header: "Name",
     },
     {
       accessorKey: "userEmail",
       header: "User Email",
     },
     {
-      accessorKey: "userName",
-      header: "Name",
+      accessorKey: "hostelName",
+      header: "Hostel Name",
+      cell: ({ getValue }: any) => getValue().replace(/_/g, " "),
+    },
+    {
+      accessorKey: "bookingDate",
+      header: "Booking Date",
+      cell: ({ getValue }: any) => formatDate(getValue()),
     },
     {
       accessorKey: "bookedFromDt",
       header: "Check-in Date",
+      cell: ({ getValue }: any) => formatDate(getValue()),
     },
     {
       accessorKey: "bookingStatus",
       header: "Status",
-    },
-
-    {
-      id: "actions",
       cell: ({ row }) => {
+        const [isOpen, setIsOpen] = useState(false);
+        const bookingStatus:any = row.getValue("bookingStatus") === "UNCONFIRMED" ? "PENDING" : row.getValue("bookingStatus");
         return (
-          <DropdownMenu>
+          <DropdownMenu onOpenChange={(open) => setIsOpen(open)}>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
+              <Button variant="ghost" className="w-full text-left">
+                {bookingStatus}
+                <FaChevronDown
+                  className={`text-gray-500 ml-2 inline-block h-4 w-4 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+                />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -85,10 +93,20 @@ export function columns(): ColumnDef<TbookingsValidator>[] {
               >
                 Cancel
               </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  updateBookingStatusMutation.mutate({
+                    id: row.getValue("id"),
+                    bookingStatus: BookingStatus.CHECKOUT,
+                  });
+                }}
+              >
+                Checkout
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
       },
     },
   ];
-} 
+}

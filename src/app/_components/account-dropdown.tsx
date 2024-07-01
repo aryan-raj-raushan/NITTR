@@ -1,4 +1,4 @@
-import { Button } from "~/components/ui/button";
+'use client'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,58 +7,63 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { signOut, signIn } from "next-auth/react";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { UserPermissionRole } from "@prisma/client";
+import { useAppDispatch, useAppSelector } from "~/store";
+import { clearAuthState } from "~/store/authSlice";
+import { useRouter } from "next/navigation";
+
 export default function AccountDropdown() {
-  const { data: session } = useSession();
-  const user = session ? session.user : null;
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const { name, role } = useAppSelector((store: any) => store.auth);
+  const isLogin = useAppSelector((state: any) => state.auth.authState);
+
+  const signOut = () => {
+    dispatch(clearAuthState());
+    router.push("/");
+  };
+
+  const signIn = () => {
+    router.push("/login");
+  };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="">
         <div>
-          <div>
-            <img
-              width="30"
-              height="30"
-              src="https://img.icons8.com/ios-glyphs/30/user--v1.png"
-              alt="user--v1"
-            />
-          </div>
+          <img
+            width="30"
+            height="30"
+            src="https://img.icons8.com/ios-glyphs/30/user--v1.png"
+            alt="user--v1"
+          />
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuLabel>{user ? user.name : "My Account"}</DropdownMenuLabel>
+        <DropdownMenuLabel>{isLogin ? name : "My Account"}</DropdownMenuLabel>
         <DropdownMenuSeparator />
+        
+        {isLogin && (
+          <Link href="/profile">
+            <DropdownMenuItem>Profile</DropdownMenuItem>
+          </Link>
+        )}
+
         <Link href="/myBookings">
           <DropdownMenuItem>My bookings</DropdownMenuItem>
         </Link>
-        {user?.role == UserPermissionRole.ADMIN ? (
-          <Link href={"/admin"}>
+
+        {role === UserPermissionRole.ADMIN && (
+          <Link href="/admin">
             <DropdownMenuItem>Admin Dashboard</DropdownMenuItem>
           </Link>
-        ) : (
-          ""
         )}
 
-        {user ? (
-          <DropdownMenuItem
-            onClick={() => {
-              signOut();
-            }}
-          >
-            Logout
-          </DropdownMenuItem>
+        {isLogin ? (
+          <DropdownMenuItem onClick={signOut}>Logout</DropdownMenuItem>
         ) : (
-          <DropdownMenuItem
-            onClick={() => {
-              signIn();
-            }}
-          >
-            Login
-          </DropdownMenuItem>
+          <DropdownMenuItem onClick={signIn}>Login</DropdownMenuItem>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

@@ -10,7 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import { format } from "date-fns";
+import { addDays, format, isAfter } from "date-fns";
 import {
   Form,
   FormControl,
@@ -19,7 +19,6 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
 import { Calendar } from "~/components/ui/calendar";
 import {
@@ -31,9 +30,8 @@ import {
 } from "~/components/ui/select";
 import { GuestHouse } from "@prisma/client";
 import { api } from "~/trpc/react";
-import bannerImg from "public/banner.jpg";
-import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { CustomInput } from "~/components/ui/CustomInput";
 
 export const formSchema = z.object({
   location: z.string().min(2, { message: "Please Select a Value" }),
@@ -64,7 +62,17 @@ export const formSchema = z.object({
     .optional(),
 });
 
-function SearchForm() {
+interface SearchFormProps {
+  aboveClass?: string;
+  belowClass?: string;
+  guests?: any;
+}
+
+const SearchForm: React.FC<SearchFormProps> = ({
+  aboveClass,
+  belowClass,
+  guests,
+}) => {
   const [selectedGuestHouse, setSelectedGuestHouse] = useState<GuestHouse>();
   const utils = api.useContext();
   const router = useRouter();
@@ -73,36 +81,40 @@ function SearchForm() {
   const xcheckOut = searchParams.get("checkout");
   const xchildren = searchParams.get("group_children");
   const xAdults = searchParams.get("group_adults");
-  const xguests = { children: xchildren, adults: xAdults };
   const xlocation = searchParams.get("location");
-  const form = useForm<z.infer<typeof formSchema>>({
+  const initialGuestLength = guests ?? xAdults ?? "1";
+  const [guestLength, setGuestLength] = useState(initialGuestLength);
+
+  const today: Date = new Date(new Date().setHours(0, 0, 0, 0));
+  const initialFrom: Date = xcheckIn ? new Date(xcheckIn.toString()) : today;
+  const initialTo = xcheckOut
+    ? new Date(xcheckOut.toString())
+    : addDays(initialFrom, 1);
+
+  const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       location: xlocation ?? "",
       dates: {
-        from: xcheckIn ? new Date(xcheckIn?.toString()) : new Date(),
-        to: xcheckOut ? new Date(xcheckOut?.toString()) : new Date(),
+        from: initialFrom,
+        to: initialTo,
       },
-      adults: xAdults ?? "1",
+      adults: guestLength.toString(),
       children: xchildren ?? "0",
       rooms: "1",
       beds: "1",
     },
   });
+
+  useEffect(() => {
+    setGuestLength(guests ?? xAdults ?? "1");
+  }, [guests, xAdults]);
+
   const getRoomDetailsQuery = api.room.getRoomByDetails.useMutation();
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-
-    const checkin_monthday = values.dates.from.getDate().toString();
-    const checkin_month = (values.dates.from.getMonth() + 1).toString();
-    const checkin_year = values.dates.from.getFullYear().toString();
-    const checkout_monthday = values.dates.to.getDate().toString();
-    const checkout_month = (values.dates.to.getMonth() + 1).toString();
-    const checkout_year = values.dates.to.getFullYear().toString();
-
-
-    const checkin = values.dates.from;
-    const checkout = values.dates.to;
+    const checkin: Date = values.dates.from;
+    const checkout: Date = values.dates.to;
     let bookingType: "ROOM" | "BEDS";
 
     if (selectedGuestHouse == "EXECUTIVE_GUEST_HOUSE") {
@@ -114,8 +126,6 @@ function SearchForm() {
     getRoomDetailsQuery.mutate(
       {
         guestHouse: values.location as GuestHouse,
-        // bookedFrom: checkin,
-        // bookedTo: checkout,
         bookingType,
         quantity:
           selectedGuestHouse == GuestHouse.EXECUTIVE_GUEST_HOUSE
@@ -125,156 +135,183 @@ function SearchForm() {
       {
         onSuccess: async ({ roomDetails }) => {
           if (roomDetails) {
+            const value = guestLength ?? values.adults;
             const queryParameters = new URLSearchParams();
             queryParameters.set("checkin", checkin.toString());
             queryParameters.set("checkout", checkout.toString());
             queryParameters.set("type", bookingType.toString());
             queryParameters.set("location", values.location);
+            queryParameters.set("group_adults", value);
             router.push(`/search?${queryParameters.toString()}`);
-          } 
-          // else {
-          //   alert("rooms unavailable for the selected inputs");
-          // }
+          }
         },
       },
     );
     utils.room.getRoomsByGuestHouse.invalidate();
   }
 
+  const validateDateRange = (value: any) => {
+    if (!value.from || !value.to) {
+      return "Please select a range of at least one day";
+    }
+    if (!isAfter(value.to, value.from)) {
+      return "End date must be after start date";
+    }
+    return true;
+  };
+
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="relative flex w-full flex-col items-center justify-center space-x-0 space-y-4 rounded-lg text-black lg:mx-auto lg:max-w-6xl lg:flex-row lg:space-x-2 lg:space-y-0"
+        className={`relative flex w-full flex-col items-start gap-3 sm:flex-row sm:items-center ${aboveClass} `}
       >
-        <div className="grid w-full items-center gap-1.5 lg:max-w-sm">
-          <FormField
-            control={form.control}
-            name="location"
-            render={({ field }) => (
-              <FormItem
-                onChange={(v) => {
-                  //@ts-ignore
-                  setSelectedGuestHouse(v.target.value);
-                }}
-              >
-                <FormLabel className="flex font-extrabold">
-                  Location
-                  <BedDoubleIcon className="ml-2 h-4 w-4 text-black" />
-                </FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Guest House" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent className="w-full">
-                    {Object.keys(GuestHouse).map((g, index) => {
-                      return (
-                        <SelectItem
-                          key={g + index}
-                          value={g}
-                          className="w-full capitalize"
-                        >
-                          {g.split("_").join(" ")}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid w-full flex-1 items-center gap-1.5 lg:max-w-sm">
-          <FormField
-            control={form.control}
-            name="dates"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel className="font-extrabold">Dates</FormLabel>
-                <FormMessage />
-
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        id="date"
-                        name="dates"
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal lg:w-[300px]",
-                          !field.value.from && "text-muted-foreground",
-                        )}
-                      >
-                        <CalendarIcon className="mr-3 h-4 w-4 opacity-50" />
-                        {field.value?.from ? (
-                          field.value?.to ? (
-                            <>
-                              {format(field.value?.from, "LLL dd, y")} -{" "}
-                              {format(field.value?.to, "LLL dd, y")}
-                            </>
-                          ) : (
-                            format(field.value?.from, "LLL dd, y")
-                          )
-                        ) : (
-                          <span>Select your dates</span>
-                        )}
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      initialFocus
-                      mode="range"
-                      selected={field.value}
-                      defaultMonth={field.value.from}
-                      onSelect={field.onChange}
-                      numberOfMonths={2}
-                      disabled={(date) =>
-                        date < new Date(new Date().setHours(0, 0, 0, 0))
-                      }
-                    />
-                  </PopoverContent>
-                </Popover>
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="flex w-full items-center space-x-2">
-          <div className="tems-center  grid flex-1">
+        <div className="flex flex-col items-center gap-2 sm:flex-row ">
+          <div className="flex w-full items-center gap-1.5 lg:max-w-44">
             <FormField
               control={form.control}
-              name="adults"
+              name="location"
+              render={({ field }) => (
+                <FormItem
+                  onChange={(v: any) => {
+                    setSelectedGuestHouse(v.target.value as GuestHouse);
+                  }}
+                >
+                  <FormLabel className="ml-1 flex font-extrabold">
+                    Location
+                  </FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Guest House" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="w-fit">
+                      {Object.keys(GuestHouse).map((g, index) => {
+                        return (
+                          <SelectItem
+                            key={g + index}
+                            value={g}
+                            className="w-fit max-w-fit capitalize"
+                          >
+                            {g.split("_").join(" ")}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="flex w-fit items-center gap-1.5">
+            <FormField
+              control={form.control}
+              name="dates"
+              rules={{ validate: validateDateRange }}
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel className="font-extrabold">Guests</FormLabel>
-                  <FormMessage />
+                  <FormLabel className="font-extrabold">Dates</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="Adults" {...field} />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          id="date"
+                          name="dates"
+                          variant={"outline"}
+                          className={cn(
+                            "w-fit justify-start text-left font-normal",
+                            !field.value.from && "text-muted-foreground",
+                          )}
+                        >
+                          <CalendarIcon className="mr-3 h-4 w-4 opacity-50" />
+                          {field.value?.from ? (
+                            field.value?.to ? (
+                              <>
+                                {format(field.value?.from, "LLL dd, y")} -{" "}
+                                {format(field.value?.to, "LLL dd, y")}
+                              </>
+                            ) : (
+                              format(field.value?.from, "LLL dd, y")
+                            )
+                          ) : (
+                            <span>Select your dates</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          initialFocus
+                          mode="range"
+                          selected={field.value}
+                          defaultMonth={field.value.from}
+                          onSelect={(range: any) => {
+                            if (!range?.from) {
+                              field.onChange({
+                                from: initialFrom,
+                                to: initialTo,
+                              });
+                            } else if (!range.to) {
+                              field.onChange({
+                                from: range.from,
+                                to: addDays(range.from, 1),
+                              });
+                            } else {
+                              field.onChange(range);
+                            }
+                          }}
+                          numberOfMonths={2}
+                          disabled={(date) => date < today}
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </FormControl>
                 </FormItem>
               )}
             />
           </div>
-          <div className="mt-auto">
-            <Button
-              type="submit"
-              className="bg-blue-600 text-base hover:bg-red-400"
-            >
-              Search
-            </Button>
+          <div className="flex w-full items-center space-x-2">
+            <div className="tems-center  grid flex-1">
+              <FormField
+                control={form.control}
+                name="adults"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel className="font-extrabold">Adults</FormLabel>
+                    <FormControl>
+                      <CustomInput
+                        type="number"
+                        placeholder="Adults"
+                        guestLength={guestLength}
+                        setGuestLength={(value: any) => {
+                          field.onChange(value);
+                          setGuestLength(value);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
+        </div>
+
+        <div className={`mt-auto flex justify-end text-right ${belowClass}`}>
+          <Button
+            type="submit"
+            className="min-w-32 bg-primaryBackground text-base hover:bg-blue-600"
+          >
+            Search
+          </Button>
         </div>
       </form>
     </Form>
   );
-}
+};
 
 export default SearchForm;
