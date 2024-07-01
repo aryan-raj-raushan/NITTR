@@ -308,7 +308,7 @@ export const bookingRouter = createTRPCRouter({
   
       if (
         availableRoomsForRequestedType === undefined ||
-        availableRoomsForRequestedType < booking?.bookedBed
+        (booking.bookedBed !== null && availableRoomsForRequestedType < booking.bookedBed)
       ) {
         throw new Error("Not enough available rooms for the requested booking");
       }
