@@ -37,7 +37,7 @@ const roomFeatures = {
       " All the rooms are air conditioned and equipped with all modern amenities.",
     ],
   },
-  VISHVESHVARAYA_GUEST_HOUSE: {
+  VISVESVARAYA_GUEST_HOUSE: {
     description:
       "It has G +1 floor with 26 double bedded rooms with attached toilets and bathrooms. It has separate kitchen and dining facility. All the rooms are air conditioned and equipped with all modern amenities.",
     features: [

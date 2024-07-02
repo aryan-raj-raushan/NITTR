@@ -205,7 +205,7 @@
 //       data: {
 //         code: "EX100" + i,
 //         roomImg: viswesawraiyaguesthousePictures,
-//         hostelName: GuestHouse.VISHVESHVARAYA_GUEST_HOUSE,
+//         hostelName: GuestHouse.VISVESVARAYA_GUEST_HOUSE,
 //         value: "Deluxe Room",
 //         ghName: "Grand Hotel",
 //         roomType: RoomType.FOUR_BED, // Assuming DELUXE is a valid enum value for RoomType
@@ -249,7 +249,7 @@
 //       CENTRAL_GOVT: 1000,
 
 //     }, {
-//       hostelName: "VISHVESHVARAYA_GUEST_HOUSE",
+//       hostelName: "VISVESVARAYA_GUEST_HOUSE",
 //       STATE_GOVT: 300,
 //       OTHER: 400,
 //       PRIVATE: 2000,

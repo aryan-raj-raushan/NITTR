@@ -33,21 +33,24 @@ const Choices = [
     id: 1,
     src: "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/_DSC0346+(2).JPG",
     title: "Saran Guest House",
-    description: "A cozy and well-equipped guest house offering a comfortable stay.",
+    description:
+      "A cozy and well-equipped guest house offering a comfortable stay.",
     images: saranRoomPictures,
   },
   {
     id: 2,
     src: "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/fwdviswesawraiyaguesthouse/_DSC0140.JPG",
-    title: "Vishveshvaraya Guest House",
-    description: "Elegant guest house with modern amenities for a pleasant experience.",
+    title: "Visvesvaraya Guest House",
+    description:
+      "Elegant guest house with modern amenities for a pleasant experience.",
     images: viswesawraiyaguesthousePictures,
   },
   {
     id: 3,
     src: "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/fwdexecutivehostelphotograph/DSC_1095.JPG",
     title: "Executive Guest House",
-    description: "Luxurious guest house providing top-notch facilities and service.",
+    description:
+      "Luxurious guest house providing top-notch facilities and service.",
     images: executeRoomPictures,
   },
 ];

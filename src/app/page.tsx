@@ -65,8 +65,8 @@ const Choices = [
   {
     id: 2,
     src: "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/fwdviswesawraiyaguesthouse/_DSC0140.JPG",
-    title: "Vishveshvaraya Guest House",
-    location: "vishveshvaraya",
+    title: "Visvesvaraya Guest House",
+    location: "visvesvaraya",
     description: "",
   },
   {

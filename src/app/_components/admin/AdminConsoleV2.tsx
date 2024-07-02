@@ -281,8 +281,8 @@ export default function AdminDashboardV2({
       name: "Saran Guest House",
     },
     {
-      value: GuestHouse.VISHVESHVARAYA_GUEST_HOUSE,
-      name: "Vishveshvaraya Guest House",
+      value: GuestHouse.VISVESVARAYA_GUEST_HOUSE,
+      name: "Visvesvaraya Guest House",
     },
     {
       value: GuestHouse.EXECUTIVE_GUEST_HOUSE,
@@ -326,13 +326,12 @@ export default function AdminDashboardV2({
   return (
     <TooltipProvider>
       <div className="mx-auto flex min-h-screen w-full max-w-[1280px] flex-col bg-muted/40">
-        <div className="flex flex-col sm:gap-4 sm:py-4 px-2">
-          <main className="flex sm:flex-row flex-col gap-4">
-            
-            <div className="flex sm:w-4/6 w-5/6 flex-col gap-4">
-            <AdminNav />
-              <div className="flex sm:flex-row flex-col gap-4 ">
-                <Card className="sm:w-1/3 w-full">
+        <div className="flex flex-col px-2 sm:gap-4 sm:py-4">
+          <main className="flex flex-col gap-4 sm:flex-row">
+            <div className="flex w-5/6 flex-col gap-4 sm:w-4/6">
+              <AdminNav />
+              <div className="flex flex-col gap-4 sm:flex-row ">
+                <Card className="w-full sm:w-1/3">
                   <CardHeader className="">
                     <CardTitle>Create Booking</CardTitle>
                     <CardDescription className="max-w-lg text-balance leading-relaxed">
@@ -347,7 +346,7 @@ export default function AdminDashboardV2({
                     </Button>
                   </CardFooter>
                 </Card>
-                <Card className="sm:w-1/3 w-full">
+                <Card className="w-full sm:w-1/3">
                   <CardHeader>
                     <CardTitle>Manage Rooms</CardTitle>
                     <CardDescription className="max-w-lg text-balance leading-relaxed">
@@ -362,7 +361,7 @@ export default function AdminDashboardV2({
                     </Button>
                   </CardFooter>
                 </Card>
-                <Card className="sm:w-1/3 w-full">
+                <Card className="w-full sm:w-1/3">
                   <CardHeader className="pb-2">
                     <CardDescription>
                       Confirmed Bookings :{" "}
@@ -404,7 +403,7 @@ export default function AdminDashboardV2({
                 </Card>
               </div>
               <Tabs defaultValue={hostelName ?? "all"}>
-                <div className="flex sm:flex-row flex-col sm:items-center items-start sm:gap-0 gap-2">
+                <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-0">
                   <TabsList>
                     <TabsTrigger
                       onClick={() => {
@@ -428,13 +427,13 @@ export default function AdminDashboardV2({
                     <TabsTrigger
                       onClick={() => {
                         router.push(
-                          `/admin?hostel=${GuestHouse.VISHVESHVARAYA_GUEST_HOUSE}`,
+                          `/admin?hostel=${GuestHouse.VISVESVARAYA_GUEST_HOUSE}`,
                           { scroll: false },
                         );
                       }}
-                      value={GuestHouse.VISHVESHVARAYA_GUEST_HOUSE}
+                      value={GuestHouse.VISVESVARAYA_GUEST_HOUSE}
                     >
-                      Vishveshvaraya
+                      Visvesvaraya
                     </TabsTrigger>
                     <TabsTrigger
                       onClick={() => {
@@ -580,11 +579,11 @@ export default function AdminDashboardV2({
                 ))}
               </Tabs>
             </div>
-            <div className="sm:w-2/6 w-5/6">
+            <div className="w-5/6 sm:w-2/6">
               <Card className="w-fit ">
                 <CardHeader className="flex flex-row items-start bg-muted/50">
                   <div className="grid gap-0.5">
-                    <CardTitle className="group flex items-center gap-2 sm:text-lg text-base">
+                    <CardTitle className="group flex items-center gap-2 text-base sm:text-lg">
                       Booking Id - {selectedBooking.id}
                     </CardTitle>
                     <CardDescription>

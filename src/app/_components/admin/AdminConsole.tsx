@@ -60,39 +60,67 @@ export default function AdminConsole({ bookings, hostelName }: { bookings: Tbook
   const router = useRouter();
   return (
     <ScrollArea className="h-full">
-      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
         <div className="flex items-center justify-between space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">
-            Admin Dashboard
-          </h2>
-          <div className="hidden md:flex items-center space-x-2">
-            <Button><Link href={"/admin/bookings/create"} >Create Booking</Link></Button>
+          <h2 className="text-3xl font-bold tracking-tight">Admin Dashboard</h2>
+          <div className="hidden items-center space-x-2 md:flex">
+            <Button>
+              <Link href={"/admin/bookings/create"}>Create Booking</Link>
+            </Button>
           </div>
         </div>
         <Tabs defaultValue={hostelName ?? "overview"} className="space-y-4">
           <TabsList>
-            <TabsTrigger onClick={() => { router.push(`/admin`) }} value="overview">Overview</TabsTrigger>
-            <TabsTrigger onClick={() => { router.push(`/admin?hostel=${GuestHouse.SARAN_GUEST_HOUSE}`) }} value={GuestHouse.SARAN_GUEST_HOUSE} >
+            <TabsTrigger
+              onClick={() => {
+                router.push(`/admin`);
+              }}
+              value="overview"
+            >
+              Overview
+            </TabsTrigger>
+            <TabsTrigger
+              onClick={() => {
+                router.push(`/admin?hostel=${GuestHouse.SARAN_GUEST_HOUSE}`);
+              }}
+              value={GuestHouse.SARAN_GUEST_HOUSE}
+            >
               Saran
             </TabsTrigger>
-            <TabsTrigger onClick={() => { router.push(`/admin?hostel=${GuestHouse.VISHVESHVARAYA_GUEST_HOUSE}`) }} value={GuestHouse.VISHVESHVARAYA_GUEST_HOUSE} >
-              Vishveshvaraya
+            <TabsTrigger
+              onClick={() => {
+                router.push(
+                  `/admin?hostel=${GuestHouse.VISVESVARAYA_GUEST_HOUSE}`,
+                );
+              }}
+              value={GuestHouse.VISVESVARAYA_GUEST_HOUSE}
+            >
+              Visvesvaraya
             </TabsTrigger>
-            <TabsTrigger onClick={() => { router.push(`/admin?hostel=${GuestHouse.EXECUTIVE_GUEST_HOUSE}`) }} value={GuestHouse.EXECUTIVE_GUEST_HOUSE} >
+            <TabsTrigger
+              onClick={() => {
+                router.push(
+                  `/admin?hostel=${GuestHouse.EXECUTIVE_GUEST_HOUSE}`,
+                );
+              }}
+              value={GuestHouse.EXECUTIVE_GUEST_HOUSE}
+            >
               Executive
             </TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="space-y-4">
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-7">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7">
               <Card className="col-span-4 md:col-span-3">
                 <CardHeader>
                   <CardTitle>Recent Bookings</CardTitle>
-                  <CardDescription>
-                    Total {bookings.length} 
-                  </CardDescription>
+                  <CardDescription>Total {bookings.length}</CardDescription>
                 </CardHeader>
                 <CardContent className="h-full">
-                  <RecentBookings selectedBooking={selectedBooking} setSelectedBooking={setSelectedBooking} bookings={bookings} />
+                  <RecentBookings
+                    selectedBooking={selectedBooking}
+                    setSelectedBooking={setSelectedBooking}
+                    bookings={bookings}
+                  />
                 </CardContent>
               </Card>
 
@@ -101,36 +129,53 @@ export default function AdminConsole({ bookings, hostelName }: { bookings: Tbook
                   <CardTitle>Overview</CardTitle>
                 </CardHeader>
                 <CardContent className="pl-2">
-                  <pre className="mt-2 w-full rounded-md bg-slate-950 p-4 overflow-auto">
-                    {!!bookings.length ?
-                      <code className="text-white text-xs md:text-sm">
+                  <pre className="mt-2 w-full overflow-auto rounded-md bg-slate-950 p-4">
+                    {!!bookings.length ? (
+                      <code className="text-xs text-white md:text-sm">
                         {Object.keys(selectedBooking ?? {}).map((key) => {
-                          const value = selectedBooking![key as keyof typeof selectedBooking];
-                          const formattedValue = typeof value === 'object' && value !== null
-                            ? `\n${formatObject(value)}`
-                            : value
-                          return key != "guests" && key != "rooms" && <div key={key}>{`${key} - ${formattedValue}`}</div>;
+                          const value =
+                            selectedBooking![
+                              key as keyof typeof selectedBooking
+                            ];
+                          const formattedValue =
+                            typeof value === "object" && value !== null
+                              ? `\n${formatObject(value)}`
+                              : value;
+                          return (
+                            key != "guests" &&
+                            key != "rooms" && (
+                              <div
+                                key={key}
+                              >{`${key} - ${formattedValue}`}</div>
+                            )
+                          );
                         })}
-                      </code> :
+                      </code>
+                    ) : (
                       <code></code>
-                    }
+                    )}
                   </pre>
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
 
-          <TabsContent value={GuestHouse.SARAN_GUEST_HOUSE} className="space-y-4">
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-7">
+          <TabsContent
+            value={GuestHouse.SARAN_GUEST_HOUSE}
+            className="space-y-4"
+          >
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7">
               <Card className="col-span-4 md:col-span-3">
                 <CardHeader>
                   <CardTitle>Saran Bookings</CardTitle>
-                  <CardDescription>
-                    Total {bookings.length}
-                  </CardDescription>
+                  <CardDescription>Total {bookings.length}</CardDescription>
                 </CardHeader>
                 <CardContent className="h-full">
-                  <RecentBookings selectedBooking={selectedBooking} setSelectedBooking={setSelectedBooking} bookings={bookings} />
+                  <RecentBookings
+                    selectedBooking={selectedBooking}
+                    setSelectedBooking={setSelectedBooking}
+                    bookings={bookings}
+                  />
                 </CardContent>
               </Card>
 
@@ -139,36 +184,53 @@ export default function AdminConsole({ bookings, hostelName }: { bookings: Tbook
                   <CardTitle>Overview</CardTitle>
                 </CardHeader>
                 <CardContent className="pl-2">
-                  <pre className="mt-2 w-full rounded-md bg-slate-950 p-4 overflow-auto">
-                    {!!bookings.length ?
-                      <code className="text-white text-xs md:text-sm">
+                  <pre className="mt-2 w-full overflow-auto rounded-md bg-slate-950 p-4">
+                    {!!bookings.length ? (
+                      <code className="text-xs text-white md:text-sm">
                         {Object.keys(selectedBooking ?? {}).map((key) => {
-                          const value = selectedBooking![key as keyof typeof selectedBooking];
-                          const formattedValue = typeof value === 'object' && value !== null
-                            ? `\n${formatObject(value)}`
-                            : value
-                          return key != "guests" && key != "rooms" && <div key={key}>{`${key} - ${formattedValue}`}</div>;
+                          const value =
+                            selectedBooking![
+                              key as keyof typeof selectedBooking
+                            ];
+                          const formattedValue =
+                            typeof value === "object" && value !== null
+                              ? `\n${formatObject(value)}`
+                              : value;
+                          return (
+                            key != "guests" &&
+                            key != "rooms" && (
+                              <div
+                                key={key}
+                              >{`${key} - ${formattedValue}`}</div>
+                            )
+                          );
                         })}
-                      </code> :
+                      </code>
+                    ) : (
                       <code></code>
-                    }
+                    )}
                   </pre>
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
 
-          <TabsContent value={GuestHouse.VISHVESHVARAYA_GUEST_HOUSE} className="space-y-4">
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-7">
+          <TabsContent
+            value={GuestHouse.VISVESVARAYA_GUEST_HOUSE}
+            className="space-y-4"
+          >
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7">
               <Card className="col-span-4 md:col-span-3">
                 <CardHeader>
-                  <CardTitle>Vishveshvaraya</CardTitle>
-                  <CardDescription>
-                    Total {bookings.length}
-                  </CardDescription>
+                  <CardTitle>Visvesvaraya</CardTitle>
+                  <CardDescription>Total {bookings.length}</CardDescription>
                 </CardHeader>
                 <CardContent className="h-full">
-                  <RecentBookings selectedBooking={selectedBooking} setSelectedBooking={setSelectedBooking} bookings={bookings} />
+                  <RecentBookings
+                    selectedBooking={selectedBooking}
+                    setSelectedBooking={setSelectedBooking}
+                    bookings={bookings}
+                  />
                 </CardContent>
               </Card>
 
@@ -177,37 +239,53 @@ export default function AdminConsole({ bookings, hostelName }: { bookings: Tbook
                   <CardTitle>Overview</CardTitle>
                 </CardHeader>
                 <CardContent className="pl-2">
-                  <pre className="mt-2 w-full rounded-md bg-slate-950 p-4 overflow-auto">
-                    {!!bookings.length ?
-                      <code className="text-white text-xs md:text-sm">
+                  <pre className="mt-2 w-full overflow-auto rounded-md bg-slate-950 p-4">
+                    {!!bookings.length ? (
+                      <code className="text-xs text-white md:text-sm">
                         {Object.keys(selectedBooking ?? {}).map((key) => {
-                          const value = selectedBooking![key as keyof typeof selectedBooking];
-                          const formattedValue = typeof value === 'object' && value !== null
-                            ? `\n${formatObject(value)}`
-                            : value
-                          return key != "guests" && key != "rooms" && <div key={key}>{`${key} - ${formattedValue}`}</div>;
+                          const value =
+                            selectedBooking![
+                              key as keyof typeof selectedBooking
+                            ];
+                          const formattedValue =
+                            typeof value === "object" && value !== null
+                              ? `\n${formatObject(value)}`
+                              : value;
+                          return (
+                            key != "guests" &&
+                            key != "rooms" && (
+                              <div
+                                key={key}
+                              >{`${key} - ${formattedValue}`}</div>
+                            )
+                          );
                         })}
-                      </code> :
+                      </code>
+                    ) : (
                       <code></code>
-                    }
+                    )}
                   </pre>
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
 
-
-          <TabsContent value={GuestHouse.EXECUTIVE_GUEST_HOUSE} className="space-y-4">
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-7">
+          <TabsContent
+            value={GuestHouse.EXECUTIVE_GUEST_HOUSE}
+            className="space-y-4"
+          >
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7">
               <Card className="col-span-4 md:col-span-3">
                 <CardHeader>
                   <CardTitle>Executive</CardTitle>
-                  <CardDescription>
-                    Total {bookings.length}
-                  </CardDescription>
+                  <CardDescription>Total {bookings.length}</CardDescription>
                 </CardHeader>
                 <CardContent className="h-full">
-                  <RecentBookings selectedBooking={selectedBooking} setSelectedBooking={setSelectedBooking} bookings={bookings} />
+                  <RecentBookings
+                    selectedBooking={selectedBooking}
+                    setSelectedBooking={setSelectedBooking}
+                    bookings={bookings}
+                  />
                 </CardContent>
               </Card>
 
@@ -216,19 +294,31 @@ export default function AdminConsole({ bookings, hostelName }: { bookings: Tbook
                   <CardTitle>Overview</CardTitle>
                 </CardHeader>
                 <CardContent className="pl-2">
-                  <pre className="mt-2 w-full rounded-md bg-slate-950 p-4 overflow-auto">
-                    {!!bookings.length ?
-                      <code className="text-white text-xs md:text-sm">
+                  <pre className="mt-2 w-full overflow-auto rounded-md bg-slate-950 p-4">
+                    {!!bookings.length ? (
+                      <code className="text-xs text-white md:text-sm">
                         {Object.keys(selectedBooking ?? {}).map((key) => {
-                          const value = selectedBooking![key as keyof typeof selectedBooking];
-                          const formattedValue = typeof value === 'object' && value !== null
-                            ? `\n${formatObject(value)}`
-                            : value
-                          return key != "guests" && key != "rooms" && <div key={key}>{`${key} - ${formattedValue}`}</div>;
+                          const value =
+                            selectedBooking![
+                              key as keyof typeof selectedBooking
+                            ];
+                          const formattedValue =
+                            typeof value === "object" && value !== null
+                              ? `\n${formatObject(value)}`
+                              : value;
+                          return (
+                            key != "guests" &&
+                            key != "rooms" && (
+                              <div
+                                key={key}
+                              >{`${key} - ${formattedValue}`}</div>
+                            )
+                          );
                         })}
-                      </code> :
+                      </code>
+                    ) : (
                       <code></code>
-                    }
+                    )}
                   </pre>
                 </CardContent>
               </Card>

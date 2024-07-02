@@ -27,14 +27,14 @@ const viswesawraiyaguesthousePictures = [
 export default function Gallery({
   location,
 }: {
-  location: "executive" | "saran" | "vishveshvaraya";
+  location: "executive" | "saran" | "visvesvaraya";
 }) {
   useEffect(() => {
     document.getElementById(location)?.scrollIntoView();
   }, []);
 
   return (
-    <div className="flex-gol flex flex-wrap gap-10 my-10 max-w-[1280px] mx-auto px-5">
+    <div className="flex-gol mx-auto my-10 flex max-w-[1280px] flex-wrap gap-10 px-5">
       <div className="flex w-full items-center  justify-center">
         <Link
           className="rounded bg-primary p-3 text-white"
@@ -69,8 +69,8 @@ export default function Gallery({
       </div>
 
       <div>
-        <div id="vishveshvaraya" className="text-center text-2xl font-bold">
-          Vishveshvaraya
+        <div id="visvesvaraya" className="text-center text-2xl font-bold">
+          Visvesvaraya
         </div>
         <div className="grid h-full w-full  grid-cols-1 items-center justify-center gap-5 md:grid-cols-4">
           {viswesawraiyaguesthousePictures.map((img, index) => {
@@ -79,8 +79,8 @@ export default function Gallery({
         </div>
       </div>
       <div className="">
-      <StreetView />
-    </div>
+        <StreetView />
+      </div>
     </div>
   );
 }

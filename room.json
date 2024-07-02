@@ -138,18 +138,18 @@
         "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0137.JPG",
         "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0140.JPG"
       ],
-      "hostelName": "VISHVESHVARAYA_GUEST_HOUSE",
+      "hostelName": "VISVESVARAYA_GUEST_HOUSE",
       "floor": "FIRST_FLOOR",
       "ac": "YES",
       "geaser": "YES",
       "airCooled": "NO",
       "remark": "Experience comfort and convenience in our single rooms at NITTTR Bhopal. Perfect for solo travelers or individuals seeking privacy. Explore our affordable accommodation options today!",
       "roomTarrif": "EXECTIVE_3500",
-      "price":{
-          "CENTRAL_GOVT": "",
-          "PRIVATE": "",
-          "STATE_GOVT": "",
-          "OTHER": ""
+      "price": {
+        "CENTRAL_GOVT": "",
+        "PRIVATE": "",
+        "STATE_GOVT": "",
+        "OTHER": ""
       },
       "bookingStatus": "EXPIRED",
       "cleaningStatus": "READY",

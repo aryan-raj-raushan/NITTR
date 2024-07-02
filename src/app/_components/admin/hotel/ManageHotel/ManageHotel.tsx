@@ -41,8 +41,8 @@ const ManageHotel = ({ roomDetails }: any) => {
       name: "SARAN GUEST HOUSE",
     },
     {
-      value: GuestHouse.VISHVESHVARAYA_GUEST_HOUSE,
-      name: "VISHVESHVARAYA GUEST HOUSE",
+      value: GuestHouse.VISVESVARAYA_GUEST_HOUSE,
+      name: "VISVESVARAYA GUEST HOUSE",
     },
     {
       value: GuestHouse.EXECUTIVE_GUEST_HOUSE,
