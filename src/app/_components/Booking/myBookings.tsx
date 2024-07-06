@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import SingleBookingsCard from "./singleBookingCard";
 import { emptyBooking } from "~/utils/validators/bookingValidators";
 // @ts-ignore
-import { BookingDetails, BookingStatus } from "@prisma/client";
+import { BookingDetails, BookingStatus, GuestHouse } from "@prisma/client";
 
 export default function MyBookings({ bookings }: any) {
   const [initialBookings, setInitialBookings] = useState<BookingDetails[]>([]);
@@ -91,7 +91,7 @@ export default function MyBookings({ bookings }: any) {
                     </CardHeader>
                     <CardContent className="my-4">
                       <RecentBookings
-                        selectedBooking={selectedBooking}
+                        selectedBooking={selectedBooking ?? emptyBooking}
                         setSelectedBooking={setSelectedBooking}
                         bookings={filteredBookings}
                       />
@@ -125,7 +125,7 @@ export default function MyBookings({ bookings }: any) {
                               Booking Date :{" "}
                             </span>
                             <span className="value-style sm:text-base text-sm ">
-                              {formatDate(selectedBooking?.bookingDate)}
+                              {formatDate(selectedBooking?.bookingDate.toString())}
                             </span>
                           </div>
                           <div>
@@ -160,25 +160,25 @@ export default function MyBookings({ bookings }: any) {
                             </span>
                             <div className="value-style w-full rounded-md bg-gray-200 p-2 px-4 text-lg">
                               {selectedBooking?.rooms.map(
-                                (guest: any, index: any) => (
+                                (room: any, index: any) => (
                                   <div
                                     key={index}
                                     className="flex flex-col justify-between gap-2"
                                   >
                                     <span className="value-style">
-                                      AC : {guest.ac}
+                                      AC : {room.ac ? "Yes" : "No"}
                                     </span>
                                     <span className="value-style">
-                                      Cleaning Status : {guest.cleaningStatus}
+                                      Cleaning Status : {room.cleaningStatus}
                                     </span>
                                     <span className="value-style">
-                                      Geaser : {guest.geaser}
+                                      Geaser : {room.geaser ? "Yes" : "No"}
                                     </span>
                                     <span className="value-style">
-                                      Floor : {guest.floor.replace(/_/g, " ")}
+                                      Floor : {room.floor.replace(/_/g, " ")}
                                     </span>
                                     <span className="value-style">
-                                      Room Type : {guest.roomType.replace(/_/g, " ")}
+                                      Room Type : {room.roomType.replace(/_/g, " ")}
                                     </span>
                                   </div>
                                 ),
