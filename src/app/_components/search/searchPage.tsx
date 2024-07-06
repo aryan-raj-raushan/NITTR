@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { formatRangeDate } from "~/utils";
 import { useSearchParams } from "next/navigation";
+// @ts-ignore
 import { GuestHouse } from "@prisma/client";
 import { api } from "~/trpc/react";
 import AppPlaceCard from "../PlaceCard";
@@ -117,8 +118,8 @@ const SearchPage = ({ bookings }: any) => {
       ) : (
         <div className="mx-auto flex min-h-screen  max-w-[1280px] flex-col px-5">
           <main className="flex flex-col ">
-            <div className="pt-10 ">
-              <SearchForm aboveClass="justify-center" belowClass="w-fit" />
+            <div className="pt-10 flex justify-center">
+              <SearchForm aboveClass="" belowClass="" />
             </div>
             <div className="px-0 pb-8 pt-4 duration-500  sm:px-4 lg:pt-8">
               <span className="mb-2 inline-block text-lg text-gray-500">

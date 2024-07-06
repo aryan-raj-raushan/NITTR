@@ -30,7 +30,7 @@ const AppPlaceCard = ({
       <div className="flex w-fit flex-col gap-4 pt-4">
         {/* detail top */}
         <div className="flex w-auto flex-col gap-2">
-          <div className="flex items-center justify-between pr-4">
+          <div className="flex items-center justify-between">
             <span className="flex items-center text-sm font-medium text-gray-500 ">
               {" "}
               <MdBedroomParent className="mr-1 text-2xl" /> {data.value}

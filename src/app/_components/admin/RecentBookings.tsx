@@ -1,4 +1,5 @@
 "use client"
+// @ts-ignore
 import { BookingDetails, BookingStatus } from "@prisma/client";
 import { api } from "~/trpc/react";
 import { Separator } from "~/components/ui/separator";

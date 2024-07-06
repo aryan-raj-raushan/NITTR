@@ -138,7 +138,7 @@ const PhotoModal = ({ modalOpen, setModalOpen }: any) => {
                   alt=""
                 />
                 <p className="font-bold">{item.title}</p>
-                <p className="text-sm font-medium text-gray-400 ">{item.description}</p>
+                {/* <p className="text-sm font-medium text-gray-400 ">{item.description}</p> */}
               </div>
             );
           })}
