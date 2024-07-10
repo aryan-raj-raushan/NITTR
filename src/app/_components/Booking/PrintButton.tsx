@@ -51,10 +51,10 @@ const styles = StyleSheet.create({
     },
 });
 
-const logoUrl = "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/nitttrlogo.jpg";
+// const logoUrl = "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/nitttrlogo.jpg";
 const BookingPDF = ({ booking, session }: any) => {
-    const checkInDate = new Date(booking.bookedFromDt);
-    const checkOutDate = new Date(booking.bookedToDt);
+    // const checkInDate = new Date(booking.bookedFromDt);
+    // const checkOutDate = new Date(booking.bookedToDt);
 
     return (
         <Document>
