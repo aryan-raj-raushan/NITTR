@@ -6,9 +6,41 @@ import { useEffect, useState } from "react";
 import SingleBookingsCard from "./singleBookingCard";
 import { emptyBooking } from "~/utils/validators/bookingValidators";
 // @ts-ignore
-import { BookingDetails, BookingStatus, GuestHouse } from "@prisma/client";
+import { BookingStatus, GuestHouse } from "@prisma/client";
 
-export default function MyBookings({ bookings }: any) {
+interface Guest {
+  name: string;
+  email: string;
+  mobileNo: string;
+}
+
+interface Room {
+  ac: boolean;
+  cleaningStatus: string;
+  geaser: boolean;
+  floor: string;
+  roomType: string;
+}
+
+interface BookingDetails {
+  id: string;
+  bookingStatus: BookingStatus;
+  hostelName: GuestHouse;
+  updateBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+  bookingDate: Date;
+  guests: Guest[];
+  rooms: Room[];
+  userId: string | null;
+  bookedFromDt: Date;
+  bookedToDt: Date;
+  remark: string;
+  bookPaymentId: string;
+  // Add any other missing properties here
+}
+
+export default function MyBookings({ bookings }: { bookings: BookingDetails[] }) {
   const [initialBookings, setInitialBookings] = useState<BookingDetails[]>([]);
   const [selectedBooking, setSelectedBooking] = useState<BookingDetails | null>(null);
   const [filteredBookings, setFilteredBookings] = useState<BookingDetails[]>([]);
@@ -17,7 +49,7 @@ export default function MyBookings({ bookings }: any) {
   useEffect(() => {
     setInitialBookings(bookings);
     setFilteredBookings(bookings);
-    setSelectedBooking(bookings[0]);
+    setSelectedBooking(bookings.length > 0 ? bookings[0] as BookingDetails : null);
   }, [bookings]);
 
   useEffect(() => {
@@ -93,7 +125,7 @@ export default function MyBookings({ bookings }: any) {
                       <RecentBookings
                         selectedBooking={selectedBooking ?? emptyBooking}
                         setSelectedBooking={setSelectedBooking}
-                        bookings={filteredBookings}
+                        bookings={filteredBookings as any}
                       />
                     </CardContent>
                   </Card>
@@ -139,7 +171,7 @@ export default function MyBookings({ bookings }: any) {
                                 <span className="value-style">Phone number</span>
                               </div>
                               {selectedBooking?.guests.map(
-                                (guest: any, index: any) => (
+                                (guest: Guest, index: number) => (
                                   <div
                                     key={index}
                                     className="flex sm:flex-row flex-col justify-between sm:gap-6 gap-2 sm:border-none border-b border-black pb-2"
@@ -160,7 +192,7 @@ export default function MyBookings({ bookings }: any) {
                             </span>
                             <div className="value-style w-full rounded-md bg-gray-200 p-2 px-4 text-lg">
                               {selectedBooking?.rooms.map(
-                                (room: any, index: any) => (
+                                (room: Room, index: number) => (
                                   <div
                                     key={index}
                                     className="flex flex-col justify-between gap-2"
