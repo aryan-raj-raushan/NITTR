@@ -101,7 +101,7 @@ const BookingConfirmed = ({ booking }: BookingConfirmedProps) => {
               <div className="flex gap-10">
                 <span className="sm:text-xl text-base font-semibold">Payment Method</span>
                 <div className="sm:text-lg text-sm font-medium uppercase underline">
-                  Pay at hotel
+                  Pay at the hotel
                 </div>
               </div>
             </div>
