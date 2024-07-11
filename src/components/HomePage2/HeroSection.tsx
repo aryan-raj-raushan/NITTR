@@ -1,9 +1,6 @@
 import Image from "next/image";
 import React, { Suspense, useEffect, useState } from "react";
 import SearchForm from "~/app/_components/SearchForm";
-import { Quote } from "../Assets";
-import { motion } from "framer-motion";
-import { slideInFromBottom, slideInFromLeft } from "~/utils/motion";
 
 const HeroSection = ({ images }: any) => {
   const [currentImage, setCurrentImage] = useState(0);
@@ -23,14 +20,11 @@ const HeroSection = ({ images }: any) => {
         </h2>
       </div>
 
-      <div
-        className="flex w-full flex-col items-center  justify-center decoration-gray-900"
-
-      >
-        <div className=" ">
-          <div className="flex w-fit flex-col items-center justify-end md:flex-row">
-            <div className="relative flex w-[80%] flex-col gap-2 rounded-l-xl bg-blue-50 p-8 pb-12 sm:w-[40%]">
-              <h1 className="mb-4 sm:text-lg text-lg md:text-xl lg:text-2xl xl:text-4xl font-bold ">
+      <div className="flex w-full flex-col items-center justify-center decoration-gray-900">
+        <div className="w-full max-w-[1280px] mx-auto px-5">
+          <div className="flex w-full flex-col items-center justify-end lg:flex-row">
+            <div className="relative flex w-full flex-col gap-2 rounded-l-xl bg-blue-50 p-8 pb-12 lg:w-[40%]">
+              <h1 className="mb-4 text-lg font-bold sm:text-lg md:text-xl lg:text-2xl xl:text-4xl">
                 NITTTR — Comfortable accommodations for visitors
               </h1>
               <p className="mb-8 border-l-2 border-black pl-2 text-gray-600">
@@ -43,14 +37,14 @@ const HeroSection = ({ images }: any) => {
               </div>
             </div>
 
-            <div className="relative hidden h-fit w-1/2 sm:flex md:hidden lg:flex xl:flex">
+            <div className="relative hidden h-fit w-full lg:flex lg:w-[60%]">
               <Image
-                src={images[currentImage] || "/default.jpg"}
+                src={images[currentImage] as any}
                 objectFit="cover"
                 alt="Hostel room"
                 width={1200}
                 height={1200}
-                className="h-[500px] w-[1200px] rounded-l-3xl object-cover shadow-xl shadow-slate-100"
+                className="h-[500px] w-full rounded-3xl object-cover shadow-xl shadow-slate-100"
               />
             </div>
           </div>
