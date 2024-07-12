@@ -1,9 +1,9 @@
 import Image from "next/image";
 import React, { Suspense, useEffect, useState } from "react";
 import SearchForm from "~/app/_components/SearchForm";
-import { Quote } from "../Assets";
-import { motion } from "framer-motion";
-import { slideInFromBottom, slideInFromLeft } from "~/utils/motion";
+// import { Quote } from "../Assets";
+// import { motion } from "framer-motion";
+// import { slideInFromBottom, slideInFromLeft } from "~/utils/motion";
 
 const HeroSection = ({ images }: any) => {
   const [currentImage, setCurrentImage] = useState(0);

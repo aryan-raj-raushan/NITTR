@@ -5,15 +5,26 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { SinginWithGoogle, signIn } from "~/utils/url/authurl";
+import {
+  SendOtp,
+  signIn,
+  SinginWithGoogle,
+  UserExistenceURL,
+  VerifyOtpURL,
+  VerifyPhone,
+} from "~/utils/url/authurl";
 import { setAuthState } from "~/store/authSlice";
 import { useAppDispatch } from "~/store";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaGoogle, FaPhoneAlt } from "react-icons/fa";
 import { IoIosMail } from "react-icons/io";
 import { SignupURL } from "~/utils/url/authurl";
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
+import React from "react";
+import Image from "next/image";
+import { VerifiedIcon } from "~/components/Assets";
+import { usePreviousRoute } from "~/hooks/usePreviousRoute";
 
 const AuthCredentialsValidator = z
   .object({
@@ -55,7 +66,25 @@ export default function Login() {
   const dispatch = useAppDispatch();
   const [email, setEmail] = useState<string | null>(null);
   const [rightPanelActive, setRightPanelActive] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [isOtp, setIsOtp] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [counter, setCounter] = useState(30);
+  const [otp, setOtp] = useState(Array(6).fill(""));
+  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+  const previousRoute = usePreviousRoute();
+
+  const otpRefs: any = useRef([]);
+
+  const handleOtpChange = (e: any, index: number) => {
+    const { value } = e.target;
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+    if (value.length === 1 && index < otpRefs.current.length - 1) {
+      otpRefs.current[index + 1].focus();
+    }
+  };
 
   const signupForm = useForm<z.infer<typeof AuthCredentialsValidator>>({
     resolver: zodResolver(AuthCredentialsValidator),
@@ -76,6 +105,7 @@ export default function Login() {
     },
   });
 
+  // Login function
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
       const response = await signIn(data);
@@ -92,7 +122,7 @@ export default function Login() {
             authtoken: user?.token,
           }),
         );
-  
+
         toast(response?.data?.msg || "You have successfully logged in!", {
           position: "top-center",
           autoClose: 5000,
@@ -104,7 +134,11 @@ export default function Login() {
           theme: "light",
           transition: Bounce,
         });
-        router.back();
+        if (previousRoute === "/login") {
+          router.push("/");
+        } else {
+          router.back();
+        }
       } else {
         toast.error(response?.data?.msg || "Login failed", {
           position: "top-center",
@@ -119,7 +153,7 @@ export default function Login() {
         });
       }
     } catch (error: any) {
-      console.log(error.msg,"error.msg")
+      console.log(error.msg, "error.msg");
       toast.error(error.msg || "Login failed", {
         position: "top-center",
         autoClose: 5000,
@@ -133,20 +167,22 @@ export default function Login() {
       });
     }
   }
-  
-  
+
+  const signInWithEmail = () => setIsOtp(false);
+  const signInWithPhone = () => setIsOtp(true);
 
   // Call this function after logging in or updating auth data
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedEmail = sessionStorage.getItem("email");
-
       setEmail(storedEmail);
     }
   }, []);
 
-  const onSubmitSignup = async (data: z.infer<typeof AuthCredentialsValidator>) => {
+  const onSubmitSignup = async (
+    data: z.infer<typeof AuthCredentialsValidator>,
+  ) => {
     try {
       const response = await fetch(SignupURL, {
         method: "POST",
@@ -161,9 +197,9 @@ export default function Login() {
           role: "USER",
         }),
       });
-  
+
       const responseData = await response.json();
-  
+
       if (responseData.code === 200) {
         toast.success("Signup successful!", {
           position: "top-center",
@@ -208,14 +244,128 @@ export default function Login() {
       });
     }
   };
-  
+
+  const handleSendOtp = () => {
+    sendOtp();
+  };
+
+  const handleResendOtp = () => {
+    setCounter(30);
+    sendOtp();
+  };
+
+  useEffect(() => {
+    let timer: any;
+    if (otpSent && counter > 0) {
+      timer = setInterval(() => setCounter((prev) => prev - 1), 1000);
+    }
+    return () => clearInterval(timer);
+  }, [otpSent, counter]);
+
+  const sendOtp = async () => {
+    const email = signupForm.getValues("email");
+    const phoneNumber = signupForm.getValues("number");
+
+    if (email && phoneNumber) {
+      try {
+        const checkResponse = await fetch(UserExistenceURL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, number: phoneNumber }),
+        });
+
+        const checkData = await checkResponse.json();
+
+        if (checkResponse.ok && !checkData.exists) {
+          // User does not exist, send OTP
+          const response = await fetch(SendOtp, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ number: phoneNumber }),
+          });
+
+          if (response.ok) {
+            setOtpSent(true);
+            setShowModal(true); // Only show modal when OTP is successfully sent
+            toast.success("OTP sent successfully!", {
+              position: "top-center",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+              transition: Bounce,
+            });
+          } else {
+            const errorData = await response.json();
+            toast.error(errorData.msg || "Failed to send OTP", {
+              position: "top-center",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+              transition: Bounce,
+            });
+          }
+        } else {
+          // User already exists
+          toast.error("Email or phone number already exists. Try logging in.", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+          });
+        }
+      } catch (error: any) {
+        toast.error(error.message, {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
+      }
+    } else {
+      toast.error("Please provide both email and phone number.", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+    }
+  };
 
   const handleSignUpClick = () => {
     setRightPanelActive(false);
+    setIsOtp(false);
   };
 
   const handleSignInClick = () => {
     setRightPanelActive(true);
+    setIsOtp(false);
   };
   const { handleSubmit, setValue } = form;
 
@@ -228,43 +378,49 @@ export default function Login() {
     onSuccess: async (res) => {
       try {
         const token = res.access_token;
+        const userInfoResponse = await axios.post(SinginWithGoogle, {
+          token,
+        });
 
-        const userInfoResponse = await axios.get(
-          "https://www.googleapis.com/oauth2/v3/userinfo",
-          {
-            headers: { Authorization: `Bearer ${res.access_token}` },
-          },
-        );
-
-        if (userInfoResponse.status === 200) {
-          const userInfo = userInfoResponse.data;
-          dispatch(
-            setAuthState({
-              authState: true,
-              id: userInfo?.sub,
-              email: userInfo?.email,
-              number: userInfo?.number || "",
-              role: "USER",
-              name: userInfo?.name,
-              authtoken: token,
-            }),
-          );
-
-          toast.success("You have successfully logged in!", {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-            transition: Bounce,
+        if (userInfoResponse.data.body.isVerified) {
+          const userInfo = userInfoResponse.data.body.user;
+          const userVerificationResponse = await axios.post(VerifyPhone, {
+            email: userInfo.email,
           });
 
-          router.back();
+          if (userVerificationResponse.data.isVerified) {
+            dispatch(
+              setAuthState({
+                authState: true,
+                id: userInfo.id,
+                email: userInfo.email,
+                number: userVerificationResponse.data.phoneNumber || "",
+                role: userInfo.role,
+                name: userInfo.name,
+                authtoken: userInfoResponse.data.body.token,
+              }),
+            );
+
+            toast.success("You have successfully logged in!", {
+              position: "top-center",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+              transition: Bounce,
+            });
+
+            router.back();
+          } else {
+            router.push(
+              `/verify-phone?email=${encodeURIComponent(userInfo.email)}&id=${userInfo.id}&name=${encodeURIComponent(userInfo.name)}&role=${userInfo.role}&token=${userInfoResponse.data.body.token}`,
+            );
+          }
         } else {
-          throw new Error("Failed to fetch user info from Google API");
+          throw new Error("Failed to verify user from backend");
         }
       } catch (error) {
         console.error("Error during Google sign-in:", error);
@@ -283,8 +439,6 @@ export default function Login() {
     },
     onError: () => {
       console.error("Google sign-in failed");
-
-      // Toast notification for general sign-in error
       toast.error("Google sign-in failed", {
         position: "top-center",
         autoClose: 5000,
@@ -299,74 +453,164 @@ export default function Login() {
     },
   });
 
+  const handleSubmitOtp = async () => {
+    const phoneNumber = signupForm.getValues("number");
+    const otpValue = otp.join("");
+
+    try {
+      const response = await fetch(VerifyOtpURL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ number: phoneNumber, otp: otpValue }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setShowModal(false);
+        setIsPhoneVerified(true);
+        toast.success("OTP verified successfully!", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
+      } else {
+        toast.error(data.msg || "Incorrect OTP", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to verify OTP", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+    }
+  };
+
   return (
     <>
-      <div className="my-10 flex min-h-full items-center justify-center">
+      <div className="relative my-10 flex min-h-full items-center justify-center">
         <div className="relative min-h-[480px] w-full max-w-4xl overflow-hidden rounded-lg bg-white shadow-lg">
           <div
             className={`duration-600 absolute inset-0 flex transform transition-transform ${rightPanelActive ? "translate-x-0" : "translate-x-1/2"}`}
           >
             <div
-              className={`duration-600 flex h-full w-1/2 flex-col items-center justify-center p-8 transition-opacity ${rightPanelActive ? "pointer-events-none opacity-0" : "opacity-100"}`}
+              className={`duration-600 flex h-full w-1/2 flex-col items-center justify-center px-8 py-3 transition-opacity ${rightPanelActive ? "pointer-events-none opacity-0" : "opacity-100"}`}
             >
               <form
                 onSubmit={signupForm.handleSubmit(onSubmitSignup)}
-                className="no-scrollbar w-full space-y-6 overflow-y-auto text-center"
+                className="no-scrollbar w-full space-y-3 overflow-y-auto text-center"
               >
                 <h1 className="font-bold">Create Account</h1>
-                <div className="my-4 flex justify-center">
+                <div className="my-2 flex justify-center">
                   <button
+                    type="button"
                     onClick={() => handleGoogleSignin()}
                     className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
                   >
                     <FaGoogle />
                   </button>
-                  <div className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300">
+                  <button
+                    type="button"
+                    className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
+                    onClick={signInWithPhone}
+                  >
                     <FaPhoneAlt />
-                  </div>
-                  <div className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300">
+                  </button>
+                  <button
+                    type="button"
+                    className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
+                    onClick={signInWithEmail}
+                  >
                     <IoIosMail />
-                  </div>
+                  </button>
                 </div>
                 <span className="text-sm">
-                  or use your email for registration
+                  {isOtp
+                    ? " or use your email for registration"
+                    : " or use your phone for registration"}
                 </span>
                 <input
                   type="text"
                   placeholder="Name"
-                  className="mt-2 w-full border-none bg-gray-200 p-3"
+                  className="mt-2 w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
                   {...signupForm.register("name")}
                 />
                 <input
                   type="email"
                   placeholder="Email"
-                  className="mt-2 w-full border-none bg-gray-200 p-3"
+                  className=" w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
                   {...signupForm.register("email")}
                 />
-                <input
-                  type="text"
-                  placeholder="Phone Number"
-                  className="mt-2 w-full border-none bg-gray-200 p-3"
-                  {...signupForm.register("number")}
-                />
+                <div className="!relative">
+                  <input
+                    type="text"
+                    placeholder="Phone Number"
+                    className="mt-1 w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
+                    {...signupForm.register("number")}
+                  />
+                  {isPhoneVerified && (
+                    <Image
+                      src={VerifiedIcon}
+                      width={500}
+                      height={500}
+                      className="!absolute right-0 top-1.5 z-50 h-8 w-8"
+                      alt="Verified Icon"
+                    />
+                  )}
+                </div>
+
                 <input
                   type="password"
                   placeholder="Password"
-                  className="mt-2 w-full border-none bg-gray-200 p-3"
+                  className="mt-1 w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
                   {...signupForm.register("password")}
                 />
                 <input
                   type="password"
                   placeholder="Confirm Password"
-                  className="mt-2 w-full border-none bg-gray-200 p-3"
+                  className="mt-1 w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
                   {...signupForm.register("confirmPassword")}
                 />
-                <button
-                  type="submit"
-                  className="mt-4 transform rounded-full bg-primaryBackground px-12 py-3 text-sm font-bold uppercase text-white transition-transform duration-150 active:scale-95"
-                >
-                  Sign Up
-                </button>
+                {otpSent ? (
+                  <button
+                    type="submit"
+                    className="mt-4 transform rounded-full bg-primaryBackground px-12 py-3 text-sm font-bold uppercase text-white transition-transform duration-150 active:scale-95"
+                  >
+                    Verify Email
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleSendOtp}
+                    className="mt-4 transform rounded-full bg-primaryBackground px-12 py-3 text-sm font-bold uppercase text-white transition-transform duration-150 active:scale-95"
+                  >
+                    Send OTP
+                  </button>
+                )}
               </form>
             </div>
 
@@ -376,35 +620,63 @@ export default function Login() {
             >
               <form
                 onSubmit={handleSubmit(onSubmit)}
-                className="w-full space-y-6 text-center"
+                className="w-full space-y-4 text-center"
               >
                 <h1 className="font-bold">Sign In</h1>
                 <div className="my-4 flex justify-center">
                   <button
+                    type="button"
                     onClick={() => handleGoogleSignin()}
                     className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
                   >
                     <FaGoogle />
                   </button>
-                  <div className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300">
+                  <button
+                    type="button"
+                    onClick={signInWithPhone}
+                    className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
+                  >
                     <FaPhoneAlt />
-                  </div>
-                  <div className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300">
+                  </button>
+                  <button
+                    type="button"
+                    onClick={signInWithEmail}
+                    className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
+                  >
                     <IoIosMail className="text-2xl" />
-                  </div>
+                  </button>
                 </div>
-                <span className="text-sm">or use your account</span>
-                <input
-                  type="email"
-                  placeholder="Email"
-                  onChange={(e) =>
-                    setFormValues({
-                      ...form.getValues(),
-                      email: e.target.value,
-                    })
-                  }
-                  className="mt-2 w-full border-none bg-gray-200 p-3 outline-none"
-                />
+                <span className="text-sm">
+                  {isOtp
+                    ? "or use your account"
+                    : "or use your phone for login"}
+                </span>
+                {!isOtp ? (
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    onChange={(e) =>
+                      setFormValues({
+                        ...form.getValues(),
+                        email: e.target.value,
+                      })
+                    }
+                    className="w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
+                  />
+                ) : (
+                  <input
+                    type="number"
+                    placeholder="Phone"
+                    onChange={(e) =>
+                      setFormValues({
+                        ...form.getValues(),
+                        phone: e.target.value,
+                      })
+                    }
+                    className="w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
+                  />
+                )}
+
                 <input
                   type="password"
                   placeholder="Password"
@@ -414,18 +686,25 @@ export default function Login() {
                       password: e.target.value,
                     })
                   }
-                  className="mt-2 w-full border-none bg-gray-200 p-3 outline-none"
+                  className="w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
                 />
-                <Link
-                  href="/forget-password"
-                  className="mt-4 inline-block w-full text-start text-sm"
-                >
-                  Forgot your password?
-                </Link>
+                {!isOtp ? (
+                  <Link
+                    href="/forget-password"
+                    className="-mt-2 inline-block w-full px-1 text-start text-sm"
+                  >
+                    Forgot password?
+                  </Link>
+                ) : (
+                  <div className="inline-block w-full px-2 text-start text-sm">
+                    Login with otp
+                  </div>
+                )}
+
                 <div>
                   <button
                     type="submit"
-                    className="mt-4 transform rounded-full bg-primaryBackground px-12 py-3 text-sm font-bold uppercase text-white transition-transform duration-150 active:scale-95"
+                    className="transform rounded-full bg-primaryBackground px-12 py-3 text-sm font-bold uppercase text-white transition-transform duration-150 active:scale-95"
                   >
                     Sign In
                   </button>
@@ -473,6 +752,42 @@ export default function Login() {
             </div>
           </div>
         </div>
+
+        {showModal && (
+          <div className="fixed inset-0 !z-50 flex w-full items-center justify-center bg-black bg-opacity-50">
+            <div className="w-80 rounded-md bg-white p-4">
+              <h2 className="mb-4 text-lg font-bold">Enter OTP</h2>
+              <p>Phone Number: {signupForm.getValues("number")}</p>
+              <div className="mt-2 flex justify-between">
+                {[...Array(6)].map((_, i) => (
+                  <input
+                    key={i}
+                    type="text"
+                    maxLength={1}
+                    className="h-10 w-10 rounded-md border text-center"
+                    ref={(el) => (otpRefs.current[i] = el)}
+                    onChange={(e) => handleOtpChange(e, i)}
+                  />
+                ))}
+              </div>
+              <div className="mt-4 text-center">
+                <span>
+                  {counter > 0 ? (
+                    `Resend OTP in ${counter}s`
+                  ) : (
+                    <button onClick={handleResendOtp}>Resend OTP</button>
+                  )}
+                </span>
+              </div>
+              <button
+                onClick={handleSubmitOtp}
+                className="mt-4 w-full rounded-md bg-primaryBackground py-2 text-white"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
