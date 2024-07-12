@@ -24,8 +24,6 @@ export default function VerifyCode({
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  console.log("id check ", id, name, email);
-
   const handleOtpChange = (e: any, index: number) => {
     const { value } = e.target;
     const newOtp = [...otp];
@@ -92,7 +90,7 @@ export default function VerifyCode({
           transition: Bounce,
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       toast.error(error.message || "Failed to verify OTP", {
         position: "top-center",
         autoClose: 5000,
