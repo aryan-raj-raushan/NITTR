@@ -5,6 +5,10 @@ export const SignupURL = AUTH_BASED_URL + "/register";
 export const SendOtp = AUTH_BASED_URL + "/api/send-otp"
 export const ResendEmail = AUTH_BASED_URL + "/email/resend-verification";
 export const VerifyEmail = AUTH_BASED_URL + "/email/verification";
+export const UserExistenceURL = AUTH_BASED_URL + "/api/check-user-existence";
+export const VerifyOtpURL = AUTH_BASED_URL + "/api/verify-otp";
+export const VerifyGooglePhone =
+  AUTH_BASED_URL + "/api/verify-google-phone-number";
 
 export const SigninURL = AUTH_BASED_URL + "/login";
 

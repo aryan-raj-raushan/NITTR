@@ -5,16 +5,26 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { SendOtp, signIn, SinginWithGoogle, VerifyPhone } from "~/utils/url/authurl";
+import {
+  SendOtp,
+  signIn,
+  SinginWithGoogle,
+  UserExistenceURL,
+  VerifyOtpURL,
+  VerifyPhone,
+} from "~/utils/url/authurl";
 import { setAuthState } from "~/store/authSlice";
 import { useAppDispatch } from "~/store";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaGoogle, FaPhoneAlt } from "react-icons/fa";
 import { IoIosMail } from "react-icons/io";
 import { SignupURL } from "~/utils/url/authurl";
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import React from "react";
+import Image from "next/image";
+import { VerifiedIcon } from "~/components/Assets";
+import { usePreviousRoute } from "~/hooks/usePreviousRoute";
 
 const AuthCredentialsValidator = z
   .object({
@@ -58,6 +68,23 @@ export default function Login() {
   const [rightPanelActive, setRightPanelActive] = useState(true);
   const [isOtp, setIsOtp] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [counter, setCounter] = useState(30);
+  const [otp, setOtp] = useState(Array(6).fill(""));
+  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+  const previousRoute = usePreviousRoute();
+
+  const otpRefs: any = useRef([]);
+
+  const handleOtpChange = (e: any, index: number) => {
+    const { value } = e.target;
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+    if (value.length === 1 && index < otpRefs.current.length - 1) {
+      otpRefs.current[index + 1].focus();
+    }
+  };
 
   const signupForm = useForm<z.infer<typeof AuthCredentialsValidator>>({
     resolver: zodResolver(AuthCredentialsValidator),
@@ -78,6 +105,7 @@ export default function Login() {
     },
   });
 
+  // Login function
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
       const response = await signIn(data);
@@ -106,7 +134,11 @@ export default function Login() {
           theme: "light",
           transition: Bounce,
         });
-        router.back();
+        if (previousRoute === "/login") {
+          router.push("/");
+        } else {
+          router.back();
+        }
       } else {
         toast.error(response?.data?.msg || "Login failed", {
           position: "top-center",
@@ -213,32 +245,118 @@ export default function Login() {
     }
   };
 
+  const handleSendOtp = () => {
+    sendOtp();
+  };
+
+  const handleResendOtp = () => {
+    setCounter(30);
+    sendOtp();
+  };
+
+  useEffect(() => {
+    let timer: any;
+    if (otpSent && counter > 0) {
+      timer = setInterval(() => setCounter((prev) => prev - 1), 1000);
+    }
+    return () => clearInterval(timer);
+  }, [otpSent, counter]);
+
   const sendOtp = async () => {
+    const email = signupForm.getValues("email");
     const phoneNumber = signupForm.getValues("number");
-    if (phoneNumber) {
+
+    if (email && phoneNumber) {
       try {
-        const response = await fetch(SendOtp, {
+        const checkResponse = await fetch(UserExistenceURL, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ number: phoneNumber }),
+          body: JSON.stringify({ email, number: phoneNumber }),
         });
-  
-        if (response.ok) {
-          setOtpSent(true);
+
+        const checkData = await checkResponse.json();
+
+        if (checkResponse.ok && !checkData.exists) {
+          // User does not exist, send OTP
+          const response = await fetch(SendOtp, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ number: phoneNumber }),
+          });
+
+          if (response.ok) {
+            setOtpSent(true);
+            setShowModal(true); // Only show modal when OTP is successfully sent
+            toast.success("OTP sent successfully!", {
+              position: "top-center",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+              transition: Bounce,
+            });
+          } else {
+            const errorData = await response.json();
+            toast.error(errorData.msg || "Failed to send OTP", {
+              position: "top-center",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+              transition: Bounce,
+            });
+          }
         } else {
-          const errorData = await response.json();
-          console.error("Error sending OTP:", errorData);
-          // Handle error
+          // User already exists
+          toast.error("Email or phone number already exists. Try logging in.", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+          });
         }
-      } catch (error) {
-        console.error("Fetch error:", error);
-        // Handle error
+      } catch (error: any) {
+        toast.error(error.message, {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
       }
+    } else {
+      toast.error("Please provide both email and phone number.", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
     }
   };
-  
 
   const handleSignUpClick = () => {
     setRightPanelActive(false);
@@ -263,80 +381,138 @@ export default function Login() {
         const userInfoResponse = await axios.post(SinginWithGoogle, {
           token,
         });
-       
-      if (userInfoResponse.data.body.isVerified) {
-        const userInfo = userInfoResponse.data.body.user;
-        const userVerificationResponse = await axios.post(VerifyPhone, {
-          email: userInfo.email,
-        });
-  
+
+        if (userInfoResponse.data.body.isVerified) {
+          const userInfo = userInfoResponse.data.body.user;
+          const userVerificationResponse = await axios.post(VerifyPhone, {
+            email: userInfo.email,
+          });
+
           if (userVerificationResponse.data.isVerified) {
             dispatch(
               setAuthState({
                 authState: true,
                 id: userInfo.id,
                 email: userInfo.email,
-                number: userVerificationResponse.data.phoneNumber || '',
+                number: userVerificationResponse.data.phoneNumber || "",
                 role: userInfo.role,
                 name: userInfo.name,
                 authtoken: userInfoResponse.data.body.token,
-              })
+              }),
             );
-  
-            toast.success('You have successfully logged in!', {
-              position: 'top-center',
+
+            toast.success("You have successfully logged in!", {
+              position: "top-center",
               autoClose: 5000,
               hideProgressBar: false,
               closeOnClick: true,
               pauseOnHover: true,
               draggable: true,
               progress: undefined,
-              theme: 'light',
+              theme: "light",
               transition: Bounce,
             });
-  
+
             router.back();
           } else {
-            router.push('/verify-phone');
+            router.push(
+              `/verify-phone?email=${encodeURIComponent(userInfo.email)}&id=${userInfo.id}&name=${encodeURIComponent(userInfo.name)}&role=${userInfo.role}&token=${userInfoResponse.data.body.token}`,
+            );
           }
         } else {
-          throw new Error('Failed to verify user from backend');
+          throw new Error("Failed to verify user from backend");
         }
       } catch (error) {
-        console.error('Error during Google sign-in:', error);
-        toast.error('Google sign-in failed', {
-          position: 'top-center',
+        console.error("Error during Google sign-in:", error);
+        toast.error("Google sign-in failed", {
+          position: "top-center",
           autoClose: 5000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
           progress: undefined,
-          theme: 'light',
+          theme: "light",
           transition: Bounce,
         });
       }
     },
     onError: () => {
-      console.error('Google sign-in failed');
-      toast.error('Google sign-in failed', {
-        position: 'top-center',
+      console.error("Google sign-in failed");
+      toast.error("Google sign-in failed", {
+        position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: 'light',
+        theme: "light",
         transition: Bounce,
       });
     },
   });
-  
+
+  const handleSubmitOtp = async () => {
+    const phoneNumber = signupForm.getValues("number");
+    const otpValue = otp.join("");
+
+    try {
+      const response = await fetch(VerifyOtpURL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ number: phoneNumber, otp: otpValue }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setShowModal(false);
+        setIsPhoneVerified(true);
+        toast.success("OTP verified successfully!", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
+      } else {
+        toast.error(data.msg || "Incorrect OTP", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to verify OTP", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+    }
+  };
 
   return (
     <>
-      <div className="my-10 flex min-h-full items-center justify-center">
+      <div className="relative my-10 flex min-h-full items-center justify-center">
         <div className="relative min-h-[480px] w-full max-w-4xl overflow-hidden rounded-lg bg-white shadow-lg">
           <div
             className={`duration-600 absolute inset-0 flex transform transition-transform ${rightPanelActive ? "translate-x-0" : "translate-x-1/2"}`}
@@ -351,18 +527,21 @@ export default function Login() {
                 <h1 className="font-bold">Create Account</h1>
                 <div className="my-2 flex justify-center">
                   <button
+                    type="button"
                     onClick={() => handleGoogleSignin()}
                     className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
                   >
                     <FaGoogle />
                   </button>
                   <button
+                    type="button"
                     className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
                     onClick={signInWithPhone}
                   >
                     <FaPhoneAlt />
                   </button>
                   <button
+                    type="button"
                     className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
                     onClick={signInWithEmail}
                   >
@@ -377,34 +556,46 @@ export default function Login() {
                 <input
                   type="text"
                   placeholder="Name"
-                  className="mt-2 w-full border-none bg-gray-200 p-2 text-sm outline-none"
+                  className="mt-2 w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
                   {...signupForm.register("name")}
                 />
                 <input
                   type="email"
                   placeholder="Email"
-                  className=" w-full border-none bg-gray-200 p-2 text-sm outline-none"
+                  className=" w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
                   {...signupForm.register("email")}
                 />
-                <input
-                  type="text"
-                  placeholder="Phone Number"
-                  className="mt-1 w-full border-none bg-gray-200 p-2 text-sm outline-none"
-                  {...signupForm.register("number")}
-                />
+                <div className="!relative">
+                  <input
+                    type="text"
+                    placeholder="Phone Number"
+                    className="mt-1 w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
+                    {...signupForm.register("number")}
+                  />
+                  {isPhoneVerified && (
+                    <Image
+                      src={VerifiedIcon}
+                      width={500}
+                      height={500}
+                      className="!absolute right-0 top-1.5 z-50 h-8 w-8"
+                      alt="Verified Icon"
+                    />
+                  )}
+                </div>
+
                 <input
                   type="password"
                   placeholder="Password"
-                  className="mt-1 w-full border-none bg-gray-200 p-2 text-sm outline-none"
+                  className="mt-1 w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
                   {...signupForm.register("password")}
                 />
                 <input
                   type="password"
                   placeholder="Confirm Password"
-                  className="mt-1 w-full border-none bg-gray-200 p-2 text-sm outline-none"
+                  className="mt-1 w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
                   {...signupForm.register("confirmPassword")}
                 />
-                {!isOtp ? (
+                {otpSent ? (
                   <button
                     type="submit"
                     className="mt-4 transform rounded-full bg-primaryBackground px-12 py-3 text-sm font-bold uppercase text-white transition-transform duration-150 active:scale-95"
@@ -414,18 +605,10 @@ export default function Login() {
                 ) : (
                   <button
                     type="button"
-                    onClick={sendOtp}
+                    onClick={handleSendOtp}
                     className="mt-4 transform rounded-full bg-primaryBackground px-12 py-3 text-sm font-bold uppercase text-white transition-transform duration-150 active:scale-95"
                   >
                     Send OTP
-                  </button>
-                )}
-                {isOtp && otpSent && (
-                  <button
-                    type="submit"
-                    className="mt-4 transform rounded-full bg-primaryBackground px-12 py-3 text-sm font-bold uppercase text-white transition-transform duration-150 active:scale-95"
-                  >
-                    Verify OTP
                   </button>
                 )}
               </form>
@@ -442,18 +625,21 @@ export default function Login() {
                 <h1 className="font-bold">Sign In</h1>
                 <div className="my-4 flex justify-center">
                   <button
+                    type="button"
                     onClick={() => handleGoogleSignin()}
                     className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
                   >
                     <FaGoogle />
                   </button>
                   <button
+                    type="button"
                     onClick={signInWithPhone}
                     className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
                   >
                     <FaPhoneAlt />
                   </button>
                   <button
+                    type="button"
                     onClick={signInWithEmail}
                     className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
                   >
@@ -566,6 +752,42 @@ export default function Login() {
             </div>
           </div>
         </div>
+
+        {showModal && (
+          <div className="fixed inset-0 !z-50 flex w-full items-center justify-center bg-black bg-opacity-50">
+            <div className="w-80 rounded-md bg-white p-4">
+              <h2 className="mb-4 text-lg font-bold">Enter OTP</h2>
+              <p>Phone Number: {signupForm.getValues("number")}</p>
+              <div className="mt-2 flex justify-between">
+                {[...Array(6)].map((_, i) => (
+                  <input
+                    key={i}
+                    type="text"
+                    maxLength={1}
+                    className="h-10 w-10 rounded-md border text-center"
+                    ref={(el) => (otpRefs.current[i] = el)}
+                    onChange={(e) => handleOtpChange(e, i)}
+                  />
+                ))}
+              </div>
+              <div className="mt-4 text-center">
+                <span>
+                  {counter > 0 ? (
+                    `Resend OTP in ${counter}s`
+                  ) : (
+                    <button onClick={handleResendOtp}>Resend OTP</button>
+                  )}
+                </span>
+              </div>
+              <button
+                onClick={handleSubmitOtp}
+                className="mt-4 w-full rounded-md bg-primaryBackground py-2 text-white"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
