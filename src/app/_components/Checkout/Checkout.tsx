@@ -1,5 +1,5 @@
 "use client";
-import { UserIcon } from "lucide-react";
+import { UserIcon } from "lucide-react";// @ts-ignore
 import { GuestProfile, RoomCharges } from "@prisma/client";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
@@ -221,12 +221,18 @@ export default function Checkout({
                     </div>
 
                     <div className="no-scrollbar flex justify-start  gap-4 overflow-auto text-sm lg:justify-center lg:gap-6">
-                      <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
+                    <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
+                        <div>User ID</div>
+                        <div>
+                          <b>{userId}</b>
+                        </div>
+                      </div>
+                      {/* <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
                         <div>Floor</div>
                         <div>
                           <b>{roomDetails.floor?.replace(/_/g, " ")}</b>
                         </div>
-                      </div>
+                      </div> */}
 
                       <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3  shadow-xl lg:min-w-fit">
                         <div>Bed Type</div>

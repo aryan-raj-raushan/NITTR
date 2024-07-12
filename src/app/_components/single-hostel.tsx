@@ -1,19 +1,10 @@
 "use client";
 import React from "react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "~/components/ui/accordion";
-import { Tab } from "@headlessui/react";
 import { classNames } from "~/lib/classNames";
 import Link from "next/link";
-import { GuestHouse, RoomDetails } from "@prisma/client";
+// @ts-ignore
+import {  RoomDetails } from "@prisma/client";
 import { TbookingType } from "~/lib/utils";
-import { FaUser, FaBed } from "react-icons/fa";
-import { AcIcon, GeyserIcon } from "~/components/Assets";
-import Image from "next/image";
 import { useAppSelector } from "~/store";
 
 const roomFeatures = {
@@ -48,6 +39,10 @@ const roomFeatures = {
   },
 };
 
+import { FaCoffee, FaParking, FaBath, FaWifi, FaSnowflake, FaUsers, FaConciergeBell, FaShower, FaBan, FaTv } from 'react-icons/fa';
+
+
+
 export default function ProductHeroSlider({
   roomDetails,
   checkin,
@@ -64,130 +59,124 @@ export default function ProductHeroSlider({
   const hostelName = roomDetails.hostelName ?? "";
   const features = roomFeatures[hostelName as keyof typeof roomFeatures]?.features ?? [];
 
- 
+  const featuress = [
+    { icon: FaCoffee, label: "Breakfast" },
+    { icon: FaParking, label: "Free on-site parking" },
+    { icon: FaBath, label: "Private bathroom" },
+    { icon: FaWifi, label: "Free WiFi" },
+    { icon: FaSnowflake, label: "Air conditioning" },
+    { icon: FaUsers, label: "Family rooms" },
+    { icon: FaConciergeBell, label: "Room service" },
+    { icon: FaShower, label: "Shower" },
+    { icon: FaBan, label: "Non-smoking rooms" },
+    { icon: FaTv, label: "Flat-screen TV" },
+  ];
+
+
   return (
     <div className="bg-white">
       <main className="mx-auto max-w-7xl sm:px-6 sm:py-16 lg:px-8">
         <div className="mx-auto max-w-2xl lg:max-w-none">
+          <div className="flex items-center justify-center mb-5">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 md:text-3xl w-fit">
+              {hostelName.replace(/_/g, " ")}
+            </h1>
+          </div>
           {/* Product */}
-          <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8">
+          <div className="flex gap-5">
             {/* Image gallery */}
-            <Tab.Group as="div" className="flex flex-col-reverse">
-              {/* Image selector */}
-              <div className="mx-auto mt-6 w-full max-w-2xl lg:max-w-none">
-                <Tab.List className="flex overflow-auto no-scrollbar gap-4 py-4 px-2">
-                  {roomDetails.roomImg.map((image, index) => (
-                    <Tab
-                      key={image + index}
-                      className="relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50 focus:ring-offset-4 min-w-40"
-                    >
-                      {({ selected }) => (
-                        <>
-                          <span className="sr-only">{image}</span>
-                          <span className="absolute inset-0 overflow-hidden rounded-md">
-                            <img
-                              src={image}
-                              alt=""
-                              className="h-full w-full object-cover object-center"
-                            />
-                          </span>
-                          <span
-                            className={classNames(
-                              selected ? "border-blue-800 " : "border-transparent",
-                              "pointer-events-none absolute inset-0 border rounded-md ",
-                            )}
-                            aria-hidden="true"
-                          />
-                        </>
-                      )}
-                    </Tab>
-                  ))}
-                </Tab.List>
-              </div>
-
-              <Tab.Panels className="aspect-h-1 aspect-w-1 w-full">
-                {roomDetails.roomImg.map((image, index) => (
-                  <Tab.Panel key={image + index}>
-                    <Image
-                      src={image}
-                      alt={hostelName.replace(/_/g, " ")!}
-                      width={1000}
-                      height={1000}
-                      className="h-full w-full object-cover object-center sm:rounded-lg"
+            <div className="flex w-fit">
+              <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="col-span-2 row-span-2">
+                  <img
+                    src={roomDetails.roomImg[0]}
+                    alt={hostelName.replace(/_/g, " ")}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <img
+                    src={roomDetails.roomImg[1]}
+                    alt={hostelName.replace(/_/g, " ")}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                </div>
+                <div className="col-span-1">
+                  <img
+                    src={roomDetails.roomImg[2]}
+                    alt={hostelName.replace(/_/g, " ")}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                </div>
+                <div className="col-span-1">
+                  <img
+                    src={roomDetails.roomImg[3]}
+                    alt={hostelName.replace(/_/g, " ")}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                </div>
+                <div className="col-span-4 grid grid-cols-3 gap-4">
+                  <img
+                    src={roomDetails.roomImg[4]}
+                    alt={hostelName.replace(/_/g, " ")}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                  <img
+                    src={roomDetails.roomImg[0]}
+                    alt={hostelName.replace(/_/g, " ")}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                  <div className="relative">
+                    <img
+                      src={roomDetails.roomImg[1]}
+                      alt={hostelName.replace(/_/g, " ")}
+                      className="w-full h-full object-cover rounded-lg"
                     />
-                  </Tab.Panel>
-                ))}
-              </Tab.Panels>
-            </Tab.Group>
+                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
+                      <Link href={`/gallery`}>
+                        <span className="text-white text-lg font-semibold">+20 photos</span>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {/* Product info */}
-            <div className="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
-              <h1 className="text-2xl font-bold tracking-tight text-gray-900 md:text-3xl">
-                {hostelName.replace(/_/g, " ")}
-              </h1>
+            <div className="flex flex-col gap-2">
 
+              
               <div className="flex gap-4 pt-4">
-                <h2 className="rounded-xl bg-gray-200 px-4 py-2 text-base font-semibold text-gray-700">
-                  {roomDetails?.floor?.replace(/_/g, " ")}
-                </h2>
+              
                 <h2
                   className={`rounded-xl px-4 py-2 text-lg font-semibold text-gray-100 ${roomDetails?.totalBed !== null && roomDetails.totalBed > 0 ? "bg-green-500" : "bg-red-400"}`}
                 >
-                  {roomDetails?.totalBed !== null && roomDetails.totalBed > 0 
+                  {roomDetails?.totalBed !== null && roomDetails.totalBed > 0
                     ? " Available"
                     : "Not Available"}
                 </h2>
 
-                <h2 className="rounded-xl bg-gray-200 px-4 py-2 text-lg font-semibold text-gray-700">
+                <h2 className="rounded-xl bg-yellow-400 px-4 py-2 text-lg font-semibold text-gray-700">
                   {roomDetails?.value}
                 </h2>
               </div>
-              <div className="mt-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Amenities
-                </h3>
-                <ul className="mt-2 space-y-2">
-                  <li className="flex items-center gap-2">
-                    {" "}
-                    <Image src={GeyserIcon} alt="geyser" className="h-5 w-5" />
-                    {/* <FaHotTub /> */}
-                    Geyser:{" "}
-                    <span className="font-medium ">
-                      {" "}
-                      {roomDetails?.geaser}{" "}
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2 ">
-                    {" "}
-                    {/* <FaHotTub /> */}
-                    <Image src={AcIcon} alt="Ac" className="mt-1 h-5 w-5" />
-                    AC: <span className="font-medium ">{roomDetails?.ac}</span>
-                  </li>
-                  {/* <li className="flex items-center gap-2">
-                    <FaUser /> Max Adult Allowed:{" "}
-                    <span className="font-medium">{roomDetails?.maxAdult}</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <FaUser /> Max Child Allowed:
-                    <span className="font-medium">{roomDetails?.maxChild}</span>
-                  </li> */}
-                  <li className="flex items-center gap-2">
-                    <FaBed /> Occupancy:{" "}
-                    <span className="font-medium">
-                      {roomDetails?.occupancy}
-                    </span>
-                  </li>
-                </ul>
+              <div className="grid grid-cols-2 md:grid-cols-2 gap-4 ">
+                {featuress.map((feature, index) => (
+                  <div key={index} className="flex items-center space-x-2 p-2 border rounded-md shadow-sm w-full">
+                    <feature.icon className="text-xl" />
+                    <span className="w-full">{feature.label}</span>
+                  </div>
+                ))}
               </div>
 
-              <div className="mt-6">
+              {/* <div className="mt-6">
                 <h3 className="text-lg font-semibold text-gray-900">
-                About the room
+                  About the room
                 </h3>
                 <p className="mt-2 text-base text-gray-700">
                   {roomDetails.remark}
                 </p>
-              </div>
+              </div> */}
 
               <form className="mt-6">
                 <div className="mt-10 flex">
@@ -209,7 +198,7 @@ export default function ProductHeroSlider({
                   </Link>
                 </div>
               </form>
-
+              {/* 
               <section aria-labelledby="details-heading" className="mt-12">
                 <h2
                   id="details-heading"
@@ -223,7 +212,7 @@ export default function ProductHeroSlider({
                       Features
                     </AccordionTrigger>
                     {features.map(
-                      (d:any, index:any) => (
+                      (d: any, index: any) => (
                         <AccordionContent
                           key={d + index}
                           className="mt-2 text-sm text-gray-600"
@@ -234,7 +223,7 @@ export default function ProductHeroSlider({
                     )}
                   </AccordionItem>
                 </Accordion>
-              </section>
+              </section> */}
             </div>
           </div>
         </div>

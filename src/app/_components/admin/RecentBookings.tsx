@@ -1,10 +1,11 @@
 "use client"
+// @ts-ignore
 import { BookingDetails, BookingStatus } from "@prisma/client";
 import { api } from "~/trpc/react";
 import { Separator } from "~/components/ui/separator";
 
 export function RecentBookings({ bookings, setSelectedBooking, selectedBooking }: { bookings: BookingDetails[], setSelectedBooking: Function, selectedBooking: BookingDetails }) {
-  
+
   const sortedBookings = bookings.sort((a, b) => {
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
@@ -50,16 +51,17 @@ export function RecentBookings({ bookings, setSelectedBooking, selectedBooking }
                 <div className="flex flex-col sm:text-base text-sm">
                   <span className="w-full">Check In Date</span>
                   <span>
-                    {new Date(b.bookedFromDt.toString()).toLocaleString(
-                      "en-US",
-                      { year: "numeric", month: "2-digit", day: "2-digit" },
-                    )}
+                    {new Date(b.bookedFromDt.toString()).toLocaleString("en-GB", {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                    })}
                   </span>
                 </div>
                 <Separator className="mx-2 h-1 w-1/3 text-black sm:w-1/2" />
                 <div className="flex flex-col sm:text-base text-sm">
                   <span>Check Out Date</span>
-                  {new Date(b.bookedToDt.toString()).toLocaleString("en-US", {
+                  {new Date(b.bookedToDt.toString()).toLocaleString("en-GB", {
                     year: "numeric",
                     month: "2-digit",
                     day: "2-digit",
