@@ -6,7 +6,6 @@ import Bg1 from "./icons/Vector 1.svg"
 import Bg2 from "./icons/Vector 2.svg"
 import GeyserIcon from "./icons/geyser.png";
 import AcIcon from "./icons/ac.png";
+import VerifiedIcon from "./icons/verified.png";
 
-import Logo from "./images/ELPIXALA BLACK BG FULL.png";
-
-export { Internet, Pie, Quote, Quote2, Logo, Bg1, Bg2, GeyserIcon, AcIcon };
+export { Internet, Pie, Quote, Quote2, Bg1, Bg2, GeyserIcon, AcIcon,VerifiedIcon };

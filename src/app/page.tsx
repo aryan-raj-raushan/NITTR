@@ -1,19 +1,19 @@
 "use client";
-import Accomodation from "~/components/HomePage2/Accomodation";
+// import Accomodation from "~/components/HomePage2/Accomodation";
 import VipCard from "./_components/VipCard/VipCard";
 import HeroSection from "~/components/HomePage2/HeroSection";
 import MapSection from "~/components/HomePage2/MapSection";
 import PhotoModal from "~/components/HomePage2/PhotoModal";
-import { AnimatePresence, motion } from "framer-motion";
+// import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
-import StreetView from "~/components/HomePage2/map";
-import { slideInFromBottom } from "~/utils/motion";
+// import StreetView from "~/components/HomePage2/map";
+// import { slideInFromBottom } from "~/utils/motion";
 
 import { useAnimation } from "framer-motion";
 import { useEffect } from "react";
 
 export default function Home() {
-  const [showModal, setShowModal] = useState(false);
+  // const [showModal, setShowModal] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
   const controls = useAnimation();
