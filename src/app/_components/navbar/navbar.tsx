@@ -57,19 +57,21 @@ const Navbar = () => {
           <Transition.Child
             as={Fragment}
             enter="transition ease-in-out duration-300 transform"
-            enterFrom="-translate-x-full"
+            enterFrom="translate-x-full"
             enterTo="translate-x-0"
             leave="transition ease-in-out duration-300 transform"
             leaveFrom="translate-x-0"
-            leaveTo="-translate-x-full"
+            leaveTo="translate-x-full"
           >
-            <div className="relative w-full max-w-xs bg-white shadow-xl">
+            <div className="relative ml-auto w-full max-w-xs bg-white shadow-xl">
               <div className="flex flex-col items-center px-4 py-5">
-                <Link href="https://nitttrbpl.ac.in">
-                  <div className="relative mb-5 h-24 w-24">
-                    <Image src={logo} layout="fill" alt="logo" />
-                  </div>
-                </Link>
+                <div className="mb-5">
+                  {isLogin ? (
+                    <AccountDropdown />
+                  ) : (
+                    <Button onClick={signIn}>Login</Button>
+                  )}
+                </div>
                 <div className="flex flex-col gap-2">
                   {NavBarData.pages.map((page, index) => (
                     <Button key={index}>
@@ -78,13 +80,6 @@ const Navbar = () => {
                       </Link>
                     </Button>
                   ))}
-                </div>
-                <div>
-                  {isLogin ? (
-                    <Button onClick={handleSignOut}>LOGOUT</Button>
-                  ) : (
-                    <Button onClick={signIn}>LOGIN/REGISTER</Button>
-                  )}
                 </div>
               </div>
             </div>
@@ -126,16 +121,39 @@ const Navbar = () => {
       </header>
 
       {/* Mobile menu toggle button */}
-      <button
-        type="button"
-        className="rounded-md bg-white p-2 text-gray-400 md:hidden"
-        onClick={() => setOpen(true)}
-      >
-        <span className="">
-          {/* You might need to replace this with your own icon or menu component */}
-          Menu
-        </span>
-      </button>
+      <div className="">
+       <div className="flex items-center justify-between p-4 md:hidden">
+       <Link href="https://nitttrbpl.ac.in">
+          <div className="relative h-10 w-10">
+            <Image src={logo} layout="fill" alt="logo" />
+          </div>
+        </Link>
+        <button
+          type="button"
+          className="rounded-md bg-white p-2 text-gray-400"
+          onClick={() => setOpen(true)}
+        >
+          <span className="sr-only">Open menu</span>
+          {/* Hamburger Icon */}
+          <svg
+            className="h-6 w-6"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M4 6h16M4 12h16m-7 6h7"
+            />
+          </svg>
+        </button>
+       </div>
+       <div className="h-[1px] bg-gray-200 w-full sm:hidden flex"></div>
+      </div>
     </nav>
   );
 };

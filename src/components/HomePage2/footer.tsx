@@ -3,9 +3,24 @@ import React from "react";
 import { FaLocationDot } from "react-icons/fa6";
 import { FaPhone } from "react-icons/fa6";
 import logo from "public/nitttrLogo.jpg";
+
 const Footer = () => {
+  const quickLinks = [
+    { href: "https://nitttrbpl.ac.in/about.php", text: "About Us" },
+    { href: "https://nitttrbpl.ac.in/photo_gallery.php", text: "Photo Gallery" },
+    { href: "https://nitttrbpl.ac.in/women-cell.php", text: "Women Cell" },
+    { href: "https://nitttrbpl.ac.in/Newspaper.php", text: "News" },
+    { href: "https://nitttrbpl.ac.in/minority_cell.php", text: "SC/ST/OBC/PWD/Minority Cell" },
+    { href: "https://nitttrbpl.ac.in/files/calendar2425.pdf", text: "CALENDAR 2024-2025" },
+  ];
+
+  const importantLinks = [
+    { href: "https://nitttrbpl.ac.in/other-nitttr.php", text: "Other NITTTR's" },
+    { href: "https://nitttrbpl.ac.in/article.php", text: "Articles" },
+  ];
+
   return (
-    <footer className="w-full bg-primaryBackground py-10 text-white ">
+    <footer className="w-full bg-primaryBackground py-10 text-white">
       <div className="mx-auto flex max-w-[1280px] px-10">
         <div className="flex w-1/3 flex-col items-start justify-start">
           <div className="flex items-start gap-4">
@@ -27,48 +42,27 @@ const Footer = () => {
           </div>
         </div>
         <div className="flex w-1/3 flex-col items-center justify-center">
-          <h2 className="text-xl font-bold">Quick links</h2>
-          <ul className="mt-4 flex flex-col gap-2 ">
-            <li>
-              <a href="#" className="hover:underline">
-                Home
-              </a>
-            </li>
-            <li>
-              <a href="#" className="hover:underline">
-                About
-              </a>
-            </li>
-            <li>
-              <a href="#" className="hover:underline">
-                Rooms
-              </a>
-            </li>
-            <li>
-              <a href="#" className="hover:underline">
-                News
-              </a>
-            </li>
+          <h2 className="text-xl font-bold w-1/2 -pl-5">Quick links</h2>
+          <ul className="mt-4 flex flex-col gap-2 justify-center">
+            {quickLinks.map((link) => (
+              <li key={link.href}>
+                <a href={link.href} target="_blank" className="hover:underline" rel="noopener noreferrer">
+                  {link.text}
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
-        <div className="flex w-1/3 flex-col items-center justify-center">
-          <h2 className="text-xl font-bold">Contact Us</h2>
-          <ul className="mt-4 flex flex-col gap-3">
-            <div className="flex items-start gap-x-2">
-              <FaLocationDot className="mt-1" />
-              <span className="">
-                54826 Fadel Circles <br />
-                Darrylstad, AZ 90995
-              </span>
-            </div>
-            <div className="flex items-start gap-2">
-              <FaPhone className="mt-1" />
-              <span>
-                (329) 580-7077
-                <br />
-                (650) 382-5020
-              </span>
-            </div>
+        <div className="flex w-1/3 flex-col items-center justify-start">
+          <h2 className="text-xl font-bold">Important Links</h2>
+          <ul className="mt-4 flex flex-col gap-2 justify-center">
+            {importantLinks.map((link) => (
+              <li key={link.href}>
+                <a href={link.href} target="_blank" className="hover:underline" rel="noopener noreferrer">
+                  {link.text}
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
       </div>

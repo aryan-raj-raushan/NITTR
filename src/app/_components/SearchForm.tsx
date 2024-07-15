@@ -135,7 +135,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
       const guestCount = +guestLength;
       let maxRooms = guestCount; // One person can stay in one room
       let minRooms = 1; // Minimum is always 1 room
-  
+
       if (selectedGuestHouse === "SARAN_GUEST_HOUSE") {
         // For Saran Guest House
         maxRooms = Math.min(guestCount, 3); // Max 3 rooms (single, double, triple)
@@ -146,12 +146,12 @@ const SearchForm: React.FC<SearchFormProps> = ({
         // For Executive and Visvesvaraya Guest Houses
         maxRooms = guestCount; // Max rooms (1 guest per room)
       }
-  
+
       // Ensure current room count is within the valid range
       const currentRooms = Math.max(minRooms, Math.min(+rooms, maxRooms));
       setRooms(currentRooms.toString());
     };
-  
+
     updateRooms();
   }, [selectedGuestHouse, guestLength, rooms]);
 
@@ -160,15 +160,15 @@ const SearchForm: React.FC<SearchFormProps> = ({
       onSubmit={form.handleSubmit(onSubmit)}
       className={`relative flex w-fit gap-5 flex-col items-start sm:flex-row sm:items-center ${aboveClass}`}
     >
-      <div className="flex flex-col items-center  sm:flex-row w-full gap-2">
-        <div className="flex items-center gap-1.5">
-          <div className="w-fit ">
+      <div className="flex flex-col sm:items-center items-start  sm:flex-row w-full gap-2">
+        <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
+          <div className="w-full sm:w-fit">
             <label htmlFor="location" className="ml-1 flex font-extrabold">
               Location
             </label>
             <select
               id="location"
-              className="flex max-w-64 w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+              className="w-full max-w-full sm:max-w-64 px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
               {...form.register("location", {
                 onChange: (e) =>
                   setSelectedGuestHouse(e.target.value as GuestHouse),
@@ -188,6 +188,8 @@ const SearchForm: React.FC<SearchFormProps> = ({
             </p>
           </div>
         </div>
+        
+
 
         <div className="flex w-fit items-center gap-1.5">
           <div className="w-full">
@@ -238,71 +240,71 @@ const SearchForm: React.FC<SearchFormProps> = ({
         </div>
       </div>
       {showGuestPopDown && (
-  <div className="absolute top-16 left-0 z-10 w-full bg-white border border-gray-300 rounded-md shadow-md p-4">
-    <div className="flex justify-between items-center mb-4">
-      <label htmlFor="adults" className="font-extrabold">Adults</label>
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          className="px-2 py-1 bg-gray-200 rounded"
-          onClick={() => setGuestLength((prev:any) => Math.max(+prev - 1, 1))}
-        >
-          -
-        </button>
-        <input
-          type="number"
-          id="adults"
-          className="block w-12 px-2 py-1 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm text-center"
-          value={guestLength}
-          onChange={(e) => setGuestLength(e.target.value)}
-          min="1"
-        />
-        <button
-          type="button"
-          className="px-2 py-1 bg-gray-200 rounded"
-          onClick={() => setGuestLength((prev:any) => +prev + 1)}
-        >
-          +
-        </button>
-      </div>
-    </div>
-    <div className="flex justify-between items-center mb-4">
-      <label htmlFor="rooms" className="font-extrabold">Rooms</label>
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          className="px-2 py-1 bg-gray-200 rounded"
-          onClick={() => setRooms((prev) => Math.max(+prev - 1, 1).toString())}
-        >
-          -
-        </button>
-        <input
-          type="number"
-          id="rooms"
-          className="block w-12 px-2 py-1 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm text-center"
-          value={rooms}
-          onChange={(e) => setRooms(Math.min(+e.target.value, guestLength).toString())}
-          min="1"
-          max={guestLength}
-        />
-        <button
-          type="button"
-          className="px-2 py-1 bg-gray-200 rounded"
-          onClick={() => setRooms((prev) => Math.min(+prev + 1, guestLength).toString())}
-        >
-          +
-        </button>
-      </div>
-    </div>
-    <button
-      type="button"
-      className="bg-primaryBackground text-base hover:bg-blue-600 px-4 py-2 rounded-md text-white"
-      onClick={() => setShowGuestPopDown(false)}
-    >
-      Done
-    </button>
-  </div>
-)}
+        <div className="absolute top-16 left-0 z-10 w-full bg-white border border-gray-300 rounded-md shadow-md p-4">
+          <div className="flex justify-between items-center mb-4">
+            <label htmlFor="adults" className="font-extrabold">Adults</label>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                className="px-2 py-1 bg-gray-200 rounded"
+                onClick={() => setGuestLength((prev: any) => Math.max(+prev - 1, 1))}
+              >
+                -
+              </button>
+              <input
+                type="number"
+                id="adults"
+                className="block w-12 px-2 py-1 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm text-center"
+                value={guestLength}
+                onChange={(e) => setGuestLength(e.target.value)}
+                min="1"
+              />
+              <button
+                type="button"
+                className="px-2 py-1 bg-gray-200 rounded"
+                onClick={() => setGuestLength((prev: any) => +prev + 1)}
+              >
+                +
+              </button>
+            </div>
+          </div>
+          <div className="flex justify-between items-center mb-4">
+            <label htmlFor="rooms" className="font-extrabold">Rooms</label>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                className="px-2 py-1 bg-gray-200 rounded"
+                onClick={() => setRooms((prev) => Math.max(+prev - 1, 1).toString())}
+              >
+                -
+              </button>
+              <input
+                type="number"
+                id="rooms"
+                className="block w-12 px-2 py-1 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm text-center"
+                value={rooms}
+                onChange={(e) => setRooms(Math.min(+e.target.value, guestLength).toString())}
+                min="1"
+                max={guestLength}
+              />
+              <button
+                type="button"
+                className="px-2 py-1 bg-gray-200 rounded"
+                onClick={() => setRooms((prev) => Math.min(+prev + 1, guestLength).toString())}
+              >
+                +
+              </button>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="bg-primaryBackground text-base hover:bg-blue-600 px-4 py-2 rounded-md text-white"
+            onClick={() => setShowGuestPopDown(false)}
+          >
+            Done
+          </button>
+        </div>
+      )}
 
       <div className={`mt-auto flex justify-end text-right ${belowClass} w-fit`}>
         <button

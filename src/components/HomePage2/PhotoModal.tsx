@@ -1,10 +1,12 @@
 import Link from "next/link";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { FaArrowRight } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { slideInFromLeft } from "~/utils/motion";
 import { FaArrowLeft } from "react-icons/fa6";
 import Image from "next/image";
+import SearchForm from "~/app/_components/SearchForm";
+import { FaCoffee, FaParking, FaBath, FaWifi, FaSnowflake, FaUsers, FaConciergeBell, FaShower, FaBan, FaTv } from 'react-icons/fa';
 
 const saranRoomPictures = [
   "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/_DSC0346+(2).JPG",
@@ -97,6 +99,14 @@ const PhotoModal = ({ modalOpen, setModalOpen }: any) => {
       prevIndex === 0 ? selectedImages.length - 1 : prevIndex - 1,
     );
   };
+  const featuress = [
+    { icon: FaBath, label: "Private bathroom" },
+    { icon: FaWifi, label: "Free WiFi" },
+    { icon: FaSnowflake, label: "Air conditioning" },
+    { icon: FaUsers, label: "Family rooms" },
+    { icon: FaConciergeBell, label: "Room service" },
+    { icon: FaShower, label: "Shower" },
+  ];
 
   return (
     <motion.div
@@ -151,7 +161,7 @@ const PhotoModal = ({ modalOpen, setModalOpen }: any) => {
           onClick={handleCloseModal}
         >
           <div
-            className="relative flex w-fit max-w-xs flex-col items-center justify-start rounded-lg bg-white p-4 px-8  py-5 sm:max-w-7xl sm:pb-10 sm:pt-8"
+            className="relative flex h-[70vh] w-[90vw] max-w-7xl flex-col items-center justify-start rounded-lg bg-white p-4 sm:h-[80vh] sm:w-[80vw] md:h-[70vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -160,21 +170,11 @@ const PhotoModal = ({ modalOpen, setModalOpen }: any) => {
             >
               &times;
             </button>
-            <h2 className="mb-4 text-center text-2xl font-bold">
+            <h2 className="mb-4 text-center text-lg font-bold sm:text-2xl">
               {modalTitle}
             </h2>
-            {/* <div className="grid h-full w-full grid-cols-1 items-center justify-center gap-5 md:grid-cols-4">
-              {selectedImages.slice(0, 8).map((img, index) => (
-                <TiltComponent key={img + index} img={img} />
-              ))}
-              <Link href="/gallery">
-                <span className="w-full flex justify-center items-center absolute bottom-5 left-[45%]">
-                  <FaArrowRight />
-                  View All</span>
-              </Link>
-            </div> */}
-            <div className="flex h-full w-full flex-col  items-center justify-center gap-5 md:grid-cols-4">
-              <div className="relative mx-10 flex flex-col items-center">
+            <div className="flex w-full flex-col items-center justify-center gap-5 md:grid-cols-4">
+              <div className="relative flex flex-col items-center">
                 <button
                   className="absolute left-0 top-1/2 z-10 -translate-y-1/2 transform rounded-full bg-white p-2"
                   onClick={handlePrev}
@@ -183,11 +183,11 @@ const PhotoModal = ({ modalOpen, setModalOpen }: any) => {
                 </button>
 
                 <Image
-                  src={selectedImages[currentIndex] || "/default.jpg"}
+                  src={selectedImages[currentIndex] as any}
                   alt="Hostel Image"
-                  width={700}
-                  height={700}
-                  className="h-[440px] w-full rounded-lg object-cover"
+                  width={1200}
+                  height={1200}
+                  className="h-[300px] w-fit rounded-lg object-cover sm:h-[440px]"
                 />
 
                 <button
@@ -197,30 +197,25 @@ const PhotoModal = ({ modalOpen, setModalOpen }: any) => {
                   <FaArrowRight />
                 </button>
               </div>
+              <div className="z-10">
+                <Suspense>
+                  <SearchForm aboveClass="flex-col justify-start" belowClass="" />
+                </Suspense>
+              </div>
 
-              <div className="mt-5 flex max-w-xs justify-start space-x-3 sm:max-w-7xl">
-                {selectedImages.map((img, index) => (
-                  <div
-                    key={img + index}
-                    className={`h-24 w-24 border ${
-                      index === currentIndex
-                        ? "rounded border-2 border-gray-500"
-                        : "border-gray-300"
-                    }`}
-                    onClick={() => setCurrentIndex(index)}
-                  >
-                    <img
-                      src={img}
-                      alt={`Thumbnail ${index}`}
-                      className="h-full w-full object-cover "
-                    />
+              <div className="h-[1px] w-full bg-black"></div>
+              <div className="flex w-full flex-wrap items-center justify-center gap-2 px-2">
+                {featuress.map((feature: any, index: any) => (
+                  <div key={index} className="flex items-center space-x-2 rounded-md border p-2 shadow-sm">
+                    <feature.icon className="text-xl" />
+                    <span className="w-full">{feature.label}</span>
                   </div>
                 ))}
               </div>
 
               <Link href="/gallery">
-                <span className="absolute bottom-4 right-10 flex w-fit items-center justify-center text-blue-600">
-                  View All
+                <span className="flex w-auto items-center  text-blue-600 justify-end">
+                  View All Photos
                   <FaArrowRight className="ml-2" />
                 </span>
               </Link>
