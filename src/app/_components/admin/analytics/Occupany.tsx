@@ -17,6 +17,8 @@ import {
   addMonths,
   startOfWeek,
   startOfMonth,
+  isToday,
+  isAfter,
 } from "date-fns";
 
 import { RouterOutputs } from "~/trpc/shared";
@@ -30,19 +32,26 @@ export default function OccupancyReport({
   bookings: RouterOutputs["booking"]["getAllBookings"]["bookings"];
   roomDetails: any[]; // Replace with the actual type of roomDetails
 }) {
-  const [hostel, setHostel] = useState("saran");
-  const [timeframe, setTimeframe] = useState<
-    "daily" | "weekly" | "monthly" | "custom"
-  >("daily");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [hostel, setHostel] = useState<any>();
+
+  console.log("bookings", bookings);
 
   const hostels = useMemo(() => {
-    // Extract unique hostel names from roomDetails
     const uniqueHostels = Array.from(
       new Set(roomDetails.map((room) => room.hostelName)),
     );
     return uniqueHostels;
   }, [roomDetails]);
+
+  useEffect(() => {
+    if (hostels.length > 0) {
+      setHostel(hostels[0]);
+    }
+  }, [hostels]);
+  const [timeframe, setTimeframe] = useState<
+    "daily" | "weekly" | "monthly" | "custom"
+  >("daily");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const bookingData = useMemo(() => {
     let groupedData = {} as Record<string, number>;
@@ -150,6 +159,31 @@ export default function OccupancyReport({
     return transformedData;
   }, [bookings, timeframe, roomDetails, hostel]);
 
+  const confirmedAndTodayCheckoutBookings = useMemo(() => {
+    const today = new Date();
+
+    const filteredBookings = bookings.filter((booking: any) => {
+      const bookedToDate = new Date(booking.bookedToDt);
+      const bookedFromDate = new Date(booking.bookedFromDt);
+
+      return (
+        (booking.bookingStatus === "CONFIRMED" &&
+          (isToday(bookedToDate) ||
+            isToday(bookedFromDate) ||
+            isAfter(bookedFromDate, today) ||
+            isAfter(bookedToDate, today))) ||
+        (booking.bookingStatus !== "CONFIRMED" &&
+          (isToday(bookedToDate) || isToday(bookedFromDate)))
+      );
+    });
+
+    return filteredBookings.sort((a: any, b: any) => {
+      const dateA = new Date(a.bookedFromDt);
+      const dateB = new Date(b.bookedFromDt);
+      return dateA.getTime() - dateB.getTime();
+    });
+  }, [bookings]);
+
   return (
     <TooltipProvider>
       <div className="mx-auto flex min-h-screen w-full max-w-[1280px] flex-col bg-muted/40">
@@ -172,7 +206,7 @@ export default function OccupancyReport({
                       onChange={(e) => {
                         setHostel(e.target.value);
                       }}
-                      className="w-28 cursor-pointer appearance-none rounded border border-gray-300 px-4 py-1 outline-none"
+                      className="w-28 cursor-pointer appearance-none rounded border border-gray-300 px-2 py-1 outline-none"
                       style={{
                         WebkitAppearance: "none",
                         MozAppearance: "none",
@@ -195,16 +229,12 @@ export default function OccupancyReport({
                       value={timeframe}
                       onChange={(e) => {
                         setTimeframe(
-                          e.target.value as
-                            | "daily"
-                            | "weekly"
-                            | "monthly"
-                            | "custom",
+                          e.target.value as "daily" | "weekly" | "monthly",
                         );
                         setIsDropdownOpen(false);
                       }}
                       onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                      className="w-28 cursor-pointer appearance-none rounded border border-gray-300 px-4 py-1 outline-none"
+                      className="w-28 cursor-pointer appearance-none rounded border border-gray-300 px-2 py-1 outline-none"
                       style={{
                         WebkitAppearance: "none",
                         MozAppearance: "none",
@@ -214,7 +244,6 @@ export default function OccupancyReport({
                       <option value="daily">Daily</option>
                       <option value="weekly">Weekly</option>
                       <option value="monthly">Monthly</option>
-                      <option value="custom">Custom</option>
                     </select>
                     <span
                       className={`absolute right-3 top-2.5 transition-transform duration-200 ${
@@ -258,6 +287,69 @@ export default function OccupancyReport({
               </ResponsiveContainer>
             </div>
           </main>
+        </div>
+        <div className="mb-10">
+          <div className="px-10 pb-10 pt-5 text-2xl font-medium">Booking</div>
+          <table className="min-w-full border-collapse border border-gray-300">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border border-gray-300 px-2 py-2">S.NO</th>
+                <th className="border border-gray-300 px-2 py-2">ID</th>
+                <th className="border border-gray-300 px-2 py-2">User Name</th>
+                <th className="border border-gray-300 px-2 py-2">
+                  Hostel Name
+                </th>
+                <th className="border border-gray-300 px-2 py-2">Room Type</th>
+                <th className="border border-gray-300 px-2 py-2">
+                  Booked Beds
+                </th>
+                <th className="border border-gray-300 px-2 py-2">
+                  Booking Date
+                </th>
+                <th className="border border-gray-300 px-2 py-2">
+                  Checkout Date
+                </th>
+                <th className="border border-gray-300 px-2 py-2">
+                  Booking Status
+                </th>
+              </tr>
+            </thead>
+            <tbody className="text-center">
+              {confirmedAndTodayCheckoutBookings.map(
+                (booking: any, index: number) => (
+                  <tr key={booking.id}>
+                    <td className="border border-gray-300 px-2 py-2">
+                      {index + 1}
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      {booking.id}
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      {booking.userName}
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      {booking.hostelName.replace(/_/g, " ")}
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      {booking.roomType.replace(/_/g, " ")}
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      {booking.bookedBed}
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      {format(new Date(booking.bookedFromDt), "dd-MM-yyyy")}
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      {format(new Date(booking.bookedToDt), "dd-MM-yyyy")}
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      {booking.bookingStatus}
+                    </td>
+                  </tr>
+                ),
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </TooltipProvider>
