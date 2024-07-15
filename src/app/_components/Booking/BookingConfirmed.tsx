@@ -7,7 +7,7 @@ import PrintButton from "./PrintButton";
 import { useAppSelector } from "~/store";
 
 interface BookingConfirmedProps {
-  booking: any; // Replace 'any' with the actual type of 'booking'
+  booking: any;
 }
 
 const BookingConfirmed = ({ booking }: BookingConfirmedProps) => {

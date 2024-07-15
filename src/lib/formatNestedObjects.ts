@@ -4,7 +4,6 @@ export function formatObject(obj: any, indentLevel = 1) {
   const indent = '  '.repeat(indentLevel); // Creates an indentation string based on the current recursion depth
   for (const [key, value] of Object.entries(obj)) {
     if (typeof value === 'object' && value !== null) {
-      // If the value is an object, recursively format it
       result += `${indent}${+key + 1}:\n${formatObject(value, indentLevel + 1)}`;
     } else {
       // Otherwise, just append the key-value pair
