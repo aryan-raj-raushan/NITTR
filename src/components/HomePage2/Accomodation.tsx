@@ -49,7 +49,7 @@ const Accomodation = ({ showModal, setShowModal }: any) => {
           <h2 className="sm:text-5xl text-xl font-bold mb-4">Find suitable budget accommodation</h2>
           <p className="text-gray-600 mb-6">
             Condimentum id venenatis a condimentum vitae sapien pellentesque habitant. At augue eget arcu dictum varius
-            duis at consectetur.
+            duis at consectetur.sdfsd
           </p>
           <div className="space-y-6">
             <div className="flex items-center">
