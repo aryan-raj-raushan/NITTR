@@ -67,7 +67,7 @@ const Accomodation = ({ showModal, setShowModal }: any) => {
               </div>
               <div className="ml-4">
                 <h3 className="text-lg font-semibold">Accommodates guests</h3>
-                <p className="text-gray-600">Consequat interdum varius sit amet mattis</p>
+                <p className="text-gray-600">Consequassst interdum varius sit amet mattis</p>
               </div>
             </div>
             <div className="flex items-center">
@@ -76,7 +76,7 @@ const Accomodation = ({ showModal, setShowModal }: any) => {
               </div>
               <div className="ml-4">
                 <h3 className="text-lg font-semibold">Grateful guests</h3>
-                <p className="text-gray-600">Consequat interdum varius sit amet mattis</p>
+                <p className="text-gray-600">Consequat interdum varius sit amet mattissss</p>
               </div>
             </div>
           </div>
