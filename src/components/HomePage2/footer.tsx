@@ -21,15 +21,15 @@ const Footer = () => {
 
   return (
     <footer className="w-full bg-primaryBackground py-10 text-white">
-      <div className="mx-auto flex max-w-[1280px] px-10">
-        <div className="flex w-1/3 flex-col items-start justify-start">
-          <div className="flex items-start gap-4">
+      <div className="mx-auto flex flex-col md:flex-row max-w-[1280px] px-4 md:px-10">
+        <div className="flex w-full md:w-1/3 flex-col items-start justify-start mb-8 md:mb-0">
+          <div className="flex flex-col items-start gap-4">
             <Image
               src={logo}
               alt={"NITTTR"}
               width={500}
               height={500}
-              className="mt-2 h-10 w-10"
+              className="mt-2 h-20 w-20"
             />
             <div className="flex flex-col">
               <h2 className="text-xl font-bold">NITTTR</h2>
@@ -41,9 +41,9 @@ const Footer = () => {
             </div>
           </div>
         </div>
-        <div className="flex w-1/3 flex-col items-center justify-center">
-          <h2 className="text-xl font-bold w-1/2 -pl-5">Quick links</h2>
-          <ul className="mt-4 flex flex-col gap-2 justify-center">
+        <div className="flex w-full md:w-1/3 flex-col items-start md:items-center justify-start mb-8 md:mb-0">
+          <ul className="mt-4 flex  flex-col gap-2">
+          <h2 className="text-xl mb-2 font-bold">Quick links</h2>
             {quickLinks.map((link) => (
               <li key={link.href}>
                 <a href={link.href} target="_blank" className="hover:underline" rel="noopener noreferrer">
@@ -53,9 +53,9 @@ const Footer = () => {
             ))}
           </ul>
         </div>
-        <div className="flex w-1/3 flex-col items-center justify-start">
-          <h2 className="text-xl font-bold">Important Links</h2>
-          <ul className="mt-4 flex flex-col gap-2 justify-center">
+        <div className="flex w-full md:w-1/3 flex-col items-start md:items-center justify-start">
+          <ul className="mt-4 flex flex-col gap-2">
+          <h2 className="text-xl mb-2 font-bold">Important Links</h2>
             {importantLinks.map((link) => (
               <li key={link.href}>
                 <a href={link.href} target="_blank" className="hover:underline" rel="noopener noreferrer">
