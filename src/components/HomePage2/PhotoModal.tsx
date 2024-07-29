@@ -8,6 +8,11 @@ import Image from "next/image";
 import SearchForm from "~/app/_components/SearchForm";
 import { FaCoffee, FaParking, FaBath, FaWifi, FaSnowflake, FaUsers, FaConciergeBell, FaShower, FaBan, FaTv } from 'react-icons/fa';
 
+import HeroBannerOne from "../../../public/hero_banner_1.webp"
+import HeroBannerTwo from "../../../public/hero_banner_2.webp"
+import HeroBannerThree from "../../../public/hero_banner_3.webp"
+
+
 const saranRoomPictures = [
   "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/_DSC0346+(2).JPG",
   "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0127.JPG",
@@ -33,7 +38,7 @@ const viswesawraiyaguesthousePictures = [
 const Choices = [
   {
     id: 1,
-    src: "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/_DSC0346+(2).JPG",
+    src: HeroBannerOne,
     title: "Saran Guest House",
     description:
       "A cozy and well-equipped guest house offering a comfortable stay.",
@@ -41,7 +46,7 @@ const Choices = [
   },
   {
     id: 2,
-    src: "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/fwdviswesawraiyaguesthouse/_DSC0140.JPG",
+    src: HeroBannerThree,
     title: "Visvesvaraya Guest House",
     description:
       "Elegant guest house with modern amenities for a pleasant experience.",
@@ -49,7 +54,7 @@ const Choices = [
   },
   {
     id: 3,
-    src: "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/fwdexecutivehostelphotograph/DSC_1095.JPG",
+    src: HeroBannerTwo,
     title: "Executive Guest House",
     description:
       "Luxurious guest house providing top-notch facilities and service.",
