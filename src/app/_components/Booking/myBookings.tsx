@@ -45,11 +45,21 @@ export default function MyBookings({ bookings }: { bookings: BookingDetails[] })
   const [selectedBooking, setSelectedBooking] = useState<BookingDetails | null>(null);
   const [filteredBookings, setFilteredBookings] = useState<BookingDetails[]>([]);
   const [filter, setFilter] = useState<BookingStatus | "ALL">("ALL");
+  const [isMobile, setIsMobile] = useState<boolean>(false);
 
   useEffect(() => {
     setInitialBookings(bookings);
     setFilteredBookings(bookings);
     setSelectedBooking(bookings.length > 0 ? bookings[0] as BookingDetails : null);
+
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
+    return () => window.removeEventListener("resize", handleResize);
   }, [bookings]);
 
   useEffect(() => {
@@ -70,7 +80,12 @@ export default function MyBookings({ bookings }: { bookings: BookingDetails[] })
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleString();
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
   };
 
   const TotalBookings = initialBookings.length;
@@ -130,7 +145,7 @@ export default function MyBookings({ bookings }: { bookings: BookingDetails[] })
                     </CardContent>
                   </Card>
 
-                  <Card className="sticky top-8 col-span-4 h-fit ">
+                  <Card className={`sticky top-8 col-span-4 h-fit ${isMobile ? "hidden" : ""}`}>
                     <CardContent className="pl-2">
                       {selectedBooking && (
                         <div className="space-y-5 p-4 text-xs text-black md:text-sm">
@@ -228,6 +243,100 @@ export default function MyBookings({ bookings }: { bookings: BookingDetails[] })
         </div>
       ) : (
         <div className="flex items-center justify-center min-h-[60vh]">Loading...</div>
+      )}
+
+      {/* Modal for mobile view */}
+      {isMobile && selectedBooking && (
+        <div className="fixed  inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={() => setSelectedBooking(null)}>
+          <div className="bg-white p-4 rounded-lg max-w-sm w-full sm:max-h-full max-h-72 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <CardTitle className=" pt-6">Overview</CardTitle>
+            <div className="space-y-5 p-4 text-xs text-black md:text-sm">
+              <div>
+                <span className="key-style text-lg font-medium">
+                  ID :{" "}
+                </span>
+                <span className="value-style sm:text-base text-sm">
+                  {selectedBooking?.id}
+                </span>
+              </div>
+              <div>
+                <span className="key-style text-lg font-medium">
+                  Hostel Name :{" "}
+                </span>
+                <span className="value-style sm:text-base text-sm ">
+                  {selectedBooking?.hostelName.replace(/_/g, " ")}
+                </span>
+              </div>
+
+              <div>
+                <span className="key-style text-lg font-medium">
+                  Booking Date :{" "}
+                </span>
+                <span className="value-style sm:text-base text-sm ">
+                  {formatDate(selectedBooking?.bookingDate.toString())}
+                </span>
+              </div>
+              <div>
+                <span className="key-style text-lg font-medium">
+                  Guest Details{" "}
+                </span>
+                <div className="value-style w-fit rounded-md bg-gray-200 p-2 px-4 text-lg">
+                  <div className="sm:flex hidden justify-between gap-2 ">
+                    <span className="value-style">Name</span>
+                    <span className="value-style">Email</span>
+                    <span className="value-style">Phone number</span>
+                  </div>
+                  {selectedBooking?.guests.map(
+                    (guest: Guest, index: number) => (
+                      <div
+                        key={index}
+                        className="flex sm:flex-row flex-col justify-between sm:gap-6 gap-2 sm:border-none border-b border-black pb-2"
+                      >
+                        <span className="value-style sm:text-base text-sm">{guest.name}</span>
+                        <span className="value-style sm:text-base text-sm">{guest.email}</span>
+                        <span className="value-style sm:text-base text-sm">
+                          {guest.mobileNo}
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+              <div>
+                <span className="key-style text-lg font-medium">
+                  Room Details{" "}
+                </span>
+                <div className="value-style w-full rounded-md bg-gray-200 p-2 px-4 text-lg">
+                  {selectedBooking?.rooms.map(
+                    (room: Room, index: number) => (
+                      <div
+                        key={index}
+                        className="flex flex-col justify-between gap-2"
+                      >
+                        <span className="value-style">
+                          AC : {room.ac ? "Yes" : "No"}
+                        </span>
+                        <span className="value-style">
+                          Cleaning Status : {room.cleaningStatus}
+                        </span>
+                        <span className="value-style">
+                          Geaser : {room.geaser ? "Yes" : "No"}
+                        </span>
+                        <span className="value-style">
+                          Floor : {room.floor.replace(/_/g, " ")}
+                        </span>
+                        <span className="value-style">
+                          Room Type : {room.roomType.replace(/_/g, " ")}
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            </div>
+            <button onClick={() => setSelectedBooking(null)} className="mt-4 p-2 bg-blue-500 text-white rounded">Close</button>
+          </div>
+        </div>
       )}
     </>
   );

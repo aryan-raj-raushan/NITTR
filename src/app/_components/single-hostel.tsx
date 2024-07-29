@@ -84,9 +84,9 @@ export default function ProductHeroSlider({
             </h1>
           </div>
           {/* Product */}
-          <div className="flex gap-5">
+          <div className="flex sm:flex-row flex-col gap-5">
             {/* Image gallery */}
-            <div className="flex w-fit">
+            <div className="flex w-fit sm:px-0 px-2">
               <div className="grid grid-cols-4 gap-4 mb-6">
                 <div className="col-span-2 row-span-2">
                   <img
@@ -144,7 +144,7 @@ export default function ProductHeroSlider({
             </div>
 
             {/* Product info */}
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 sm:px-0 px-2">
 
               
               <div className="flex gap-4 pt-4">
@@ -179,7 +179,7 @@ export default function ProductHeroSlider({
                 </p>
               </div> */}
 
-              <form className="mt-6">
+              <form className="mt-6 mb-2">
                 <div className="mt-10 flex">
                   <Link
                     href={

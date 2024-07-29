@@ -168,26 +168,7 @@ export default function Checkout({
                   aria-labelledby="payment-heading"
                   className="flex w-full flex-col py-4 sm:w-3/5"
                 >
-                  <div className="my-2 flex items-end justify-end">
-                    <div>
-                      <Select
-                        defaultValue={selectedPaymentMethod}
-                        onValueChange={(value) => {
-                          setSelectedPaymentMethod(value);
-                        }}
-                      >
-                        <SelectTrigger className="w-[180px]">
-                          <SelectValue placeholder="Choose payment Type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="offline">Pay at Hostel</SelectItem>
-                          <SelectItem disabled value="online">
-                            Pay online
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>{" "}
-                    </div>
-                  </div>
+
                   {/*JSON.stringify(checkin + ":" + checkout)*/}
 
                   <Card className="mt-4 flex w-full flex-col justify-center gap-5 p-6">
@@ -220,8 +201,8 @@ export default function Checkout({
                       </div>
                     </div>
 
-                    <div className="no-scrollbar flex justify-start  gap-4 overflow-auto text-sm lg:justify-center lg:gap-6">
-                    <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
+                    <div className="no-scrollbar flex lg:flex-row flex-col justify-start  gap-4 overflow-auto text-sm lg:justify-center lg:gap-6">
+                      <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
                         <div>User ID</div>
                         <div>
                           <b>{userId}</b>
@@ -267,6 +248,7 @@ export default function Checkout({
 
                   {guests.length > 0 && (
                     <Card className="mt-10 flex flex-col justify-center gap-5 p-2 sm:px-8 sm:py-4">
+                      <span className="text-2xl w-fit rounded-sm bg-gray-400 p-2">Guests List</span>
                       <div className="w-full">
                         {guests.map((g, index) => (
                           <li
@@ -402,7 +384,7 @@ export default function Checkout({
                         </div>
                       </li>
                     ))}
-                    <div className="!sticky top-10 mb-4 flex max-h-64 flex-col rounded-lg border border-b border-gray-200 bg-white px-4 pb-4 pt-1">
+                    <div className="sticky top-10 mb-4 flex max-h-72 flex-col rounded-lg border border-b border-gray-200 bg-white px-4 pb-4 pt-1">
                       <dl className="mt-4 flex flex-col gap-4 text-sm font-medium text-gray-500">
                         <div className="flex justify-between">
                           <dt>Subtotal</dt>
@@ -412,49 +394,76 @@ export default function Checkout({
                           <dt>Taxes (18%)</dt>
                           <dd className="text-gray-900">₹{tax.toFixed(2)}</dd>
                         </div>
-                        <div className="flex items-center justify-between border-t border-gray-200 py-6 text-gray-900">
-                          <dt className="text-base">
-                            Total (for {selectedGuests.length} {guestLabel})
+                        <div className="flex flex-col items-center justify-between border-t border-gray-200 py-6 text-gray-900">
+                          <dt className="text-base w-full">
+                            Total (for {selectedGuests.length} {guestLabel})  - ₹{total.toFixed(2)}
                           </dt>
-                          <dd className="text-gray-900">₹{total.toFixed(2)}</dd>
+                        
+
+                          <div className="pb-2">
+                            <Select
+                              defaultValue={selectedPaymentMethod}
+                              onValueChange={(value) => {
+                                setSelectedPaymentMethod(value);
+                              }}
+                            >
+                              <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Choose payment Type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="offline">Pay at Hostel</SelectItem>
+                                <SelectItem disabled value="online">
+                                  Pay online
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>{" "}
+                          </div>
+
+                          <Button
+                            onClick={() => {
+                              if (!selectedGuests.length) {
+                                return alert("Please Select atleast 1 Guest");
+                              }
+                              if (!selectedNumberOfRoomsOrBeds) {
+                                return alert("Please Select Number of Rooms");
+                              }
+                              if (selectedGuests.length > roomDetails?.totalBed) {
+                                return alert(
+                                  "Number of Selected Guests and Number of Selected Beds should be equal",
+                                );
+                              }
+                              createBookingMutation.mutate({
+                                hostelName: roomDetails.hostelName,
+                                guestIds: selectedGuests.map((g) => g.id),
+                                bookingDate: new Date().toISOString(),
+                                bookedFromDt: checkin,
+                                bookedToDt: checkout,
+                                nosRooms: selectedNumberOfRoomsOrBeds,
+                                remark: "",
+                                bookingType: "BEDS",
+                                roomId: roomDetails.id,
+                                amount: total,
+                                roomType: roomDetails?.roomType,
+                                paymentStatus: "pending",
+                                userId: userId,
+                                userName,
+                                userEmail,
+                                subtotal: subtotal,
+                              });
+                            }}
+                          >
+                            Confirm Booking
+                          </Button>
+
+
+
+
                         </div>
                       </dl>
 
-                      <Button
-                        onClick={() => {
-                          if (!selectedGuests.length) {
-                            return alert("Please Select atleast 1 Guest");
-                          }
-                          if (!selectedNumberOfRoomsOrBeds) {
-                            return alert("Please Select Number of Rooms");
-                          }
-                          if (selectedGuests.length > roomDetails?.totalBed) {
-                            return alert(
-                              "Number of Selected Guests and Number of Selected Beds should be equal",
-                            );
-                          }
-                          createBookingMutation.mutate({
-                            hostelName: roomDetails.hostelName,
-                            guestIds: selectedGuests.map((g) => g.id),
-                            bookingDate: new Date().toISOString(),
-                            bookedFromDt: checkin,
-                            bookedToDt: checkout,
-                            nosRooms: selectedNumberOfRoomsOrBeds,
-                            remark: "",
-                            bookingType: "BEDS",
-                            roomId: roomDetails.id,
-                            amount: total,
-                            roomType: roomDetails?.roomType,
-                            paymentStatus: "pending",
-                            userId: userId,
-                            userName,
-                            userEmail,
-                            subtotal: subtotal,
-                          });
-                        }}
-                      >
-                        Confirm Booking
-                      </Button>
+                      <div className="my-2 flex items-end justify-end">
+
+                      </div>
                     </div>
                   </ul>
                 </section>
@@ -464,9 +473,9 @@ export default function Checkout({
           </main>
         ) : (
           <div className="flex min-h-[60vh] flex-col items-center justify-center text-green-500">
-            <p className="text-2xl text-black">Your booking is successful</p>
+            <p className="sm:text-2xl text-base text-black">Your booking is successful</p>
             <div className="mt-6 flex items-center gap-4">
-            <p className="text-3xl typing-animation">You will be redirected to the booking page</p>
+              <p className="sm:text-3xl text-lg typing-animation">You will be redirected to the booking page</p>
               <div className="flex items-center gap-2 mt-2">
                 <div className="h-3 w-3 animate-bounce rounded-full bg-green-500"></div>
                 <div className="h-3 w-3 animate-bounce rounded-full bg-green-500 delay-150"></div>
