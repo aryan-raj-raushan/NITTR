@@ -1,10 +1,10 @@
 "use client";
-import { UserIcon } from "lucide-react";// @ts-ignore
+import { UserIcon } from "lucide-react"; // @ts-ignore
 import { GuestProfile, RoomCharges } from "@prisma/client";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
-import { useToast } from "~/components/ui/use-toast";
+// import { useToast } from "~/components/ui/use-toast";
 import { api } from "~/trpc/react";
 // import { CreateGuestValidator, TCreateGuestValidator } from '~/utils/validators/guestValidators';
 import { useEffect, useState } from "react";
@@ -24,6 +24,12 @@ import { Card } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
 import { useAppSelector } from "~/store";
 import { Bounce, toast } from "react-toastify";
+import axios from "axios";
+import {
+  CreateOrder,
+  RetrieveTransaction,
+  VerifyPaymentUrl,
+} from "~/utils/url/authurl";
 
 function datediff(first: Date, second: Date) {
   //@ts-ignore
@@ -111,6 +117,39 @@ export default function Checkout({
     getGuestsMutation.mutate({ userId: id ?? "" });
   }, [id]);
 
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const initiatePayment = async (amount: number, userId: string) => {
+    try {
+      const response = await axios.post(VerifyPaymentUrl, { amount, userId });
+      const paymentRequest = response.data.paymentRequest;
+
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = "https://www.billdesk.com/pgidsk/PGIMerchantPayment";
+
+      Object.keys(paymentRequest).forEach((key) => {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = key;
+        input.value = paymentRequest[key];
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit();
+
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({ success: true });
+        }, 3000);
+      });
+    } catch (error) {
+      console.error("Payment initiation failed:", error);
+      return { success: false };
+    }
+  };
+
   if (roomDetails) {
     const totalDay = datediff(checkin, checkout);
     const subtotal = selectedGuests.reduce((total, guest) => {
@@ -140,6 +179,143 @@ export default function Checkout({
     };
 
     const typeBody = (category: any) => categoryConst[category?.typeOrg];
+
+    const handleConfirmBooking = async () => {
+      if (!selectedGuests.length) {
+        return alert("Please Select at least 1 Guest");
+      }
+      if (!selectedNumberOfRoomsOrBeds) {
+        return alert("Please Select Number of Rooms");
+      }
+      if (selectedGuests.length > roomDetails?.totalBed) {
+        return alert(
+          "Number of Selected Guests and Number of Selected Beds should be equal",
+        );
+      }
+
+      setIsProcessing(true);
+
+      try {
+        const orderResponse = await createOrder(total, userId);
+        if (orderResponse.success) {
+          redirectToBillDesk(orderResponse.bdorderid, orderResponse.rdata);
+        } else {
+          setIsProcessing(false);
+          alert("Order creation failed. Please try again.");
+        }
+      } catch (error) {
+        setIsProcessing(false);
+        console.error("Error during booking confirmation:", error);
+        alert("Booking confirmation failed. Please try again.");
+      }
+    };
+
+    const createOrder = async (amount: number, userId: string) => {
+      try {
+        const response = await axios.post(CreateOrder, { amount, userId });
+        return response.data;
+      } catch (error) {
+        console.error("Error creating order:", error);
+        return { success: false };
+      }
+    };
+
+    const redirectToBillDesk = (bdorderid: string, rdata: string) => {
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = "https://www.billdesk.com/pgidsk/PGIMerchantPayment";
+
+      const bdorderidInput = document.createElement("input");
+      bdorderidInput.type = "hidden";
+      bdorderidInput.name = "bdorderid";
+      bdorderidInput.value = bdorderid;
+      form.appendChild(bdorderidInput);
+
+      const rdataInput = document.createElement("input");
+      rdataInput.type = "hidden";
+      rdataInput.name = "rdata";
+      rdataInput.value = rdata;
+      form.appendChild(rdataInput);
+
+      document.body.appendChild(form);
+      form.submit();
+    };
+
+    const handlePaymentSuccess = async (bdorderid: string) => {
+      try {
+        const transactionResponse = await retrieveTransaction(bdorderid);
+        if (transactionResponse.success) {
+          await createBooking();
+        } else {
+          setIsProcessing(false);
+          alert("Transaction retrieval failed. Please try again.");
+        }
+      } catch (error) {
+        setIsProcessing(false);
+        console.error("Error during transaction retrieval:", error);
+        alert("Transaction retrieval failed. Please try again.");
+      }
+    };
+
+    const retrieveTransaction = async (bdorderid: string) => {
+      try {
+        const response = await axios.post(RetrieveTransaction, { bdorderid });
+        return response.data;
+      } catch (error) {
+        console.error("Error retrieving transaction:", error);
+        return { success: false };
+      }
+    };
+
+    const createBooking = async () => {
+      createBookingMutation.mutate(
+        {
+          hostelName: roomDetails.hostelName,
+          guestIds: selectedGuests.map((g) => g.id),
+          bookingDate: new Date().toISOString(),
+          bookedFromDt: checkin,
+          bookedToDt: checkout,
+          nosRooms: selectedNumberOfRoomsOrBeds,
+          remark: "",
+          bookingType: "BEDS",
+          roomId: roomDetails.id,
+          amount: total,
+          roomType: roomDetails?.roomType,
+          paymentStatus: "pending",
+          userId: userId,
+          userName,
+          userEmail,
+          subtotal: subtotal,
+        },
+        {
+          onSuccess: ({ bookingDetails }) => {
+            toast.success("Booking successful!", {
+              position: "top-center",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+              transition: Bounce,
+            });
+            setTimeout(() => {
+              router.push(
+                selectedPaymentMethod === "offline"
+                  ? `/payment/success/${bookingDetails.id}`
+                  : `/payment?id=${bookingDetails.id}`,
+              );
+            }, 3000);
+            setLoading(true);
+          },
+          onError: () => {
+            setIsProcessing(false);
+            alert("Booking creation failed. Please try again.");
+          },
+        },
+      );
+    };
 
     return (
       <>
@@ -221,7 +397,7 @@ export default function Checkout({
                     </div>
 
                     <div className="no-scrollbar flex justify-start  gap-4 overflow-auto text-sm lg:justify-center lg:gap-6">
-                    <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
+                      <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
                         <div>User ID</div>
                         <div>
                           <b>{userId}</b>
@@ -421,39 +597,10 @@ export default function Checkout({
                       </dl>
 
                       <Button
-                        onClick={() => {
-                          if (!selectedGuests.length) {
-                            return alert("Please Select atleast 1 Guest");
-                          }
-                          if (!selectedNumberOfRoomsOrBeds) {
-                            return alert("Please Select Number of Rooms");
-                          }
-                          if (selectedGuests.length > roomDetails?.totalBed) {
-                            return alert(
-                              "Number of Selected Guests and Number of Selected Beds should be equal",
-                            );
-                          }
-                          createBookingMutation.mutate({
-                            hostelName: roomDetails.hostelName,
-                            guestIds: selectedGuests.map((g) => g.id),
-                            bookingDate: new Date().toISOString(),
-                            bookedFromDt: checkin,
-                            bookedToDt: checkout,
-                            nosRooms: selectedNumberOfRoomsOrBeds,
-                            remark: "",
-                            bookingType: "BEDS",
-                            roomId: roomDetails.id,
-                            amount: total,
-                            roomType: roomDetails?.roomType,
-                            paymentStatus: "pending",
-                            userId: userId,
-                            userName,
-                            userEmail,
-                            subtotal: subtotal,
-                          });
-                        }}
+                        onClick={handleConfirmBooking}
+                        disabled={isProcessing}
                       >
-                        Confirm Booking
+                        {isProcessing ? "Processing..." : "Confirm Booking"}
                       </Button>
                     </div>
                   </ul>
@@ -466,8 +613,10 @@ export default function Checkout({
           <div className="flex min-h-[60vh] flex-col items-center justify-center text-green-500">
             <p className="text-2xl text-black">Your booking is successful</p>
             <div className="mt-6 flex items-center gap-4">
-            <p className="text-3xl typing-animation">You will be redirected to the booking page</p>
-              <div className="flex items-center gap-2 mt-2">
+              <p className="typing-animation text-3xl">
+                You will be redirected to the booking page
+              </p>
+              <div className="mt-2 flex items-center gap-2">
                 <div className="h-3 w-3 animate-bounce rounded-full bg-green-500"></div>
                 <div className="h-3 w-3 animate-bounce rounded-full bg-green-500 delay-150"></div>
                 <div className="h-3 w-3 animate-bounce rounded-full bg-green-500 delay-300"></div>

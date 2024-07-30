@@ -16,6 +16,10 @@ export const ForgetPassword = AUTH_BASED_URL + "/forgot-password";
 
 export const SinginWithGoogle =  AUTH_BASED_URL + "/loign-with-google";
 export const VerifyPhone =  AUTH_BASED_URL + "/api/check-phone-verification";
+export const VerifyPaymentUrl = AUTH_BASED_URL + "/api/verify-payment";
+export const RetrieveTransaction =
+  AUTH_BASED_URL + "/api/payment/retrieve-transaction";
+export const CreateOrder = AUTH_BASED_URL + "/api/payment/create-order";
 
 export const verifyMail = async (data: any) => {
   try {
