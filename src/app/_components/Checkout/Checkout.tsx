@@ -344,7 +344,6 @@ export default function Checkout({
                   aria-labelledby="payment-heading"
                   className="flex w-full flex-col py-4 sm:w-3/5"
                 >
-
                   {/*JSON.stringify(checkin + ":" + checkout)*/}
 
                   <Card className="mt-4 flex w-full flex-col justify-center gap-5 p-6">
@@ -424,7 +423,9 @@ export default function Checkout({
 
                   {guests.length > 0 && (
                     <Card className="mt-10 flex flex-col justify-center gap-5 p-2 sm:px-8 sm:py-4">
-                      <span className="text-2xl w-fit rounded-sm bg-gray-400 p-2">Guests List</span>
+                      <span className="w-fit rounded-sm bg-gray-400 p-2 text-2xl">
+                        Guests List
+                      </span>
                       <div className="w-full">
                         {guests.map((g, index) => (
                           <li
@@ -571,29 +572,33 @@ export default function Checkout({
                           <dd className="text-gray-900">₹{tax.toFixed(2)}</dd>
                         </div>
                         <div className="flex flex-col items-center justify-between border-t border-gray-200 py-6 text-gray-900">
-                          <dt className="text-base w-full">
-                            Total (for {selectedGuests.length} {guestLabel})  - ₹{total.toFixed(2)}
+                          <dt className="w-full text-base">
+                            Total (for {selectedGuests.length} {guestLabel}) - ₹
+                            {total.toFixed(2)}
                           </dt>
-                        
+                        </div>
+                      </dl>
 
-                          <div className="pb-2">
-                            <Select
-                              defaultValue={selectedPaymentMethod}
-                              onValueChange={(value) => {
-                                setSelectedPaymentMethod(value);
-                              }}
-                            >
-                              <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Choose payment Type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="offline">Pay at Hostel</SelectItem>
-                                <SelectItem disabled value="online">
-                                  Pay online
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>{" "}
-                          </div>
+                      <div className="pb-2">
+                        <Select
+                          defaultValue={selectedPaymentMethod}
+                          onValueChange={(value) => {
+                            setSelectedPaymentMethod(value);
+                          }}
+                        >
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Choose payment Type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="offline">
+                              Pay at Hostel
+                            </SelectItem>
+                            <SelectItem disabled value="online">
+                              Pay online
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>{" "}
+                      </div>
 
                       <Button
                         onClick={handleConfirmBooking}
@@ -606,11 +611,12 @@ export default function Checkout({
                 </section>
               </div>
             </Dialog>
-            {/* Checkout form */}
           </main>
         ) : (
           <div className="flex min-h-[60vh] flex-col items-center justify-center text-green-500">
-            <p className="sm:text-2xl text-base text-black">Your booking is successful</p>
+            <p className="text-base text-black sm:text-2xl">
+              Your booking is successful
+            </p>
             <div className="mt-6 flex items-center gap-4">
               <p className="typing-animation text-3xl">
                 You will be redirected to the booking page
