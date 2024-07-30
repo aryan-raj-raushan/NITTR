@@ -63,7 +63,7 @@ const Navbar = () => {
             leaveFrom="translate-x-0"
             leaveTo="translate-x-full"
           >
-            <div className="relative ml-auto w-full max-w-xs bg-white shadow-xl">
+            <div className="relative ml-auto w-full max-w-xs bg-white shadow-xl rounded-l-xl">
               <div className="flex flex-col items-center px-4 py-5">
                 <div className="mb-5">
                   {isLogin ? (
@@ -152,7 +152,7 @@ const Navbar = () => {
           </svg>
         </button>
        </div>
-       <div className="h-[1px] bg-gray-200 w-full sm:hidden flex"></div>
+       <div className="h-[1px] bg-gray-200 w-full sm:hidden flex rounded-xl"></div>
       </div>
     </nav>
   );
@@ -166,5 +166,6 @@ export const NavBarData = {
     { name: "Institute", href: "https://nitttrbpl.ac.in" },
     { name: "Contact Us", href: "/contact-us" },
     { name: "Gallery", href: "/gallery" },
+    { name: "My Bookings", href: "/myBookings" },
   ],
 };

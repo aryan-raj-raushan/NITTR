@@ -8,32 +8,52 @@ import Image from "next/image";
 import SearchForm from "~/app/_components/SearchForm";
 import { FaCoffee, FaParking, FaBath, FaWifi, FaSnowflake, FaUsers, FaConciergeBell, FaShower, FaBan, FaTv } from 'react-icons/fa';
 
+import HeroBannerOne from "../../../public/hero_banner_1.webp"
+import HeroBannerTwo from "../../../public/hero_banner_2.webp"
+import HeroBannerThree from "../../../public/hero_banner_3.webp"
+
+import ExecutiveOne from "../Assets/images/executive/executive.jpg";
+import ExecutiveTwo from "../Assets/images/executive/executive2.jpg";
+import ExecutiveThree from "../Assets/images/executive/executive3.jpg";
+import ExecutiveFour from "../Assets/images/executive/executive4.jpg";
+
+import SaranOne from "../Assets/images/saran/saran1.jpg";
+import SaranTwo from "../Assets/images/saran/saran2.jpg";
+import SaranThree from "../Assets/images/saran/saran3.jpg";
+import SaranFour from "../Assets/images/saran/saran4.jpg";
+import SaranFive from "../Assets/images/saran/saran5.jpg";
+
+import VishOne from "../Assets/images/vish/vish1.jpg";
+import VishTwo from "../Assets/images/vish/vish2.jpg";
+import VishThree from "../Assets/images/vish/vish3.jpg";
+import VishFour from "../Assets/images/vish/vish4.jpg";
+
 const saranRoomPictures = [
-  "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/_DSC0346+(2).JPG",
-  "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0127.JPG",
-  "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0136.JPG",
-  "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0137.JPG",
-  "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/DSC_0140.JPG",
+  SaranOne,
+  SaranTwo,
+  SaranThree,
+  SaranFour,
+  SaranFive
 ];
 
 const executeRoomPictures = [
-  "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/fwdexecutivehostelphotograph/DSC_1095.JPG",
-  "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/fwdexecutivehostelphotograph/DSC_1107.JPG",
-  "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/fwdexecutivehostelphotograph/DSC_1115.JPG",
-  "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/fwdexecutivehostelphotograph/DSC_1120.JPG",
+  ExecutiveOne,
+  ExecutiveTwo,
+  ExecutiveThree,
+  ExecutiveFour
 ];
 
 const viswesawraiyaguesthousePictures = [
-  "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/fwdviswesawraiyaguesthouse/DSC_0067.JPG",
-  "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/fwdviswesawraiyaguesthouse/DSC_0067.JPG",
-  "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/fwdviswesawraiyaguesthouse/DSC_0111.JPG",
-  "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/fwdviswesawraiyaguesthouse/DSC_1422.JPG",
+  VishOne,
+  VishTwo,
+  VishThree,
+  VishFour
 ];
 
 const Choices = [
   {
     id: 1,
-    src: "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/_DSC0346+(2).JPG",
+    src: HeroBannerOne,
     title: "Saran Guest House",
     description:
       "A cozy and well-equipped guest house offering a comfortable stay.",
@@ -41,7 +61,7 @@ const Choices = [
   },
   {
     id: 2,
-    src: "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/fwdviswesawraiyaguesthouse/_DSC0140.JPG",
+    src: HeroBannerThree,
     title: "Visvesvaraya Guest House",
     description:
       "Elegant guest house with modern amenities for a pleasant experience.",
@@ -49,7 +69,7 @@ const Choices = [
   },
   {
     id: 3,
-    src: "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/fwdexecutivehostelphotograph/DSC_1095.JPG",
+    src: HeroBannerTwo,
     title: "Executive Guest House",
     description:
       "Luxurious guest house providing top-notch facilities and service.",

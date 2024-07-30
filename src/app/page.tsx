@@ -6,11 +6,12 @@ import MapSection from "~/components/HomePage2/MapSection";
 import PhotoModal from "~/components/HomePage2/PhotoModal";
 // import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
-// import StreetView from "~/components/HomePage2/map";
-// import { slideInFromBottom } from "~/utils/motion";
-
 import { useAnimation } from "framer-motion";
 import { useEffect } from "react";
+
+import HeroBannerOne from "../../public/hero_banner_1.webp"
+import HeroBannerTwo from "../../public/hero_banner_2.webp"
+import HeroBannerThree from "../../public/hero_banner_3.webp"
 
 export default function Home() {
   // const [showModal, setShowModal] = useState(false);
@@ -53,21 +54,21 @@ export default function Home() {
 const Choices = [
   {
     id: 1,
-    src: "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/_DSC0346+(2).JPG",
+    src: HeroBannerOne,
     title: "Saran Guest House",
     location: "saran",
     description: "",
   },
   {
     id: 2,
-    src: "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/fwdviswesawraiyaguesthouse/_DSC0140.JPG",
+    src: HeroBannerTwo,
     title: "Vishveshvaraya Guest House",
     location: "vishveshvaraya",
     description: "",
   },
   {
     id: 3,
-    src: "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/fwdexecutivehostelphotograph/DSC_1095.JPG",
+    src: HeroBannerThree,
     title: "Executive Guest House",
     location: "executive",
     description: "",
