@@ -46,6 +46,7 @@ export const bookingRouter = createTRPCRouter({
         amount,
         userId,
         paymentStatus,
+        paymentMode,
         subtotal,
         userName,
         userEmail,
@@ -94,6 +95,7 @@ export const bookingRouter = createTRPCRouter({
           totalRoom: totalRoom,
           paymentStatus,
           subtotal,
+          paymentMode: paymentMode,
         },
       });
 

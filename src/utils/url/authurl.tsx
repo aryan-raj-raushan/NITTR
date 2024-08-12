@@ -11,11 +11,12 @@ export const VerifyGooglePhone =
   AUTH_BASED_URL + "/api/verify-google-phone-number";
 
 export const SigninURL = AUTH_BASED_URL + "/login";
+export const CreateOrder = AUTH_BASED_URL + "/api/create-order";
 
 export const ForgetPassword = AUTH_BASED_URL + "/forgot-password";
 
-export const SinginWithGoogle =  AUTH_BASED_URL + "/loign-with-google";
-export const VerifyPhone =  AUTH_BASED_URL + "/api/check-phone-verification";
+export const SinginWithGoogle = AUTH_BASED_URL + "/loign-with-google";
+export const VerifyPhone = AUTH_BASED_URL + "/api/check-phone-verification";
 
 export const verifyMail = async (data: any) => {
   try {

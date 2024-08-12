@@ -267,6 +267,7 @@ model GuestProfile {
   bookedRoom    String?
   guestsList    String[]
   paymentStatus String?
+  paymentMode   String?
   userName      String?
   userEmail     String?
   userId        String?

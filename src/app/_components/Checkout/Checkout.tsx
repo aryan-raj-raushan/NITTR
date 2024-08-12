@@ -4,12 +4,9 @@ import { GuestProfile, RoomCharges } from "@prisma/client";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
-import { useToast } from "~/components/ui/use-toast";
 import { api } from "~/trpc/react";
-// import { CreateGuestValidator, TCreateGuestValidator } from '~/utils/validators/guestValidators';
 import { useEffect, useState } from "react";
 import GuestForm from "../guests/guestForm";
-// import { Input } from '~/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -19,11 +16,12 @@ import {
 } from "~/components/ui/select";
 import { useRouter } from "next/navigation";
 import { TbookingType } from "~/lib/utils";
-// import { RouterOutputs } from '~/trpc/shared';
 import { Card } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
 import { useAppSelector } from "~/store";
 import { Bounce, toast } from "react-toastify";
+import axios from "axios";
+import { CreateOrder } from "~/utils/url/authurl";
 
 function datediff(first: Date, second: Date) {
   //@ts-ignore
@@ -55,10 +53,91 @@ export default function Checkout({
   const userId = id;
   const userName = name;
   const userEmail = email;
+  const [paymentTotal, setPaymentTotal] = useState<any>();
 
   const createBookingMutation = api.booking.createBooking.useMutation({
-    onSuccess: async ({ bookingDetails }) => {
-      toast.success("Booking successful!", {
+    onSuccess: async ({ bookingDetails }: any) => {
+      if (selectedPaymentMethod === "offline") {
+        toast.success("Booking successful!", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
+        setTimeout(() => {
+          router.push(`/payment/success/${bookingDetails.id}`);
+        }, 3000);
+        setLoading(true);
+      } else {
+        initiateOnlinePayment(paymentTotal);
+        setLoading(true);
+      }
+      setLoading(false);
+    },
+  });
+
+  const initiateBillDeskPayment = (response:any) => {
+    console.log("open form",response);
+    if (!response || !response.links) {
+        console.error("Invalid response or links not present", response);
+        return;
+    }
+    const redirectLink = response.links.find((link:any) => link.rel === "redirect");
+    if (!redirectLink || !redirectLink.parameters) {
+        console.error("Redirect link or parameters not found", redirectLink);
+        return;
+    }
+    const form = document.createElement("form");
+    form.setAttribute("name", "sdklaunch");
+    form.setAttribute("id", "sdklaunch");
+    form.setAttribute("action", redirectLink.href);
+    form.setAttribute("method", "POST");
+
+    const parameters = {
+        'bdorderid': redirectLink.parameters.bdorderid,
+        'merchantid': redirectLink.parameters.mercid,
+        'rdata': redirectLink.parameters.rdata
+    };
+    Object.entries(parameters).forEach(([key, value]) => {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = key;
+        input.value = value;
+        form.appendChild(input);
+    });
+    const submitButton = document.createElement("input");
+    submitButton.type = "submit";
+    submitButton.value = "Complete your Payment";
+    form.appendChild(submitButton);
+    document.body.appendChild(form);
+    form.submit();
+};
+  function generateOrderId() {
+    const prefix = "UAT";
+    const timestamp = Date.now().toString(36).slice(-4);
+    const randomPart = Math.random().toString(36).substring(2, 10);
+    return `${prefix}${timestamp}${randomPart}`;
+  }
+  const initiateOnlinePayment = async (amount: any) => {
+    const bookingId = generateOrderId();
+    try {
+      const response = await axios.post(CreateOrder, {
+        orderid: bookingId,
+        amount: "5",
+        return_url: `${window.location.origin}/payment`,
+        additional_info1: "Info1",
+        additional_info2: "Info2",
+      });
+
+      initiateBillDeskPayment(response?.data);
+    } catch (error) {
+      console.error("Error initiating online payment:", error);
+      toast.error("Failed to initiate online payment", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -69,16 +148,8 @@ export default function Checkout({
         theme: "light",
         transition: Bounce,
       });
-      setTimeout(() => {
-        router.push(
-          selectedPaymentMethod == "offline"
-            ? `/payment/success/${bookingDetails.id}`
-            : `/payment?id=${bookingDetails.id}`,
-        );
-      }, 3000);
-      setLoading(true);
-    },
-  });
+    }
+  };
 
   const removeGuestMutation = api.guests.removeGuest.useMutation({
     onSuccess: async () => {
@@ -158,8 +229,8 @@ export default function Checkout({
 
             <Dialog>
               <DialogContent
-                className="no-scrollbar  flex flex-wrap items-center justify-center p-10 text-gray-600 "
-                style={{ width: "50%", height: "90%" }}
+                className="no-scrollbar sm:w-1/2 w-[80%] sm:h-[90%] h-[60%] flex flex-wrap items-center justify-center p-10 text-gray-600 "
+                
               >
                 <GuestForm roomCharges={roomCharges}></GuestForm>
               </DialogContent>
@@ -168,7 +239,6 @@ export default function Checkout({
                   aria-labelledby="payment-heading"
                   className="flex w-full flex-col py-4 sm:w-3/5"
                 >
-
                   {/*JSON.stringify(checkin + ":" + checkout)*/}
 
                   <Card className="mt-4 flex w-full flex-col justify-center gap-5 p-6">
@@ -201,7 +271,7 @@ export default function Checkout({
                       </div>
                     </div>
 
-                    <div className="no-scrollbar flex lg:flex-row flex-col justify-start  gap-4 overflow-auto text-sm lg:justify-center lg:gap-6">
+                    <div className="no-scrollbar flex flex-col justify-start gap-4  overflow-auto text-sm lg:flex-row lg:justify-center lg:gap-6">
                       <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
                         <div>User ID</div>
                         <div>
@@ -248,7 +318,9 @@ export default function Checkout({
 
                   {guests.length > 0 && (
                     <Card className="mt-10 flex flex-col justify-center gap-5 p-2 sm:px-8 sm:py-4">
-                      <span className="text-2xl w-fit rounded-sm bg-gray-400 p-2">Guests List</span>
+                      <span className="w-fit rounded-sm bg-gray-400 p-2 text-2xl">
+                        Guests List
+                      </span>
                       <div className="w-full">
                         {guests.map((g, index) => (
                           <li
@@ -395,10 +467,10 @@ export default function Checkout({
                           <dd className="text-gray-900">₹{tax.toFixed(2)}</dd>
                         </div>
                         <div className="flex flex-col items-center justify-between border-t border-gray-200 py-6 text-gray-900">
-                          <dt className="text-base w-full">
-                            Total (for {selectedGuests.length} {guestLabel})  - ₹{total.toFixed(2)}
+                          <dt className="w-full text-base">
+                            Total (for {selectedGuests.length} {guestLabel}) - ₹
+                            {total.toFixed(2)}
                           </dt>
-                        
 
                           <div className="pb-2">
                             <Select
@@ -411,8 +483,10 @@ export default function Checkout({
                                 <SelectValue placeholder="Choose payment Type" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="offline">Pay at Hostel</SelectItem>
-                                <SelectItem disabled value="online">
+                                <SelectItem value="offline">
+                                  Pay at Hostel
+                                </SelectItem>
+                                <SelectItem value="online">
                                   Pay online
                                 </SelectItem>
                               </SelectContent>
@@ -427,11 +501,14 @@ export default function Checkout({
                               if (!selectedNumberOfRoomsOrBeds) {
                                 return alert("Please Select Number of Rooms");
                               }
-                              if (selectedGuests.length > roomDetails?.totalBed) {
+                              if (
+                                selectedGuests.length > roomDetails?.totalBed
+                              ) {
                                 return alert(
                                   "Number of Selected Guests and Number of Selected Beds should be equal",
                                 );
                               }
+                              setPaymentTotal(total);
                               createBookingMutation.mutate({
                                 hostelName: roomDetails.hostelName,
                                 guestIds: selectedGuests.map((g) => g.id),
@@ -444,26 +521,21 @@ export default function Checkout({
                                 roomId: roomDetails.id,
                                 amount: total,
                                 roomType: roomDetails?.roomType,
-                                paymentStatus: "pending",
                                 userId: userId,
                                 userName,
                                 userEmail,
                                 subtotal: subtotal,
+                                paymentStatus: "Payment Done",
+                                paymentMode: selectedPaymentMethod,
                               });
                             }}
                           >
                             Confirm Booking
                           </Button>
-
-
-
-
                         </div>
                       </dl>
 
-                      <div className="my-2 flex items-end justify-end">
-
-                      </div>
+                      <div className="my-2 flex items-end justify-end"></div>
                     </div>
                   </ul>
                 </section>
@@ -473,10 +545,14 @@ export default function Checkout({
           </main>
         ) : (
           <div className="flex min-h-[60vh] flex-col items-center justify-center text-green-500">
-            <p className="sm:text-2xl text-base text-black">Your booking is successful</p>
+            <p className="text-base text-black sm:text-2xl">
+              Your booking is successful
+            </p>
             <div className="mt-6 flex items-center gap-4">
-              <p className="sm:text-3xl text-lg typing-animation">You will be redirected to the booking page</p>
-              <div className="flex items-center gap-2 mt-2">
+              <p className="typing-animation text-lg sm:text-3xl">
+                You will be redirected to the booking page
+              </p>
+              <div className="mt-2 flex items-center gap-2">
                 <div className="h-3 w-3 animate-bounce rounded-full bg-green-500"></div>
                 <div className="h-3 w-3 animate-bounce rounded-full bg-green-500 delay-150"></div>
                 <div className="h-3 w-3 animate-bounce rounded-full bg-green-500 delay-300"></div>

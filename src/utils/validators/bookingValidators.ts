@@ -8,7 +8,7 @@ export const CreateBookingValidator = z.object({
   bookedFromDt: z.date(),
   bookedToDt: z.date(),
   userId: z.string(),
-  userName:  z.string(),
+  userName: z.string(),
   userEmail: z.string(),
   remark: z.string(),
   guestIds: z.array(z.string()).min(1),
@@ -19,7 +19,8 @@ export const CreateBookingValidator = z.object({
   amount: z.number(),
   roomType: z.string(),
   totalRoom: z.number().optional(),
-  paymentStatus: z.string(),
+  paymentStatus: z.string().optional(),
+  paymentMode: z.string().optional(),
   subtotal: z.number(),
 });
 export type TCreateBookingValidator = z.infer<typeof CreateGuestValidator>;
@@ -56,4 +57,5 @@ export const emptyBooking: any = {
   bookedRoom: "",
   guestsList: [],
   paymentStatus: "",
+  paymentMode: "",
 };

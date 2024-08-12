@@ -53,6 +53,7 @@ const emptyBooking: any = {
   bookedRoom: "",
   guestsList: [],
   paymentStatus: "",
+  paymentMode: "",
 };
 
 export default function AdminConsole({ bookings, hostelName }: { bookings: TbookingsValidator[], hostelName: GuestHouse }) {
