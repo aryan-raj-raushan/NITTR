@@ -229,8 +229,8 @@ export default function Checkout({
 
             <Dialog>
               <DialogContent
-                className="no-scrollbar  flex flex-wrap items-center justify-center p-10 text-gray-600 "
-                style={{ width: "50%", height: "90%" }}
+                className="no-scrollbar sm:w-1/2 w-[80%] sm:h-[90%] h-[60%] flex flex-wrap items-center justify-center p-10 text-gray-600 "
+                
               >
                 <GuestForm roomCharges={roomCharges}></GuestForm>
               </DialogContent>
