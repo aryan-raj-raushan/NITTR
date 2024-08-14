@@ -4,7 +4,6 @@ import VipCard from "./_components/VipCard/VipCard";
 import HeroSection from "~/components/HomePage2/HeroSection";
 import MapSection from "~/components/HomePage2/MapSection";
 import PhotoModal from "~/components/HomePage2/PhotoModal";
-// import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { useAnimation } from "framer-motion";
 import { useEffect } from "react";
