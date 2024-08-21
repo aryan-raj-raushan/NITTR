@@ -90,6 +90,20 @@ export default function MyBookings({ bookings }: { bookings: BookingDetails[] })
 
   const TotalBookings = initialBookings.length;
 
+  const [bookingsToShow, setBookingsToShow] = useState<number>(10);
+  const filteredBookingsToShow = filteredBookings.slice(0, bookingsToShow);
+  const handleLoadMore = () => {
+    setBookingsToShow((prev) => prev + 10);
+  };
+
+  const truncateId = (id: string, length: number = 8) => {
+    if (id.length <= length) return id;
+    const start = id.slice(0, Math.ceil(length / 2));
+    const end = id.slice(-Math.floor(length / 2));
+    return `${start}...${end}`;
+  };
+  
+
   return (
     <>
       {initialBookings.length > 0 ? (
@@ -137,11 +151,19 @@ export default function MyBookings({ bookings }: { bookings: BookingDetails[] })
                       </div>
                     </CardHeader>
                     <CardContent className="my-4">
-                      <RecentBookings
-                        selectedBooking={selectedBooking ?? emptyBooking}
-                        setSelectedBooking={setSelectedBooking}
-                        bookings={filteredBookings as any}
-                      />
+                    <RecentBookings
+    selectedBooking={selectedBooking ?? emptyBooking}
+    setSelectedBooking={setSelectedBooking}
+    bookings={filteredBookingsToShow as any}
+  />
+  {bookingsToShow < filteredBookings.length && (
+    <button
+      onClick={handleLoadMore}
+      className="mt-4 p-2 bg-blue-500 text-white rounded"
+    >
+      Load More
+    </button>
+  )}
                     </CardContent>
                   </Card>
 
@@ -155,7 +177,7 @@ export default function MyBookings({ bookings }: { bookings: BookingDetails[] })
                               ID :{" "}
                             </span>
                             <span className="value-style sm:text-base text-sm">
-                              {selectedBooking?.id}
+                            {truncateId(selectedBooking?.id)}
                             </span>
                           </div>
                           <div>

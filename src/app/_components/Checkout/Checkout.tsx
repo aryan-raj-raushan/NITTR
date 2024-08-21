@@ -74,12 +74,30 @@ export default function Checkout({
         }, 3000);
         setLoading(true);
       } else {
-        initiateOnlinePayment(paymentTotal);
+        initiateOnlinePayment(paymentTotal, bookingDetails.id);
         setLoading(true);
       }
       setLoading(false);
     },
   });
+
+  const handleBookingSuccess = (bookingId: string) => {
+    toast.success("Booking successful!", {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      transition: Bounce,
+    });
+    setTimeout(() => {
+      router.push(`/payment/success/${bookingId}`);
+    }, 3000);
+    setLoading(false);
+  };
 
   const initiateBillDeskPayment = (response:any) => {
     console.log("open form",response);
@@ -117,27 +135,30 @@ export default function Checkout({
     document.body.appendChild(form);
     form.submit();
 };
+
+
   function generateOrderId() {
     const prefix = "UAT";
     const timestamp = Date.now().toString(36).slice(-4);
     const randomPart = Math.random().toString(36).substring(2, 10);
     return `${prefix}${timestamp}${randomPart}`;
   }
-  const initiateOnlinePayment = async (amount: any) => {
-    const bookingId = generateOrderId();
+  const initiateOnlinePayment = async (amount: any, bookingId: string) => {
+    const orderId = generateOrderId();
     try {
       const response = await axios.post(CreateOrder, {
-        orderid: bookingId,
-        amount: "5",
-        return_url: `${window.location.origin}/payment`,
+        orderid: orderId,
+        amount: amount.toString(),
+        return_url: `${window.location.origin}/payment/callback/${bookingId}`,
         additional_info1: "Info1",
         additional_info2: "Info2",
       });
 
       initiateBillDeskPayment(response?.data);
+      // The actual payment result will be handled by the callback URL
     } catch (error) {
       console.error("Error initiating online payment:", error);
-      toast.error("Failed to initiate online payment", {
+      toast.error("Failed to initiate online payment. Your booking is still confirmed.", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -148,6 +169,8 @@ export default function Checkout({
         theme: "light",
         transition: Bounce,
       });
+      // Redirect to success page even if payment initiation fails
+      handleBookingSuccess(bookingId);
     }
   };
 
@@ -525,7 +548,7 @@ export default function Checkout({
                                 userName,
                                 userEmail,
                                 subtotal: subtotal,
-                                paymentStatus: "Payment Done",
+                                paymentStatus: selectedPaymentMethod === "offline" ? "Pending" : "Payment Done",
                                 paymentMode: selectedPaymentMethod,
                               });
                             }}
