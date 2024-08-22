@@ -295,40 +295,37 @@ export default function Checkout({
                     </div>
 
                     <div className="no-scrollbar flex flex-col justify-start gap-4  overflow-auto text-sm lg:flex-row lg:justify-center lg:gap-6">
-                      <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
-                        <div>User ID</div>
-                        <div>
-                          <b>{userId}</b>
-                        </div>
-                      </div>
-                      {/* <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
-                        <div>Floor</div>
-                        <div>
-                          <b>{roomDetails.floor?.replace(/_/g, " ")}</b>
-                        </div>
-                      </div> */}
+  <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
+    <div>User ID</div>
+    <div className="flex items-center space-x-2">
+      <b>{userId.slice(0, 3)}</b>
+      <button
+        className="px-2 py-1 text-xs text-white bg-blue-500 rounded-lg"
+        onClick={() => {
+          navigator.clipboard.writeText(userId);
+          alert("User ID copied");
+        }}
+      >
+        Copy
+      </button>
+    </div>
+  </div>
 
-                      <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3  shadow-xl lg:min-w-fit">
-                        <div>Bed Type</div>
-                        <div>
-                          <b>{roomDetails?.roomType?.replace(/_/g, " ")}</b>
-                        </div>
-                      </div>
+  <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
+    <div>Bed Type</div>
+    <div>
+      <b>{roomDetails?.roomType?.replace(/_/g, " ")}</b>
+    </div>
+  </div>
 
-                      {/* <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3  shadow-xl lg:min-w-fit">
-                        <div>Available Beds</div>
-                        <div>
-                          <b>{roomDetails?.totalBed}</b>
-                        </div>
-                      </div> */}
+  <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
+    <div>Occupancy</div>
+    <div>
+      <b>{roomDetails.occupancy}</b>
+    </div>
+  </div>
+</div>
 
-                      <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
-                        <div>Occupancy</div>
-                        <div>
-                          <b>{roomDetails.occupancy}</b>
-                        </div>
-                      </div>
-                    </div>
                   </Card>
 
                   {guests.length < 1 && (

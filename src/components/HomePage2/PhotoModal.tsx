@@ -139,7 +139,7 @@ const PhotoModal = ({ modalOpen, setModalOpen }: any) => {
       >
         <div className="flex flex-col items-center justify-center py-5">
           <h3 className="montserrat text-3xl font-bold">Explore Our Hostels</h3>
-          <p className="text-2xl font-light">
+          <p className="sm:text-2xl text-base font-light ml-2" style={{ textAlign: "justify" }}>
             Discover top hostels through images. Comfort, amenities, and service
             await you.
           </p>

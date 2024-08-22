@@ -37,7 +37,6 @@ interface BookingDetails {
   bookedToDt: Date;
   remark: string;
   bookPaymentId: string;
-  // Add any other missing properties here
 }
 
 export default function MyBookings({ bookings }: { bookings: BookingDetails[] }) {
@@ -46,6 +45,7 @@ export default function MyBookings({ bookings }: { bookings: BookingDetails[] })
   const [filteredBookings, setFilteredBookings] = useState<BookingDetails[]>([]);
   const [filter, setFilter] = useState<BookingStatus | "ALL">("ALL");
   const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [bookingsToShow, setBookingsToShow] = useState<number>(10);
 
   useEffect(() => {
     setInitialBookings(bookings);
@@ -74,6 +74,10 @@ export default function MyBookings({ bookings }: { bookings: BookingDetails[] })
     setFilter(status);
   };
 
+  const handleEntriesChange = (entries: number) => {
+    setBookingsToShow(entries);
+  };
+
   const lastConfirmedBooking =
     initialBookings.find((booking: BookingDetails) => booking.bookingStatus === "CONFIRMED") ||
     initialBookings[initialBookings.length - 1];
@@ -88,21 +92,16 @@ export default function MyBookings({ bookings }: { bookings: BookingDetails[] })
     return `${day}/${month}/${year} ${hours}:${minutes}`;
   };
 
-  const TotalBookings = initialBookings.length;
-
-  const [bookingsToShow, setBookingsToShow] = useState<number>(10);
-  const filteredBookingsToShow = filteredBookings.slice(0, bookingsToShow);
-  const handleLoadMore = () => {
-    setBookingsToShow((prev) => prev + 10);
-  };
-
-  const truncateId = (id: string, length: number = 8) => {
-    if (id.length <= length) return id;
-    const start = id.slice(0, Math.ceil(length / 2));
-    const end = id.slice(-Math.floor(length / 2));
-    return `${start}...${end}`;
+  const generateSystematicId = (id: string, index: number) => {
+    // Extract the first 3 letters of the original booking ID
+    const prefix = id.substring(0, 5).toUpperCase();
+    
+    // Generate the systematic ID with the prefix and the sequential number
+    return `${prefix}`;
   };
   
+
+  const filteredBookingsToShow = filteredBookings.slice(0, bookingsToShow);
 
   return (
     <>
@@ -121,7 +120,7 @@ export default function MyBookings({ bookings }: { bookings: BookingDetails[] })
                     <CardHeader>
                       <CardTitle className="text-gray-500">
                         Recent Bookings :
-                        <span className="pl-1 text-xl">{TotalBookings}</span>
+                        <span className="pl-1 text-xl">{initialBookings.length}</span>
                       </CardTitle>
                       <div className="flex space-x-2 mt-4">
                         <button
@@ -149,35 +148,51 @@ export default function MyBookings({ bookings }: { bookings: BookingDetails[] })
                           Cancelled
                         </button>
                       </div>
+                      <div className="mt-4">
+                        <label htmlFor="entries" className="text-sm font-medium text-gray-700">
+                          Show Entries:
+                        </label>
+                        <select
+                          id="entries"
+                          className="ml-2 p-1 bg-gray-200 text-black rounded"
+                          onChange={(e) => handleEntriesChange(Number(e.target.value))}
+                          defaultValue={10}
+                        >
+                          <option value={10}>10</option>
+                          <option value={20}>20</option>
+                          <option value={50}>50</option>
+                          <option value={100}>100</option>
+                        </select>
+                      </div>
                     </CardHeader>
                     <CardContent className="my-4">
-                    <RecentBookings
-    selectedBooking={selectedBooking ?? emptyBooking}
-    setSelectedBooking={setSelectedBooking}
-    bookings={filteredBookingsToShow as any}
-  />
-  {bookingsToShow < filteredBookings.length && (
-    <button
-      onClick={handleLoadMore}
-      className="mt-4 p-2 bg-blue-500 text-white rounded"
-    >
-      Load More
-    </button>
-  )}
+                      <RecentBookings
+                        selectedBooking={selectedBooking ?? emptyBooking}
+                        setSelectedBooking={setSelectedBooking}
+                        bookings={filteredBookingsToShow as any}
+                      />
+                      {bookingsToShow < filteredBookings.length && (
+                        <button
+                          onClick={() => handleEntriesChange(bookingsToShow + 10)}
+                          className="mt-4 p-2 bg-blue-500 text-white rounded"
+                        >
+                          Load More
+                        </button>
+                      )}
                     </CardContent>
                   </Card>
 
                   <Card className={`sticky top-8 col-span-4 h-fit ${isMobile ? "hidden" : ""}`}>
-                    <CardContent className="pl-2">
+                    <CardContent className="pl-2 max-h-[500px] overflow-y-auto">
                       {selectedBooking && (
                         <div className="space-y-5 p-4 text-xs text-black md:text-sm">
-                          <CardTitle className=" pt-6">Overview</CardTitle>
+                          <CardTitle className="pt-6">Overview</CardTitle>
                           <div>
                             <span className="key-style text-lg font-medium">
                               ID :{" "}
                             </span>
                             <span className="value-style sm:text-base text-sm">
-                            {truncateId(selectedBooking?.id)}
+                              {generateSystematicId(selectedBooking?.id, initialBookings.findIndex(booking => booking.id === selectedBooking.id))}
                             </span>
                           </div>
                           <div>
@@ -202,22 +217,26 @@ export default function MyBookings({ bookings }: { bookings: BookingDetails[] })
                               Guest Details{" "}
                             </span>
                             <div className="value-style w-fit rounded-md bg-gray-200 p-2 px-4 text-lg">
-                              <div className="sm:flex hidden justify-between gap-2 ">
-                                <span className="value-style">Name</span>
-                                <span className="value-style">Email</span>
-                                <span className="value-style">Phone number</span>
-                              </div>
                               {selectedBooking?.guests.map(
                                 (guest: Guest, index: number) => (
                                   <div
                                     key={index}
-                                    className="flex sm:flex-row flex-col justify-between sm:gap-6 gap-2 sm:border-none border-b border-black pb-2"
+                                    className="bg-white shadow rounded-md p-4 border border-gray-200"
                                   >
-                                    <span className="value-style sm:text-base text-sm">{guest.name}</span>
-                                    <span className="value-style sm:text-base text-sm">{guest.email}</span>
-                                    <span className="value-style sm:text-base text-sm">
-                                      {guest.mobileNo}
-                                    </span>
+                                    <div className="flex flex-col items-start space-y-2">
+                                      <div className="w-full">
+                                        <span className="block font-semibold text-base">Name:</span>
+                                        <span className="block text-gray-700 text-base">{guest.name}</span>
+                                      </div>
+                                      <div className="w-full">
+                                        <span className="block font-semibold text-base">Email:</span>
+                                        <span className="block text-gray-700 text-base">{guest.email}</span>
+                                      </div>
+                                      <div className="w-full">
+                                        <span className="block font-semibold text-base">Phone Number:</span>
+                                        <span className="block text-gray-700 text-base">{guest.mobileNo}</span>
+                                      </div>
+                                    </div>
                                   </div>
                                 ),
                               )}
@@ -258,6 +277,7 @@ export default function MyBookings({ bookings }: { bookings: BookingDetails[] })
                       )}
                     </CardContent>
                   </Card>
+
                 </div>
               </TabsContent>
             </Tabs>
@@ -269,7 +289,7 @@ export default function MyBookings({ bookings }: { bookings: BookingDetails[] })
 
       {/* Modal for mobile view */}
       {isMobile && selectedBooking && (
-        <div className="fixed  inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={() => setSelectedBooking(null)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={() => setSelectedBooking(null)}>
           <div className="bg-white p-4 rounded-lg max-w-sm w-full sm:max-h-full max-h-72 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <CardTitle className=" pt-6">Overview</CardTitle>
             <div className="space-y-5 p-4 text-xs text-black md:text-sm">
@@ -278,7 +298,7 @@ export default function MyBookings({ bookings }: { bookings: BookingDetails[] })
                   ID :{" "}
                 </span>
                 <span className="value-style sm:text-base text-sm">
-                  {selectedBooking?.id}
+                  {generateSystematicId(selectedBooking?.id, initialBookings.findIndex(booking => booking.id === selectedBooking.id))}
                 </span>
               </div>
               <div>
@@ -303,11 +323,6 @@ export default function MyBookings({ bookings }: { bookings: BookingDetails[] })
                   Guest Details{" "}
                 </span>
                 <div className="value-style w-fit rounded-md bg-gray-200 p-2 px-4 text-lg">
-                  <div className="sm:flex hidden justify-between gap-2 ">
-                    <span className="value-style">Name</span>
-                    <span className="value-style">Email</span>
-                    <span className="value-style">Phone number</span>
-                  </div>
                   {selectedBooking?.guests.map(
                     (guest: Guest, index: number) => (
                       <div
