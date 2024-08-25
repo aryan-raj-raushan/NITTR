@@ -1,9 +1,9 @@
 "use client";
-import { UserIcon } from "lucide-react";// @ts-ignore
+import { UserIcon } from "lucide-react";
+// @ts-ignore
 import { GuestProfile, RoomCharges } from "@prisma/client";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
-import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
 import { api } from "~/trpc/react";
 import { useEffect, useState } from "react";
 import GuestForm from "../guests/guestForm";
@@ -47,6 +47,7 @@ export default function Checkout({
     useState(1);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("offline");
   const [loading, setLoading] = useState(false);
+  const [isGuestFormOpen, setIsGuestFormOpen] = useState(false);
   const router = useRouter();
 
   const { id, name, email } = useAppSelector((store: any) => store.auth);
@@ -54,6 +55,10 @@ export default function Checkout({
   const userName = name;
   const userEmail = email;
   const [paymentTotal, setPaymentTotal] = useState<any>();
+
+  const toggleGuestForm = () => {
+    setIsGuestFormOpen(!isGuestFormOpen);
+  };
 
   const createBookingMutation = api.booking.createBooking.useMutation({
     onSuccess: async ({ bookingDetails }: any) => {
@@ -99,16 +104,18 @@ export default function Checkout({
     setLoading(false);
   };
 
-  const initiateBillDeskPayment = (response:any) => {
-    console.log("open form",response);
+  const initiateBillDeskPayment = (response: any) => {
+    console.log("open form", response);
     if (!response || !response.links) {
-        console.error("Invalid response or links not present", response);
-        return;
+      console.error("Invalid response or links not present", response);
+      return;
     }
-    const redirectLink = response.links.find((link:any) => link.rel === "redirect");
+    const redirectLink = response.links.find(
+      (link: any) => link.rel === "redirect",
+    );
     if (!redirectLink || !redirectLink.parameters) {
-        console.error("Redirect link or parameters not found", redirectLink);
-        return;
+      console.error("Redirect link or parameters not found", redirectLink);
+      return;
     }
     const form = document.createElement("form");
     form.setAttribute("name", "sdklaunch");
@@ -117,16 +124,16 @@ export default function Checkout({
     form.setAttribute("method", "POST");
 
     const parameters = {
-        'bdorderid': redirectLink.parameters.bdorderid,
-        'merchantid': redirectLink.parameters.mercid,
-        'rdata': redirectLink.parameters.rdata
+      bdorderid: redirectLink.parameters.bdorderid,
+      merchantid: redirectLink.parameters.mercid,
+      rdata: redirectLink.parameters.rdata,
     };
     Object.entries(parameters).forEach(([key, value]) => {
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = key;
-        input.value = value;
-        form.appendChild(input);
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = key;
+      input.value = value;
+      form.appendChild(input);
     });
     const submitButton = document.createElement("input");
     submitButton.type = "submit";
@@ -134,8 +141,7 @@ export default function Checkout({
     form.appendChild(submitButton);
     document.body.appendChild(form);
     form.submit();
-};
-
+  };
 
   function generateOrderId() {
     const prefix = "UAT";
@@ -158,17 +164,20 @@ export default function Checkout({
       // The actual payment result will be handled by the callback URL
     } catch (error) {
       console.error("Error initiating online payment:", error);
-      toast.error("Failed to initiate online payment. Your booking is still confirmed.", {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-        transition: Bounce,
-      });
+      toast.error(
+        "Failed to initiate online payment. Your booking is still confirmed.",
+        {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        },
+      );
       // Redirect to success page even if payment initiation fails
       handleBookingSuccess(bookingId);
     }
@@ -249,318 +258,346 @@ export default function Checkout({
 
             <h1 className="sr-only">Checkout</h1>
             {/* Order summary */}
+            {isGuestFormOpen && (
+  <div
+    className="fixed inset-0 z-50 flex items-end justify-center bg-black bg-opacity-50"
+    onClick={toggleGuestForm}
+  >
+    <div
+      className="
+        bg-white
+        w-full
+        h-[85vh]    // Covers 80% of the viewport height on mobile devices
+        sm:h-[85vh] // Covers 70% of the viewport height on small devices
+        md:h-[85vh] // Covers 60% of the viewport height on medium devices
+        lg:h-full   // Takes full height on large devices
+        lg:w-[50%]  // Takes half width on large devices
+        overflow-y-auto
+        rounded-t-lg lg:rounded-lg
+        p-4
+      "
+      onClick={(e) => e.stopPropagation()}
+    >
+      <GuestForm roomCharges={roomCharges} />
+    </div>
+  </div>
+)}
 
-            <Dialog>
-              <DialogContent
-                className="no-scrollbar sm:w-1/2 w-[80%] sm:h-[90%] h-[60%] flex flex-wrap items-center justify-center p-10 text-gray-600 "
-                
+
+
+
+
+            <div className="mx-auto mb-10 flex w-full max-w-[1280px] flex-col justify-center gap-8 px-5 sm:flex-row sm:px-0">
+              <section
+                aria-labelledby="payment-heading"
+                className="flex w-full flex-col py-4 sm:w-3/5"
               >
-                <GuestForm roomCharges={roomCharges}></GuestForm>
-              </DialogContent>
-              <div className="mx-auto mb-10 flex w-full max-w-[1280px] flex-col justify-center gap-8 px-5 sm:flex-row sm:px-0">
-                <section
-                  aria-labelledby="payment-heading"
-                  className="flex w-full flex-col py-4 sm:w-3/5"
-                >
-                  {/*JSON.stringify(checkin + ":" + checkout)*/}
+                <Card className="mt-4 flex w-full flex-col justify-center gap-5 p-6">
+                  <div className="flex flex-col ">
+                    <div>
+                      Hostel Name -{" "}
+                      <b>{roomDetails?.hostelName?.replace(/_/g, " ")}</b>
+                    </div>
+                    <div>
+                      Room Type - <b>{roomDetails?.value}</b>
+                    </div>
+                  </div>
 
-                  <Card className="mt-4 flex w-full flex-col justify-center gap-5 p-6">
-                    <div className="flex flex-col ">
-                      <div>
-                        Hostel Name -{" "}
-                        <b>{roomDetails?.hostelName?.replace(/_/g, " ")}</b>
-                      </div>
-                      <div>
-                        Room Type - <b>{roomDetails?.value}</b>
+                  <div className="flex items-center justify-between">
+                    <div className="flex w-full gap-2 text-center">
+                      {checkin?.toDateString()}
+                      <div className="flex w-full flex-1 items-center justify-center">
+                        <Separator></Separator>
                       </div>
                     </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex w-full gap-2 text-center">
-                        {checkin?.toDateString()}
-                        <div className="flex w-full flex-1 items-center justify-center">
-                          <Separator></Separator>
-                        </div>
-                      </div>
-                      <div className="flex w-fit min-w-40 items-center justify-center text-center">
-                        {" "}
-                        {datediff(checkin, checkout)} nights
-                      </div>
-                      <div className="flex w-full gap-2 text-center">
-                        <div className="flex w-full flex-1 items-center justify-center">
-                          <Separator></Separator>
-                        </div>
-                        {checkout?.toDateString()}
-                      </div>
+                    <div className="flex w-fit min-w-40 items-center justify-center text-center">
+                      {" "}
+                      {datediff(checkin, checkout)} nights
                     </div>
-
-                    <div className="no-scrollbar flex flex-col justify-start gap-4  overflow-auto text-sm lg:flex-row lg:justify-center lg:gap-6">
-  <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
-    <div>User ID</div>
-    <div className="flex items-center space-x-2">
-      <b>{userId.slice(0, 3)}</b>
-      <button
-        className="px-2 py-1 text-xs text-white bg-blue-500 rounded-lg"
-        onClick={() => {
-          navigator.clipboard.writeText(userId);
-          alert("User ID copied");
-        }}
-      >
-        Copy
-      </button>
-    </div>
-  </div>
-
-  <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
-    <div>Bed Type</div>
-    <div>
-      <b>{roomDetails?.roomType?.replace(/_/g, " ")}</b>
-    </div>
-  </div>
-
-  <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
-    <div>Occupancy</div>
-    <div>
-      <b>{roomDetails.occupancy}</b>
-    </div>
-  </div>
-</div>
-
-                  </Card>
-
-                  {guests.length < 1 && (
-                    <div className="mt-10 flex w-full items-center justify-center rounded-xl border border-gray-300 p-4">
-                      {!!!guests.length && (
-                        <GuestForm roomCharges={roomCharges}></GuestForm>
-                      )}
+                    <div className="flex w-full gap-2 text-center">
+                      <div className="flex w-full flex-1 items-center justify-center">
+                        <Separator></Separator>
+                      </div>
+                      {checkout?.toDateString()}
                     </div>
-                  )}
+                  </div>
 
-                  {guests.length > 0 && (
-                    <Card className="mt-10 flex flex-col justify-center gap-5 p-2 sm:px-8 sm:py-4">
-                      <span className="w-fit rounded-sm bg-gray-400 p-2 text-2xl">
-                        Guests List
-                      </span>
-                      <div className="w-full">
-                        {guests.map((g, index) => (
-                          <li
-                            key={g.id + index}
-                            className="flex w-full flex-col items-start justify-between gap-4 border-b border-gray-200 p-4 lg:flex-col"
+                  <div className="no-scrollbar flex flex-col justify-start gap-4  overflow-auto text-sm lg:flex-row lg:justify-center lg:gap-6">
+                    <div className="no-scrollbar flex flex-col justify-start gap-4 overflow-auto text-sm lg:flex-row lg:justify-center lg:gap-6">
+                      <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
+                        <div>User ID</div>
+                        <div className="flex items-center space-x-2">
+                          <b>
+                            {userId ? `${userId.slice(0, 3)}...` : "N/A"}
+                          </b>
+                          <button
+                            className="px-2 py-1 text-xs text-white bg-blue-500 rounded-lg"
+                            onClick={() => {
+                              if (userId) {
+                                navigator.clipboard.writeText(userId);
+                                alert("User ID copied");
+                              } else {
+                                alert("No User ID to copy");
+                              }
+                            }}
                           >
-                            <div className="flex w-full flex-1 flex-col items-start justify-between lg:flex-row">
-                              <div className="mb-4 hidden flex-shrink-0 items-center sm:flex lg:mb-0 lg:mr-4">
-                                <UserIcon />
-                              </div>
-                              <div className="flex w-full flex-col lg:flex-row">
-                                <p className="w-full text-gray-500 lg:mr-4 lg:w-auto">
-                                  {g.name}
-                                </p>
-                                <p className="w-full text-gray-500 lg:mr-4 lg:w-auto lg:border-l lg:border-gray-200 lg:pl-4">
-                                  {g.gender}
-                                </p>
-                                <p className="w-full text-gray-500 lg:w-auto lg:border-l lg:border-gray-200 lg:pl-4">
-                                  {typeBody(g)}
-                                </p>
-                              </div>
+                            Copy
+                          </button>
+                        </div>
+                      </div>
+                    </div>
 
-                              <div className="mt-2 hidden items-center space-x-2 lg:flex">
-                                <Checkbox
-                                  id={`terms-${g.id}`}
-                                  onCheckedChange={(checked: boolean) => {
-                                    setSelectedGuests((f: any[]) => {
-                                      if (checked) {
-                                        const updatedGuestList = [...f, g];
-                                        return updatedGuestList;
-                                      } else {
-                                        const updatedGuestList = f.filter(
-                                          (item: { id: string }) =>
-                                            item.id !== g.id,
-                                        );
-                                        return updatedGuestList;
-                                      }
-                                    });
-                                  }}
-                                />
-                                <label
-                                  htmlFor={`terms-${g.id}`}
-                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                >
-                                  Add
-                                </label>
-                              </div>
+                    <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
+                      <div>Bed Type</div>
+                      <div>
+                        <b>{roomDetails?.roomType?.replace(/_/g, " ")}</b>
+                      </div>
+                    </div>
+
+                    <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
+                      <div>Occupancy</div>
+                      <div>
+                        <b>{roomDetails.occupancy}</b>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+
+                {guests.length < 1 && (
+                  <div className="mt-10 flex w-full items-center justify-center rounded-xl border border-gray-300 p-4">
+                    {!!!guests.length && (
+                      <GuestForm roomCharges={roomCharges}></GuestForm>
+                    )}
+                  </div>
+                )}
+
+                {guests.length > 0 && (
+                  <Card className="mt-10 flex flex-col justify-center gap-5 p-2 sm:px-8 sm:py-4">
+                    <span className="w-fit rounded-sm bg-gray-400 p-2 text-2xl">
+                      Guests List
+                    </span>
+                    <div className="w-full">
+                      {guests.map((g, index) => (
+                        <li
+                          key={g.id + index}
+                          className="flex w-full flex-col items-start justify-between gap-4 border-b border-gray-200 p-4 lg:flex-col"
+                        >
+                          <div className="flex w-full flex-1 flex-col items-start justify-between lg:flex-row">
+                            <div className="mb-4 hidden flex-shrink-0 items-center sm:flex lg:mb-0 lg:mr-4">
+                              <UserIcon />
+                            </div>
+                            <div className="flex w-full flex-col lg:flex-row">
+                              <p className="w-full text-gray-500 lg:mr-4 lg:w-auto">
+                                {g.name}
+                              </p>
+                              <p className="w-full text-gray-500 lg:mr-4 lg:w-auto lg:border-l lg:border-gray-200 lg:pl-4">
+                                {g.gender}
+                              </p>
+                              <p className="w-full text-gray-500 lg:w-auto lg:border-l lg:border-gray-200 lg:pl-4">
+                                {typeBody(g)}
+                              </p>
                             </div>
 
-                            <div className="flex w-full items-center justify-center gap-2 lg:justify-end">
-                              <Button
-                                type="button"
-                                onClick={() => {
+                            <div className="mt-2 hidden items-center space-x-2 lg:flex">
+                              <Checkbox
+                                id={`terms-${g.id}`}
+                                onCheckedChange={(checked: boolean) => {
                                   setSelectedGuests((f: any[]) => {
-                                    const isSelected = f.some(
-                                      (item: { id: string }) =>
-                                        item.id === g.id,
-                                    );
-                                    if (isSelected) {
+                                    if (checked) {
+                                      const updatedGuestList = [...f, g];
+                                      return updatedGuestList;
+                                    } else {
                                       const updatedGuestList = f.filter(
                                         (item: { id: string }) =>
                                           item.id !== g.id,
                                       );
                                       return updatedGuestList;
-                                    } else {
-                                      const updatedGuestList = [...f, g];
-                                      return updatedGuestList;
                                     }
                                   });
                                 }}
-                                className="rounded-md bg-black px-8 py-2 text-sm font-medium text-white lg:hidden"
+                              />
+                              <label
+                                htmlFor={`terms-${g.id}`}
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                               >
-                                {selectedGuests.some(
-                                  (item: { id: string }) => item.id === g.id,
-                                )
-                                  ? "Remove"
-                                  : "Add"}
-                              </Button>
-
-                              <Button
-                                onClick={() => removeGuest(g.id)}
-                                className="bg-red-500 py-2 hover:bg-red-800"
-                              >
-                                <span className="lg:hidden">Delete Guest</span>{" "}
-                                <span className="hidden lg:block">Remove</span>
-                              </Button>
+                                Add
+                              </label>
                             </div>
-                          </li>
-                        ))}
-                      </div>
-
-                      {!!guests.length && (
-                        <DialogTrigger className="w-full text-center text-sm font-bold hover:underline">
-                          + Add New Guest
-                        </DialogTrigger>
-                      )}
-                    </Card>
-                  )}
-                </section>
-
-                <section
-                  aria-labelledby="summary-heading"
-                  className=" flex w-full flex-col sm:w-1/5 "
-                >
-                  <h2 id="summary-heading" className="sr-only">
-                    Order summary
-                  </h2>
-
-                  <ul role="list" className="h-fit w-full ">
-                    {[roomDetails].map((room, index) => (
-                      <li key={room.id + index} className="flex space-x-2 py-6">
-                        <img
-                          src={roomDetails.roomImg[0]}
-                          alt={
-                            "https://plus.unsplash.com/premium_photo-1663126298656-33616be83c32?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                          }
-                          className="h-24 w-24 flex-none rounded-md bg-gray-200 object-cover object-center"
-                        />
-                        <div className="flex flex-col gap-2">
-                          <div className="space-y-1 text-sm font-medium">
-                            <h3 className="text-gray-900">
-                              {room.value}{" "}
-                              <span className="font-bold">{room.code}</span>{" "}
-                            </h3>
                           </div>
-                          <div className="flex items-center text-sm">
-                            Number of {bookingType} :{" "}
-                            <span className="ml-1 font-bold">
-                              {selectedGuests?.length}
-                            </span>
-                            <div className=""></div>
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                    <div className="sticky top-10 mb-4 flex max-h-72 flex-col rounded-lg border border-b border-gray-200 bg-white px-4 pb-4 pt-1">
-                      <dl className="mt-4 flex flex-col gap-4 text-sm font-medium text-gray-500">
-                        <div className="flex justify-between">
-                          <dt>Subtotal</dt>
-                          <dd className="text-gray-900">₹{subtotal}</dd>
-                        </div>
-                        <div className="flex justify-between">
-                          <dt>Taxes (18%)</dt>
-                          <dd className="text-gray-900">₹{tax.toFixed(2)}</dd>
-                        </div>
-                        <div className="flex flex-col items-center justify-between border-t border-gray-200 py-6 text-gray-900">
-                          <dt className="w-full text-base">
-                            Total (for {selectedGuests.length} {guestLabel}) - ₹
-                            {total.toFixed(2)}
-                          </dt>
 
-                          <div className="pb-2">
-                            <Select
-                              defaultValue={selectedPaymentMethod}
-                              onValueChange={(value) => {
-                                setSelectedPaymentMethod(value);
+                          <div className="flex w-full items-center justify-center gap-2 lg:justify-end">
+                            <Button
+                              type="button"
+                              onClick={() => {
+                                setSelectedGuests((f: any[]) => {
+                                  const isSelected = f.some(
+                                    (item: { id: string }) => item.id === g.id,
+                                  );
+                                  if (isSelected) {
+                                    const updatedGuestList = f.filter(
+                                      (item: { id: string }) =>
+                                        item.id !== g.id,
+                                    );
+                                    return updatedGuestList;
+                                  } else {
+                                    const updatedGuestList = [...f, g];
+                                    return updatedGuestList;
+                                  }
+                                });
                               }}
+                              className="rounded-md bg-black px-8 py-2 text-sm font-medium text-white lg:hidden"
                             >
-                              <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Choose payment Type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="offline">
-                                  Pay at Hostel
-                                </SelectItem>
-                                <SelectItem value="online">
-                                  Pay online
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>{" "}
-                          </div>
+                              {selectedGuests.some(
+                                (item: { id: string }) => item.id === g.id,
+                              )
+                                ? "Remove"
+                                : "Add"}
+                            </Button>
 
-                          <Button
-                            onClick={() => {
-                              if (!selectedGuests.length) {
-                                return alert("Please Select atleast 1 Guest");
-                              }
-                              if (!selectedNumberOfRoomsOrBeds) {
-                                return alert("Please Select Number of Rooms");
-                              }
-                              if (
-                                selectedGuests.length > roomDetails?.totalBed
-                              ) {
-                                return alert(
-                                  "Number of Selected Guests and Number of Selected Beds should be equal",
-                                );
-                              }
-                              setPaymentTotal(total);
-                              createBookingMutation.mutate({
-                                hostelName: roomDetails.hostelName,
-                                guestIds: selectedGuests.map((g) => g.id),
-                                bookingDate: new Date().toISOString(),
-                                bookedFromDt: checkin,
-                                bookedToDt: checkout,
-                                nosRooms: selectedNumberOfRoomsOrBeds,
-                                remark: "",
-                                bookingType: "BEDS",
-                                roomId: roomDetails.id,
-                                amount: total,
-                                roomType: roomDetails?.roomType,
-                                userId: userId,
-                                userName,
-                                userEmail,
-                                subtotal: subtotal,
-                                paymentStatus: selectedPaymentMethod === "offline" ? "Pending" : "Payment Done",
-                                paymentMode: selectedPaymentMethod,
-                              });
+                            <Button
+                              onClick={() => removeGuest(g.id)}
+                              className="bg-red-500 py-2 hover:bg-red-800"
+                            >
+                              <span className="lg:hidden">Delete Guest</span>{" "}
+                              <span className="hidden lg:block">Remove</span>
+                            </Button>
+                          </div>
+                        </li>
+                      ))}
+                    </div>
+
+                    {!!guests.length && (
+                      <button
+                        onClick={toggleGuestForm}
+                        className="w-full text-center text-sm font-bold hover:underline"
+                      >
+                        + Add New Guest
+                      </button>
+                    )}
+                  </Card>
+                )}
+              </section>
+
+              <section
+                aria-labelledby="summary-heading"
+                className=" flex w-full flex-col sm:w-1/5 "
+              >
+                <h2 id="summary-heading" className="sr-only">
+                  Order summary
+                </h2>
+
+                <ul role="list" className="h-fit w-full ">
+                  {[roomDetails].map((room, index) => (
+                    <li key={room.id + index} className="flex space-x-2 py-6">
+                      <img
+                        src={roomDetails.roomImg[0]}
+                        alt={
+                          "https://plus.unsplash.com/premium_photo-1663126298656-33616be83c32?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        }
+                        className="h-24 w-24 flex-none rounded-md bg-gray-200 object-cover object-center"
+                      />
+                      <div className="flex flex-col gap-2">
+                        <div className="space-y-1 text-sm font-medium">
+                          <h3 className="text-gray-900">
+                            {room.value}{" "}
+                            <span className="font-bold">{room.code}</span>{" "}
+                          </h3>
+                        </div>
+                        <div className="flex items-center text-sm">
+                          Number of {bookingType} :{" "}
+                          <span className="ml-1 font-bold">
+                            {selectedGuests?.length}
+                          </span>
+                          <div className=""></div>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                  <div className="sticky top-10 mb-4 flex max-h-72 flex-col rounded-lg border border-b border-gray-200 bg-white px-4 pb-4 pt-1">
+                    <dl className="mt-4 flex flex-col gap-4 text-sm font-medium text-gray-500">
+                      <div className="flex justify-between">
+                        <dt>Subtotal</dt>
+                        <dd className="text-gray-900">₹{subtotal}</dd>
+                      </div>
+                      <div className="flex justify-between">
+                        <dt>Taxes (18%)</dt>
+                        <dd className="text-gray-900">₹{tax.toFixed(2)}</dd>
+                      </div>
+                      <div className="flex flex-col items-center justify-between border-t border-gray-200 py-6 text-gray-900">
+                        <dt className="w-full text-base">
+                          Total (for {selectedGuests.length} {guestLabel}) - ₹
+                          {total.toFixed(2)}
+                        </dt>
+
+                        <div className="pb-2">
+                          <Select
+                            defaultValue={selectedPaymentMethod}
+                            onValueChange={(value) => {
+                              setSelectedPaymentMethod(value);
                             }}
                           >
-                            Confirm Booking
-                          </Button>
+                            <SelectTrigger className="w-[180px]">
+                              <SelectValue placeholder="Choose payment Type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="offline">
+                                Pay at Hostel
+                              </SelectItem>
+                              <SelectItem value="online">
+                                Pay online
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>{" "}
                         </div>
-                      </dl>
 
-                      <div className="my-2 flex items-end justify-end"></div>
-                    </div>
-                  </ul>
-                </section>
-              </div>
-            </Dialog>
+                        <Button
+                          onClick={() => {
+                            if (!selectedGuests.length) {
+                              return alert("Please Select atleast 1 Guest");
+                            }
+                            if (!selectedNumberOfRoomsOrBeds) {
+                              return alert("Please Select Number of Rooms");
+                            }
+                            if (selectedGuests.length > roomDetails?.totalBed) {
+                              return alert(
+                                "Number of Selected Guests and Number of Selected Beds should be equal",
+                              );
+                            }
+                            setPaymentTotal(total);
+                            createBookingMutation.mutate({
+                              hostelName: roomDetails.hostelName,
+                              guestIds: selectedGuests.map((g) => g.id),
+                              bookingDate: new Date().toISOString(),
+                              bookedFromDt: checkin,
+                              bookedToDt: checkout,
+                              nosRooms: selectedNumberOfRoomsOrBeds,
+                              remark: "",
+                              bookingType: "BEDS",
+                              roomId: roomDetails.id,
+                              amount: total,
+                              roomType: roomDetails?.roomType,
+                              userId: userId,
+                              userName,
+                              userEmail,
+                              subtotal: subtotal,
+                              paymentStatus:
+                                selectedPaymentMethod === "offline"
+                                  ? "Pending"
+                                  : "Payment Done",
+                              paymentMode: selectedPaymentMethod,
+                            });
+                          }}
+                        >
+                          Confirm Booking
+                        </Button>
+                      </div>
+                    </dl>
+
+                    <div className="my-2 flex items-end justify-end"></div>
+                  </div>
+                </ul>
+              </section>
+            </div>
             {/* Checkout form */}
           </main>
         ) : (

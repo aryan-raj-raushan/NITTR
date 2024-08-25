@@ -1,35 +1,13 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { CreateGuestValidator } from "~/utils/validators/guestValidators";
-import { z } from "zod";
 import { useToast } from "~/components/ui/use-toast";
 import { api } from "~/trpc/react";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Form, FormField, FormLabel } from "~/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
 import { Gender, MaritalStatus } from "@prisma/client";
 import { removeUnderscore } from "~/lib/utils";
 
-// Extend the CreateGuestValidator to include new fields
-const ExtendedCreateGuestValidator = CreateGuestValidator.extend({
-  bookingFor: z.enum(["self", "someone_else"]),
-  idCardType: z.string(),
-  idCardNumber: z.string(),
-  hasGST: z.boolean(),
-  gstNumber: z.string().optional(),
-});
-
 function GuestForm({ roomCharges }: any) {
   const { toast } = useToast();
-  const form = useForm<z.infer<typeof ExtendedCreateGuestValidator>>({
-    resolver: zodResolver(ExtendedCreateGuestValidator),
+  const form = useForm({
+    mode: "onChange",
   });
 
   const createGuestMutation = api.guests.createGuest.useMutation({
@@ -38,7 +16,7 @@ function GuestForm({ roomCharges }: any) {
     },
   });
 
-  function onSubmit(data: z.infer<typeof ExtendedCreateGuestValidator>) {
+  function onSubmit(data: any) {
     createGuestMutation.mutate(data);
     toast({
       title: "You submitted the Guest Details:",
@@ -47,8 +25,8 @@ function GuestForm({ roomCharges }: any) {
 
   const filteredRoomCharges = Object.fromEntries(
     Object.entries(roomCharges).filter(
-      ([key, value]) => value !== null && key !== "hostelName" && key !== "id",
-    ),
+      ([key, value]) => value !== null && key !== "hostelName" && key !== "id"
+    )
   );
 
   const {
@@ -61,248 +39,215 @@ function GuestForm({ roomCharges }: any) {
   const hasGST = watch("hasGST");
 
   return (
-    <div className="flex h-full w-full justify-center overflow-auto">
-      <Form {...form}>
-        <form onSubmit={handleSubmit(onSubmit)} className="w-2/3 space-y-6">
-          <FormField
-            control={control}
-            name="bookingFor"
-            render={({ field }) => (
-              <div className="mb-4">
-                <FormLabel>Who are you booking for?</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select booking type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="self">For myself</SelectItem>
-                    <SelectItem value="someone_else">For someone else</SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.bookingFor && (
-                  <p className="mt-2 text-red-500">This field is required</p>
-                )}
-              </div>
-            )}
-          />
-
-          <FormField
-            control={control}
-            name="name"
-            render={({ field }) => (
-              <div className="mb-4">
-                <FormLabel>Name</FormLabel>
-                <Input placeholder="Enter name" {...field} />
-                {errors.name && (
-                  <p className="mt-2 text-red-500">Name is required</p>
-                )}
-              </div>
-            )}
-          />
-
-          <FormField
-            control={control}
-            name="mobileNo"
-            render={({ field }) => (
-              <div className="mb-4">
-                <FormLabel>Mobile Number</FormLabel>
-                <Input
-                  type="tel"
-                  placeholder="Enter mobile number"
-                  {...field}
-                />
-                {errors.mobileNo && (
-                  <p className="mt-2 text-red-500">Mobile number is required</p>
-                )}
-              </div>
-            )}
-          />
-
-          <FormField
-            control={control}
-            name="email"
-            render={({ field }) => (
-              <div className="mb-4">
-                <FormLabel>Email</FormLabel>
-                <Input type="email" placeholder="Enter email" {...field} />
-                {errors.email && (
-                  <p className="mt-2 text-red-500">Invalid email format</p>
-                )}
-              </div>
-            )}
-          />
-
-          <FormField
-            control={control}
-            name="typeOrg"
-            render={({ field }) => (
-              <div className="mb-4">
-                <FormLabel>Type Org</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a type of person" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.keys(filteredRoomCharges).map((t, index) => (
-                      <SelectItem key={t + index} value={t}>
-                        {removeUnderscore(t)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.typeOrg && (
-                  <p className="mt-2 text-red-500">Type Org is required</p>
-                )}
-              </div>
-            )}
-          />
-
-          <FormField
-            control={control}
-            name="gender"
-            render={({ field }) => (
-              <div className="mb-4">
-                <FormLabel>Gender</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your gender" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.values(Gender).map((gender, index) => (
-                      <SelectItem key={index} value={gender}>
-                        {gender}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.gender && (
-                  <p className="mt-2 text-red-500">Gender is required</p>
-                )}
-              </div>
-            )}
-          />
-
-          <FormField
-            control={control}
-            name="maritalStatus"
-            render={({ field }) => (
-              <div className="mb-4">
-                <FormLabel>Marital Status</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your marital status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.values(MaritalStatus).map((status, index) => (
-                      <SelectItem key={index} value={status}>
-                        {status}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.maritalStatus && (
-                  <p className="mt-2 text-red-500">
-                    Marital status is required
-                  </p>
-                )}
-              </div>
-            )}
-          />
-
-          <FormField
-            control={control}
-            name="idCardType"
-            render={({ field }) => (
-              <div className="mb-4">
-                <FormLabel>ID Card Type</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select ID card type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="aadhar">Aadhar Card</SelectItem>
-                    <SelectItem value="pan">PAN Card</SelectItem>
-                    <SelectItem value="driving_license">Driving License</SelectItem>
-                    <SelectItem value="passport">Passport</SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.idCardType && (
-                  <p className="mt-2 text-red-500">ID card type is required</p>
-                )}
-              </div>
-            )}
-          />
-
-          <FormField
-            control={control}
-            name="idCardNumber"
-            render={({ field }) => (
-              <div className="mb-4">
-                <FormLabel>ID Card Number</FormLabel>
-                <Input placeholder="Enter ID card number" {...field} />
-                {errors.idCardNumber && (
-                  <p className="mt-2 text-red-500">ID card number is required</p>
-                )}
-              </div>
-            )}
-          />
-
-          <FormField
-            control={control}
-            name="hasGST"
-            render={({ field }) => (
-              <div className="mb-4">
-                <FormLabel>Do you have GST?</FormLabel>
-                <Select
-                  onValueChange={(value) => field.onChange(value === "yes")}
-                  defaultValue={field.value ? "yes" : "no"}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select GST status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="yes">Yes</SelectItem>
-                    <SelectItem value="no">No</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-          />
-
-          {hasGST && (
-            <FormField
-              control={control}
-              name="gstNumber"
-              render={({ field }) => (
-                <div className="mb-4">
-                  <FormLabel>GST Number</FormLabel>
-                  <Input placeholder="Enter GST number" {...field} />
-                  {errors.gstNumber && (
-                    <p className="mt-2 text-red-500">GST number is required</p>
-                  )}
-                </div>
-              )}
-            />
+    <div className="flex h-full w-full justify-center overflow-y-auto">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="w-full space-y-6 bg-white p-6 rounded-t-lg lg:rounded-lg"
+    >
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="bookingFor">
+            Who are you booking for?
+          </label>
+          <select
+            id="bookingFor"
+            {...control.register("bookingFor", { required: true })}
+            className="block w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
+          >
+            <option value="">Select booking type</option>
+            <option value="self">For myself</option>
+            <option value="someone_else">For someone else</option>
+          </select>
+          {errors.bookingFor && (
+            <p className="mt-2 text-red-500">This field is required</p>
           )}
+        </div>
 
-          <Button type="submit">Add Guest</Button>
-        </form>
-      </Form>
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
+            Name
+          </label>
+          <input
+            id="name"
+            type="text"
+            placeholder="Enter name"
+            {...control.register("name", { required: true })}
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          />
+          {errors.name && (
+            <p className="mt-2 text-red-500">Name is required</p>
+          )}
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="mobileNo">
+            Mobile Number
+          </label>
+          <input
+            id="mobileNo"
+            type="tel"
+            placeholder="Enter mobile number"
+            {...control.register("mobileNo", { required: true })}
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          />
+          {errors.mobileNo && (
+            <p className="mt-2 text-red-500">Mobile number is required</p>
+          )}
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            placeholder="Enter email"
+            {...control.register("email", { required: true })}
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          />
+          {errors.email && (
+            <p className="mt-2 text-red-500">Invalid email format</p>
+          )}
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="typeOrg">
+            Type Org
+          </label>
+          <select
+            id="typeOrg"
+            {...control.register("typeOrg", { required: true })}
+            className="block w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
+          >
+            <option value="">Select a type of person</option>
+            {Object.keys(filteredRoomCharges).map((t, index) => (
+              <option key={t + index} value={t}>
+                {removeUnderscore(t)}
+              </option>
+            ))}
+          </select>
+          {errors.typeOrg && (
+            <p className="mt-2 text-red-500">Type Org is required</p>
+          )}
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="gender">
+            Gender
+          </label>
+          <select
+            id="gender"
+            {...control.register("gender", { required: true })}
+            className="block w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
+          >
+            <option value="">Select your gender</option>
+            {Object.values(Gender).map((gender, index) => (
+              <option key={index} value={gender}>
+                {gender}
+              </option>
+            ))}
+          </select>
+          {errors.gender && (
+            <p className="mt-2 text-red-500">Gender is required</p>
+          )}
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="maritalStatus">
+            Marital Status
+          </label>
+          <select
+            id="maritalStatus"
+            {...control.register("maritalStatus", { required: true })}
+            className="block w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
+          >
+            <option value="">Select your marital status</option>
+            {Object.values(MaritalStatus).map((status, index) => (
+              <option key={index} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
+          {errors.maritalStatus && (
+            <p className="mt-2 text-red-500">Marital status is required</p>
+          )}
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="idCardType">
+            ID Card Type
+          </label>
+          <select
+            id="idCardType"
+            {...control.register("idCardType", { required: true })}
+            className="block w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
+          >
+            <option value="">Select ID card type</option>
+            <option value="aadhar">Aadhar Card</option>
+            <option value="pan">PAN Card</option>
+            <option value="driving_license">Driving License</option>
+            <option value="passport">Passport</option>
+          </select>
+          {errors.idCardType && (
+            <p className="mt-2 text-red-500">ID card type is required</p>
+          )}
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="idCardNumber">
+            ID Card Number
+          </label>
+          <input
+            id="idCardNumber"
+            type="text"
+            placeholder="Enter ID card number"
+            {...control.register("idCardNumber", { required: true })}
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          />
+          {errors.idCardNumber && (
+            <p className="mt-2 text-red-500">ID card number is required</p>
+          )}
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="hasGST">
+            Do you have GST?
+          </label>
+          <select
+            id="hasGST"
+            {...control.register("hasGST", { required: true })}
+            className="block w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
+          >
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+
+        {hasGST && (
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="gstNumber">
+              GST Number
+            </label>
+            <input
+              id="gstNumber"
+              type="text"
+              placeholder="Enter GST number"
+              {...control.register("gstNumber", { required: true })}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            />
+            {errors.gstNumber && (
+              <p className="mt-2 text-red-500">GST number is required</p>
+            )}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        >
+          Add Guest
+        </button>
+      </form>
     </div>
   );
 }
