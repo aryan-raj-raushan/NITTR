@@ -40,34 +40,48 @@ function GuestForm({ roomCharges }: any) {
 
   return (
     <div className="flex h-full w-full justify-center overflow-y-auto">
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="w-full space-y-6 bg-white p-6 rounded-t-lg lg:rounded-lg"
-    >
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="w-full space-y-6 bg-white p-6 rounded-t-lg lg:rounded-lg"
+      >
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="bookingFor">
+          <label className="block text-gray-700 text-sm font-bold mb-2">
             Who are you booking for?
           </label>
-          <select
-            id="bookingFor"
-            {...control.register("bookingFor", { required: true })}
-            className="block w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
-          >
-            <option value="">Select booking type</option>
-            <option value="self">For myself</option>
-            <option value="someone_else">For someone else</option>
-          </select>
+          <div className="flex space-x-4">
+            <label className="flex items-center">
+              <input
+                type="radio"
+                value="self"
+                {...control.register("bookingFor", { required: true })}
+                className="hidden peer"
+              />
+              <div className="px-4 py-2 text-gray-700 rounded-full border border-gray-300 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 cursor-pointer">
+                For myself
+              </div>
+            </label>
+            <label className="flex items-center">
+              <input
+                type="radio"
+                value="someone_else"
+                {...control.register("bookingFor", { required: true })}
+                className="hidden peer"
+              />
+              <div className="px-4 py-2 text-gray-700 rounded-full border border-gray-300 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 cursor-pointer">
+                For someone else
+              </div>
+            </label>
+          </div>
           {errors.bookingFor && (
             <p className="mt-2 text-red-500">This field is required</p>
           )}
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
+          <label className="block text-gray-700 text-sm font-bold mb-2">
             Name
           </label>
           <input
-            id="name"
             type="text"
             placeholder="Enter name"
             {...control.register("name", { required: true })}
@@ -79,11 +93,10 @@ function GuestForm({ roomCharges }: any) {
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="mobileNo">
+          <label className="block text-gray-700 text-sm font-bold mb-2">
             Mobile Number
           </label>
           <input
-            id="mobileNo"
             type="tel"
             placeholder="Enter mobile number"
             {...control.register("mobileNo", { required: true })}
@@ -95,11 +108,10 @@ function GuestForm({ roomCharges }: any) {
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+          <label className="block text-gray-700 text-sm font-bold mb-2">
             Email
           </label>
           <input
-            id="email"
             type="email"
             placeholder="Enter email"
             {...control.register("email", { required: true })}
@@ -111,11 +123,10 @@ function GuestForm({ roomCharges }: any) {
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="typeOrg">
+          <label className="block text-gray-700 text-sm font-bold mb-2">
             Type Org
           </label>
           <select
-            id="typeOrg"
             {...control.register("typeOrg", { required: true })}
             className="block w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
           >
@@ -132,73 +143,117 @@ function GuestForm({ roomCharges }: any) {
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="gender">
+          <label className="block text-gray-700 text-sm font-bold mb-2">
             Gender
           </label>
-          <select
-            id="gender"
-            {...control.register("gender", { required: true })}
-            className="block w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
-          >
-            <option value="">Select your gender</option>
+          <div className="flex space-x-4">
             {Object.values(Gender).map((gender, index) => (
-              <option key={index} value={gender}>
-                {gender}
-              </option>
+              <label key={index} className="flex items-center">
+                <input
+                  type="radio"
+                  value={gender}
+                  {...control.register("gender", { required: true })}
+                  className="hidden peer"
+                />
+                <div className="flex items-center space-x-1 px-4 py-2 text-gray-700 rounded-full border border-gray-300 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 cursor-pointer">
+                  <span className="text-lg">
+                    {gender === Gender.MALE ? "👤" : gender === Gender.FEMALE ? "👩" : "⚧️"}
+                  </span>
+                  <span>{gender === Gender.MALE ? "Male" : gender === Gender.FEMALE ? "Female" : "Other"}</span>
+                </div>
+              </label>
             ))}
-          </select>
+          </div>
           {errors.gender && (
             <p className="mt-2 text-red-500">Gender is required</p>
           )}
         </div>
 
+
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="maritalStatus">
+          <label className="block text-gray-700 text-sm font-bold mb-2">
             Marital Status
           </label>
-          <select
-            id="maritalStatus"
-            {...control.register("maritalStatus", { required: true })}
-            className="block w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
-          >
-            <option value="">Select your marital status</option>
+          <div className="flex space-x-4">
             {Object.values(MaritalStatus).map((status, index) => (
-              <option key={index} value={status}>
-                {status}
-              </option>
+              <label key={index} className="flex items-center">
+                <input
+                  type="radio"
+                  value={status}
+                  {...control.register("maritalStatus", { required: true })}
+                  className="hidden peer"
+                />
+                <div className="px-4 py-2 text-gray-700 rounded-full border border-gray-300 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 cursor-pointer">
+                  {status}
+                </div>
+              </label>
             ))}
-          </select>
+          </div>
           {errors.maritalStatus && (
             <p className="mt-2 text-red-500">Marital status is required</p>
           )}
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="idCardType">
+          <label className="block text-gray-700 text-sm font-bold mb-2">
             ID Card Type
           </label>
-          <select
-            id="idCardType"
-            {...control.register("idCardType", { required: true })}
-            className="block w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
-          >
-            <option value="">Select ID card type</option>
-            <option value="aadhar">Aadhar Card</option>
-            <option value="pan">PAN Card</option>
-            <option value="driving_license">Driving License</option>
-            <option value="passport">Passport</option>
-          </select>
+          <div className="flex flex-wrap gap-2 space-x-4">
+            <label className="flex items-center">
+              <input
+                type="radio"
+                value="aadhar"
+                {...control.register("idCardType", { required: true })}
+                className="hidden peer"
+              />
+              <div className="px-4 py-2 text-gray-700 rounded-full border border-gray-300 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 cursor-pointer">
+                Aadhar Card
+              </div>
+            </label>
+            <label className="flex items-center">
+              <input
+                type="radio"
+                value="pan"
+                {...control.register("idCardType", { required: true })}
+                className="hidden peer"
+              />
+              <div className="px-2 py-2 text-gray-700 rounded-full border border-gray-300 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 cursor-pointer">
+                PAN Card
+              </div>
+            </label>
+            <label className="flex items-center">
+              <input
+                type="radio"
+                value="driving_license"
+                {...control.register("idCardType", { required: true })}
+                className="hidden peer"
+              />
+              <div className="px-4 py-2 text-gray-700 rounded-full border border-gray-300 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 cursor-pointer">
+                Driving License
+              </div>
+            </label>
+            <label className="flex items-center">
+              <input
+                type="radio"
+                value="passport"
+                {...control.register("idCardType", { required: true })}
+                className="hidden peer"
+              />
+              <div className="px-4 py-2 text-gray-700 rounded-full border border-gray-300 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 cursor-pointer">
+                Passport
+              </div>
+            </label>
+          </div>
           {errors.idCardType && (
             <p className="mt-2 text-red-500">ID card type is required</p>
           )}
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="idCardNumber">
+          <label className="block text-gray-700 text-sm font-bold mb-2">
             ID Card Number
           </label>
           <input
-            id="idCardNumber"
             type="text"
             placeholder="Enter ID card number"
             {...control.register("idCardNumber", { required: true })}
@@ -210,26 +265,28 @@ function GuestForm({ roomCharges }: any) {
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="hasGST">
+          <label className="block text-gray-700 text-sm font-bold mb-2">
             Do you have GST?
           </label>
           <select
-            id="hasGST"
             {...control.register("hasGST", { required: true })}
             className="block w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
           >
+            <option value="">Select an option</option>
             <option value="yes">Yes</option>
             <option value="no">No</option>
           </select>
+          {errors.hasGST && (
+            <p className="mt-2 text-red-500">This field is required</p>
+          )}
         </div>
 
-        {hasGST && (
+        {hasGST === "yes" && (
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="gstNumber">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
               GST Number
             </label>
             <input
-              id="gstNumber"
               type="text"
               placeholder="Enter GST number"
               {...control.register("gstNumber", { required: true })}

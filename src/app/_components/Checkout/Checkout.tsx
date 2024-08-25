@@ -22,11 +22,17 @@ import { useAppSelector } from "~/store";
 import { Bounce, toast } from "react-toastify";
 import axios from "axios";
 import { CreateOrder } from "~/utils/url/authurl";
+import { motion } from "framer-motion";
 
 function datediff(first: Date, second: Date) {
   //@ts-ignore
   return Math.round((second - first) / (1000 * 60 * 60 * 24));
 }
+
+const slideInVariants = {
+  hidden: { y: "100%" },
+  visible: { y: "0%" },
+};
 
 export default function Checkout({
   roomDetails,
@@ -263,7 +269,7 @@ export default function Checkout({
     className="fixed inset-0 z-50 flex items-end justify-center bg-black bg-opacity-50"
     onClick={toggleGuestForm}
   >
-    <div
+    <motion.div
       className="
         bg-white
         w-full
@@ -277,9 +283,14 @@ export default function Checkout({
         p-4
       "
       onClick={(e) => e.stopPropagation()}
+      initial="hidden"
+      animate="visible"
+      exit="hidden"
+      variants={slideInVariants}
+      transition={{ duration: 0.3 }}
     >
       <GuestForm roomCharges={roomCharges} />
-    </div>
+    </motion.div>
   </div>
 )}
 
