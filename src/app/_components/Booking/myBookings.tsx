@@ -289,8 +289,8 @@ export default function MyBookings({ bookings }: { bookings: BookingDetails[] })
 
       {/* Modal for mobile view */}
       {isMobile && selectedBooking && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={() => setSelectedBooking(null)}>
-          <div className="bg-white p-4 rounded-lg max-w-sm w-full sm:max-h-full max-h-72 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed -top-28 inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={() => setSelectedBooking(null)}>
+          <div className="bg-white p-4 rounded-lg max-w-sm w-full sm:max-h-full max-h-[600px] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <CardTitle className=" pt-6">Overview</CardTitle>
             <div className="space-y-5 p-4 text-xs text-black md:text-sm">
               <div>

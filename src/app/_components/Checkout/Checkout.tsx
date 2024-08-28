@@ -217,8 +217,13 @@ export default function Checkout({
   });
 
   useEffect(() => {
-    getGuestsMutation.mutate({ userId: id ?? "" });
-  }, [id]);
+    if (userId) {
+      getGuestsMutation.mutate({ userId });
+    } else {
+      console.error("User ID is null or undefined");
+    }
+  }, [userId]);
+  
 
   if (roomDetails) {
     const totalDay = datediff(checkin, checkout);
