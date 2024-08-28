@@ -152,7 +152,7 @@ const ForgetPassword: React.FC = () => {
       className="mx-auto flex h-[55vh] w-full items-center justify-center p-6"
     >
       <div
-        className="flex w-full items-center justify-center border p-4"
+        className="flex w-full items-center justify-center border p-4 rounded-lg"
         style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
       >
         {step === 1 && (
