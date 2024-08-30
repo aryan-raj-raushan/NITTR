@@ -21,7 +21,7 @@ import { Separator } from "~/components/ui/separator";
 import { useAppSelector } from "~/store";
 import { Bounce, toast } from "react-toastify";
 import axios from "axios";
-import { CreateOrder } from "~/utils/url/authurl";
+import { CreateOrder, ReturnUrl } from "~/utils/url/authurl";
 
 function datediff(first: Date, second: Date) {
   //@ts-ignore
@@ -74,23 +74,24 @@ export default function Checkout({
         }, 3000);
         setLoading(true);
       } else {
-        initiateOnlinePayment(paymentTotal);
+        initiateOnlinePayment(paymentTotal, bookingDetails);
         setLoading(true);
       }
       setLoading(false);
     },
   });
 
-  const initiateBillDeskPayment = (response:any) => {
-    console.log("open form",response);
-    if (!response || !response.links) {
-        console.error("Invalid response or links not present", response);
-        return;
+  const initiateBillDeskPayment = (response: any) => {
+    if (!response || !response?.links) {
+      console.error("Invalid response or links not present", response);
+      return;
     }
-    const redirectLink = response.links.find((link:any) => link.rel === "redirect");
+    const redirectLink = response.links.find(
+      (link: any) => link.rel === "redirect",
+    );
     if (!redirectLink || !redirectLink.parameters) {
-        console.error("Redirect link or parameters not found", redirectLink);
-        return;
+      console.error("Redirect link or parameters not found", redirectLink);
+      return;
     }
     const form = document.createElement("form");
     form.setAttribute("name", "sdklaunch");
@@ -99,16 +100,16 @@ export default function Checkout({
     form.setAttribute("method", "POST");
 
     const parameters = {
-        'bdorderid': redirectLink.parameters.bdorderid,
-        'merchantid': redirectLink.parameters.mercid,
-        'rdata': redirectLink.parameters.rdata
+      bdorderid: redirectLink.parameters.bdorderid,
+      merchantid: redirectLink.parameters.mercid,
+      rdata: redirectLink.parameters.rdata,
     };
     Object.entries(parameters).forEach(([key, value]) => {
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = key;
-        input.value = value;
-        form.appendChild(input);
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = key;
+      input.value = value;
+      form.appendChild(input);
     });
     const submitButton = document.createElement("input");
     submitButton.type = "submit";
@@ -116,21 +117,21 @@ export default function Checkout({
     form.appendChild(submitButton);
     document.body.appendChild(form);
     form.submit();
-};
+  };
   function generateOrderId() {
     const prefix = "UAT";
     const timestamp = Date.now().toString(36).slice(-4);
     const randomPart = Math.random().toString(36).substring(2, 10);
     return `${prefix}${timestamp}${randomPart}`;
   }
-  const initiateOnlinePayment = async (amount: any) => {
+  const initiateOnlinePayment = async (amount: any, bookingDetails: any) => {
     const bookingId = generateOrderId();
     try {
       const response = await axios.post(CreateOrder, {
         orderid: bookingId,
         amount: "5",
-        return_url: `${window.location.origin}/payment`,
-        additional_info1: "Info1",
+        return_url: ReturnUrl,
+        additional_info1: bookingDetails?.id,
         additional_info2: "Info2",
       });
 
@@ -228,10 +229,7 @@ export default function Checkout({
             {/* Order summary */}
 
             <Dialog>
-              <DialogContent
-                className="no-scrollbar sm:w-1/2 w-[80%] sm:h-[90%] h-[60%] flex flex-wrap items-center justify-center p-10 text-gray-600 "
-                
-              >
+              <DialogContent className="no-scrollbar flex h-[60%] w-[80%] flex-wrap items-center justify-center p-10 text-gray-600 sm:h-[90%] sm:w-1/2 ">
                 <GuestForm roomCharges={roomCharges}></GuestForm>
               </DialogContent>
               <div className="mx-auto mb-10 flex w-full max-w-[1280px] flex-col justify-center gap-8 px-5 sm:flex-row sm:px-0">
