@@ -21,8 +21,7 @@ import { Separator } from "~/components/ui/separator";
 import { useAppSelector } from "~/store";
 import { Bounce, toast } from "react-toastify";
 import axios from "axios";
-import { CreateOrder } from "~/utils/url/authurl";
-import { motion } from "framer-motion";
+import { CreateOrder, ReturnUrl } from "~/utils/url/authurl";
 
 function datediff(first: Date, second: Date) {
   //@ts-ignore
@@ -85,34 +84,15 @@ export default function Checkout({
         }, 3000);
         setLoading(true);
       } else {
-        initiateOnlinePayment(paymentTotal, bookingDetails.id);
+        initiateOnlinePayment(paymentTotal, bookingDetails);
         setLoading(true);
       }
       setLoading(false);
     },
   });
 
-  const handleBookingSuccess = (bookingId: string) => {
-    toast.success("Booking successful!", {
-      position: "top-center",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-      transition: Bounce,
-    });
-    setTimeout(() => {
-      router.push(`/payment/success/${bookingId}`);
-    }, 3000);
-    setLoading(false);
-  };
-
   const initiateBillDeskPayment = (response: any) => {
-    console.log("open form", response);
-    if (!response || !response.links) {
+    if (!response || !response?.links) {
       console.error("Invalid response or links not present", response);
       return;
     }
@@ -148,21 +128,20 @@ export default function Checkout({
     document.body.appendChild(form);
     form.submit();
   };
-
   function generateOrderId() {
     const prefix = "UAT";
     const timestamp = Date.now().toString(36).slice(-4);
     const randomPart = Math.random().toString(36).substring(2, 10);
     return `${prefix}${timestamp}${randomPart}`;
   }
-  const initiateOnlinePayment = async (amount: any, bookingId: string) => {
-    const orderId = generateOrderId();
+  const initiateOnlinePayment = async (amount: any, bookingDetails: any) => {
+    const bookingId = generateOrderId();
     try {
       const response = await axios.post(CreateOrder, {
-        orderid: orderId,
-        amount: amount.toString(),
-        return_url: `${window.location.origin}/payment/callback/${bookingId}`,
-        additional_info1: "Info1",
+        orderid: bookingId,
+        amount: "5",
+        return_url: ReturnUrl,
+        additional_info1: bookingDetails?.id,
         additional_info2: "Info2",
       });
 
@@ -269,55 +248,28 @@ export default function Checkout({
 
             <h1 className="sr-only">Checkout</h1>
             {/* Order summary */}
-            {isGuestFormOpen && (
-  <div
-    className="fixed inset-0 z-50 flex items-end justify-center bg-black bg-opacity-50"
-    onClick={toggleGuestForm}
-  >
-    <motion.div
-      className="
-        bg-white
-        w-full
-        h-[85vh]    // Covers 80% of the viewport height on mobile devices
-        sm:h-[85vh] // Covers 70% of the viewport height on small devices
-        md:h-[85vh] // Covers 60% of the viewport height on medium devices
-        lg:h-full   // Takes full height on large devices
-        lg:w-[50%]  // Takes half width on large devices
-        overflow-y-auto
-        rounded-t-lg lg:rounded-lg
-        p-4
-      "
-      onClick={(e) => e.stopPropagation()}
-      initial="hidden"
-      animate="visible"
-      exit="hidden"
-      variants={slideInVariants}
-      transition={{ duration: 0.3 }}
-    >
-      <GuestForm roomCharges={roomCharges} />
-    </motion.div>
-  </div>
-)}
 
+            <Dialog>
+              <DialogContent className="no-scrollbar flex h-[60%] w-[80%] flex-wrap items-center justify-center p-10 text-gray-600 sm:h-[90%] sm:w-1/2 ">
+                <GuestForm roomCharges={roomCharges}></GuestForm>
+              </DialogContent>
+              <div className="mx-auto mb-10 flex w-full max-w-[1280px] flex-col justify-center gap-8 px-5 sm:flex-row sm:px-0">
+                <section
+                  aria-labelledby="payment-heading"
+                  className="flex w-full flex-col py-4 sm:w-3/5"
+                >
+                  {/*JSON.stringify(checkin + ":" + checkout)*/}
 
-
-
-
-            <div className="mx-auto mb-10 flex w-full max-w-[1280px] flex-col justify-center gap-8 px-5 sm:flex-row sm:px-0">
-              <section
-                aria-labelledby="payment-heading"
-                className="flex w-full flex-col py-4 sm:w-3/5"
-              >
-                <Card className="mt-4 flex w-full flex-col justify-center gap-5 p-6">
-                  <div className="flex flex-col ">
-                    <div>
-                      Hostel Name -{" "}
-                      <b>{roomDetails?.hostelName?.replace(/_/g, " ")}</b>
+                  <Card className="mt-4 flex w-full flex-col justify-center gap-5 p-6">
+                    <div className="flex flex-col ">
+                      <div>
+                        Hostel Name -{" "}
+                        <b>{roomDetails?.hostelName?.replace(/_/g, " ")}</b>
+                      </div>
+                      <div>
+                        Room Type - <b>{roomDetails?.value}</b>
+                      </div>
                     </div>
-                    <div>
-                      Room Type - <b>{roomDetails?.value}</b>
-                    </div>
-                  </div>
 
                   <div className="flex items-center justify-between">
                     <div className="flex w-full gap-2 text-center">
