@@ -12,7 +12,6 @@ export const VerifyGooglePhone =
 
 export const SigninURL = AUTH_BASED_URL + "/login";
 export const CreateOrder = AUTH_BASED_URL + "/api/create-order";
-export const ReturnUrl = AUTH_BASED_URL + "/api/payment/callback";
 
 export const ForgetPassword = AUTH_BASED_URL + "/forgot-password";
 
