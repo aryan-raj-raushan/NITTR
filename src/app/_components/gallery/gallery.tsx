@@ -34,18 +34,8 @@ export default function Gallery({
   }, []);
 
   return (
-    <div className="flex-gol mx-auto my-10 flex max-w-[1280px] flex-wrap gap-10 px-5">
-      <div className="flex w-full items-center  justify-center">
-        <Link
-          className="rounded bg-primary p-3 text-white"
-          target="_blank"
-          href={
-            "https://www.google.com/maps/place/NITTTR+Campus,+Shymala+Hills,+Bhopal,+Madhya+Pradesh/@23.2380394,77.3907465,3a,75y,14.12h,90.91t/data=!3m8!1e1!3m6!1sAF1QipP_w9L6tJOB6U8sdt36WlDMIE1n27epx8fuA1uF!2e10!3e11!6shttps:%2F%2Flh5.googleusercontent.com%2Fp%2FAF1QipP_w9L6tJOB6U8sdt36WlDMIE1n27epx8fuA1uF%3Dw203-h100-k-no-pi-0-ya19.877407-ro-0-fo100!7i10000!8i5000!4m7!3m6!1s0x397c42bacfb84ebd:0x37fd70b0441d4294!8m2!3d23.2396635!4d77.3916541!10e5!16s%2Fg%2F1jkycrvh_?entry=ttu"
-          }
-        >
-          View in 360°
-        </Link>
-      </div>
+    <div className="flex-col mx-auto my-10 flex max-w-[1280px] flex-wrap gap-10 px-5">
+      
       <div>
         <div id="saran" className="text-center text-2xl font-bold">
           Saran
@@ -79,7 +69,6 @@ export default function Gallery({
         </div>
       </div>
       <div className="">
-        <StreetView />
       </div>
     </div>
   );

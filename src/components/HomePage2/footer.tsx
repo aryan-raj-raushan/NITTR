@@ -2,7 +2,7 @@ import Image from "next/image";
 import React from "react";
 import { FaLocationDot } from "react-icons/fa6";
 import { FaPhone } from "react-icons/fa6";
-import logo from "public/nitttrLogo.jpg";
+import logo from "public/nitttrLogo.png";
 
 const Footer = () => {
   const quickLinks = [

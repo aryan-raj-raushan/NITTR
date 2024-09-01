@@ -27,7 +27,7 @@ const HeroSection = ({ images }: any) => {
               <h1 className="mb-4 text-lg font-bold sm:text-lg md:text-xl lg:text-2xl xl:text-4xl">
                 NITTTR — Comfortable accommodations for visitors
               </h1>
-              <p className="mb-8 border-l-2 border-black pl-2 text-gray-600">
+              <p className="mb-8 border-l-2 border-black pl-2 text-gray-600" style={{ textAlign: "justify" }}>
                 Our hostel offers clean, secure rooms with modern amenities and Wi-Fi, ideally located on campus for professionals and event attendees.
               </p>
               <div className="z-10">

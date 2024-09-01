@@ -129,23 +129,17 @@ const PhotoModal = ({ modalOpen, setModalOpen }: any) => {
   ];
 
   return (
-    <motion.div
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-      variants={{
-        visible: { opacity: 1, scale: 1 },
-        hidden: { opacity: 0, scale: 0 },
-      }}
+    <div
+     
       className=" mx-auto max-w-[1280px]"
     >
-      <motion.section
+      <section
         className="mx-auto w-[80%] rounded-t-lg bg-white py-6 sm:w-full"
-        variants={slideInFromLeft(0.5)}
+      
       >
         <div className="flex flex-col items-center justify-center py-5">
           <h3 className="montserrat text-3xl font-bold">Explore Our Hostels</h3>
-          <p className="text-2xl font-light">
+          <p className="sm:text-2xl text-base font-light ml-2" style={{ textAlign: "justify" }}>
             Discover top hostels through images. Comfort, amenities, and service
             await you.
           </p>
@@ -156,7 +150,7 @@ const PhotoModal = ({ modalOpen, setModalOpen }: any) => {
             return (
               <div
                 key={item.id}
-                className="col-span-3 cursor-pointer space-y-1 md:col-span-1"
+                className="col-span-3 cursor-pointer ml-4 space-y-1 md:col-span-1"
                 onClick={() => handleOpenModal(item.title, item.images)}
               >
                 <Image
@@ -173,7 +167,7 @@ const PhotoModal = ({ modalOpen, setModalOpen }: any) => {
             );
           })}
         </div>
-      </motion.section>
+      </section>
 
       {modalOpen && (
         <div
@@ -243,7 +237,7 @@ const PhotoModal = ({ modalOpen, setModalOpen }: any) => {
           </div>
         </div>
       )}
-    </motion.div>
+    </div>
   );
 };
 

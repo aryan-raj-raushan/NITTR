@@ -8,7 +8,8 @@ import { useAppDispatch, useAppSelector } from "~/store";
 import { clearAuthState } from "~/store/authSlice";
 import { Button } from "~/components/ui/button";
 import AccountDropdown from "../account-dropdown";
-import logo from "public/nitttrLogo.jpg";
+import { FiMenu, FiX } from "react-icons/fi";
+import logo from "public/nitttrLogo.png";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -37,11 +38,13 @@ const Navbar = () => {
     setAuthCookie();
   }, []);
 
+  const closeMenu = () => setOpen(false);
+
   return (
-    <nav className="w-full">
+    <nav className="w-full sm:bg-white bg-gray-800 text-white">
       {/* Mobile menu */}
       <Transition.Root show={open} as={Fragment}>
-        <Dialog as="div" className="fixed inset-0 z-50" onClose={setOpen}>
+        <Dialog as="div" className="fixed inset-0 z-50" onClose={closeMenu}>
           <Transition.Child
             as={Fragment}
             enter="transition-opacity ease-linear duration-300"
@@ -51,7 +54,7 @@ const Navbar = () => {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-25" />
+            <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-60" />
           </Transition.Child>
 
           <Transition.Child
@@ -63,22 +66,31 @@ const Navbar = () => {
             leaveFrom="translate-x-0"
             leaveTo="translate-x-full"
           >
-            <div className="relative ml-auto w-full max-w-xs bg-white shadow-xl rounded-l-xl">
-              <div className="flex flex-col items-center px-4 py-5">
+            <div className="relative ml-auto w-full max-w-xs bg-gray-800 text-white shadow-xl rounded-l-2xl p-6">
+              <button
+                type="button"
+                className="absolute top-4 right-4 text-gray-400 hover:text-white focus:outline-none"
+                onClick={closeMenu}
+              >
+                <FiX className="h-6 w-6" aria-hidden="true" />
+              </button>
+              <div className="flex flex-col items-center gap-6">
                 <div className="mb-5">
                   {isLogin ? (
                     <AccountDropdown />
                   ) : (
-                    <Button onClick={signIn}>Login</Button>
+                    <Button onClick={() => { signIn(); closeMenu(); }} className="w-full bg-black text-white py-2 rounded-lg shadow-md hover:opacity-90 transition-opacity">
+                      Login
+                    </Button>
                   )}
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-4 w-full">
                   {NavBarData.pages.map((page, index) => (
-                    <Button key={index}>
-                      <Link href={page.href} className="text-sm font-medium">
+                    <Link key={index} href={page.href} className="w-full">
+                      <Button onClick={closeMenu} className="w-full text-left px-4 py-2 text-lg bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors">
                         {page.name}
-                      </Link>
-                    </Button>
+                      </Button>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -90,29 +102,34 @@ const Navbar = () => {
       {/* Desktop header */}
       <header className="hidden md:block">
         <nav className="px-4 sm:px-6 lg:px-8">
-          <div className="mx-20 border-b border-gray-200">
-            <div className="flex items-center justify-between py-2">
-              <div className="mx-2 cursor-pointer font-bold md:text-2xl">
+          <div className="mx-auto max-w-7xl border-b border-gray-300">
+            <div className="flex items-center justify-between py-4">
+              <div className="flex items-center space-x-4">
                 <Link href="https://nitttrbpl.ac.in">
                   <div className="relative h-14 w-14">
-                    <Image src={logo} layout="fill" alt="logo" />
+                    <Image src={logo} layout="fill" alt="logo" className="rounded-full" />
                   </div>
                 </Link>
+                
               </div>
-              <div className="flex items-center gap-10">
-                {NavBarData.pages.map((page, index) => (
-                  <Link
-                    key={index}
-                    href={page.href}
-                    className="text-xl font-medium text-gray-700 hover:text-gray-800 hover:underline"
-                  >
-                    {page.name}
-                  </Link>
-                ))}
+              <div className="flex items-center space-x-6">
+                  {NavBarData.pages.map((page, index) => (
+                    <Link
+                      key={index}
+                      href={page.href}
+                      className="text-lg text-gray-600 font-medium  hover:underline"
+                    >
+                      {page.name}
+                    </Link>
+                  ))}
+                </div>
+              <div className="flex items-center space-x-4">
                 {isLogin ? (
                   <AccountDropdown />
                 ) : (
-                  <Button onClick={signIn}>Login</Button>
+                  <Button onClick={signIn} className="bg-black text-white px-4 py-2 rounded-lg shadow-md hover:opacity-90 transition-opacity">
+                    Login
+                  </Button>
                 )}
               </div>
             </div>
@@ -121,38 +138,19 @@ const Navbar = () => {
       </header>
 
       {/* Mobile menu toggle button */}
-      <div className="">
-       <div className="flex items-center justify-between p-4 md:hidden">
-       <Link href="https://nitttrbpl.ac.in">
+      <div className="flex items-center justify-between p-4 md:hidden">
+        <Link href="https://nitttrbpl.ac.in">
           <div className="relative h-10 w-10">
-            <Image src={logo} layout="fill" alt="logo" />
+            <Image src={logo} layout="fill" alt="logo" className="rounded-full" />
           </div>
         </Link>
         <button
           type="button"
-          className="rounded-md bg-white p-2 text-gray-400"
+          className="rounded-md p-2 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
           onClick={() => setOpen(true)}
         >
-          <span className="sr-only">Open menu</span>
-          {/* Hamburger Icon */}
-          <svg
-            className="h-6 w-6"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M4 6h16M4 12h16m-7 6h7"
-            />
-          </svg>
+          <FiMenu className="h-6 w-6" aria-hidden="true" />
         </button>
-       </div>
-       <div className="h-[1px] bg-gray-200 w-full sm:hidden flex rounded-xl"></div>
       </div>
     </nav>
   );

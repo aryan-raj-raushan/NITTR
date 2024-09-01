@@ -129,10 +129,10 @@ const SearchPage = ({ bookings }: any) => {
               <h1 className="mb-2 text-sm font-semibold md:text-2xl lg:mb-4 lg:text-3xl">
                 Stays in {removeUnderscore(location)}
               </h1>
-              <p className="mb-4 text-2xl text-gray-400">
+              {/* <p className="mb-4 text-2xl text-gray-400">
                 Review COVID-19 travel restrictions before you book.{" "}
                 <Link href="/">Learn more</Link>
-              </p>
+              </p> */}
               <section className="grid gap-5 md:grid-cols-3 lg:grid-cols-4">
                 {loading ? (
                   <p>Loading...</p>

@@ -25,6 +25,8 @@ import React from "react";
 import Image from "next/image";
 import { VerifiedIcon } from "~/components/Assets";
 import { usePreviousRoute } from "~/hooks/usePreviousRoute";
+import { FaEnvelope, FaLock, FaPhone, FaUser } from "react-icons/fa6";
+import { MdOutlineArrowBackIosNew, MdOutlineArrowForwardIos } from "react-icons/md";
 
 const AuthCredentialsValidator = z
   .object({
@@ -373,7 +375,7 @@ export default function Login() {
     setValue("email", values?.email);
     setValue("password", values?.password);
   };
-
+//hi
   const handleGoogleSignin = useGoogleLogin({
     onSuccess: async (res) => {
       try {
@@ -512,8 +514,9 @@ export default function Login() {
 
   return (
     <>
+      <div className="hidden md:block">
       <div className="relative my-10 flex min-h-full items-center justify-center">
-        <div className="relative min-h-[480px] w-full max-w-4xl overflow-hidden rounded-lg bg-white shadow-lg">
+        <div className="relative min-h-[480px] w-full max-w-7xl overflow-hidden rounded-lg bg-white shadow-lg">
           <div
             className={`duration-600 absolute inset-0 flex transform transition-transform ${rightPanelActive ? "translate-x-0" : "translate-x-1/2"}`}
           >
@@ -788,6 +791,224 @@ export default function Login() {
             </div>
           </div>
         )}
+      </div>
+      </div>
+
+      <div className="block md:hidden">
+        <div className="flex flex-col items-center justify-center min-h-screen py-8">
+          <div className="w-full max-w-md space-y-8 bg-white rounded-2xl drop-shadow-2xl p-6">
+            <div className="text-center bg-gradient-to-tr from-gray-50 via-gray-50 to-gray-100 rounded-2xl pt-6 pb-2">
+              <h2 className="text-3xl font-extrabold text-gray-900">
+                {rightPanelActive ? "Sign In to Your Account" : "Create Your Account"}
+              </h2>
+              <p className="text-sm text-gray-600 mt-2">
+                {rightPanelActive ? "Or " : "Already have an account? "}
+                <button
+                  className="font-medium p-2 bg-gray-200 rounded-lg text-blue-600 hover:text-blue-800 transition-colors duration-300"
+                  onClick={rightPanelActive ? handleSignUpClick : handleSignInClick}
+                >
+                  {rightPanelActive ? (
+                    <>
+                      Sign Up <MdOutlineArrowForwardIos className="inline ml-1" />
+                    </>
+                  ) : (
+                    <>
+                      <MdOutlineArrowBackIosNew className="inline mr-1" /> Sign In
+                    </>
+                  )}
+                </button>
+              </p>
+              <div className="my-2 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => handleGoogleSignin()}
+                    className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
+                  >
+                    <FaGoogle />
+                  </button>
+                  <button
+                    type="button"
+                    className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
+                    onClick={signInWithPhone}
+                  >
+                    <FaPhoneAlt />
+                  </button>
+                  <button
+                    type="button"
+                    className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
+                    onClick={signInWithEmail}
+                  >
+                    <IoIosMail />
+                  </button>
+                </div>
+            </div>
+            <div className="bg-white py-8 px-4 shadow-2xl rounded-lg sm:px-10 border-t border-gray-300">
+              {rightPanelActive ? (
+                <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+                  <div className="rounded-md shadow-sm flex flex-col gap-4">
+                    <div className="relative">
+                      <FaEnvelope className="absolute left-3 top-3 text-gray-400" />
+                      <input
+                        id="email"
+                        type="email"
+                        autoComplete="email"
+                        required
+                        className="appearance-none rounded-lg relative block w-full pl-10 pr-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                        placeholder="Email address"
+                        {...form.register("email")}
+                      />
+                    </div>
+                    <div className="relative">
+                      <FaLock className="absolute left-3 top-3 text-gray-400" />
+                      <input
+                        id="password"
+                        type="password"
+                        autoComplete="current-password"
+                        required
+                        className="appearance-none rounded-lg relative block w-full pl-10 pr-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                        placeholder="Password"
+                        {...form.register("password")}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm">
+                      <Link
+                        href="/forget-password"
+                        className="font-medium text-blue-600 hover:text-blue-800 transition-colors duration-300"
+                      >
+                        Forgot your password?
+                      </Link>
+                    </div>
+                  </div>
+
+                  <div>
+                    <button
+                      type="submit"
+                      className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300"
+                    >
+                      Sign In
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <form className="space-y-6" onSubmit={signupForm.handleSubmit(onSubmitSignup)}>
+                  <div className="rounded-md shadow-sm flex flex-col gap-4">
+                    <div className="relative">
+                      <FaUser className="absolute left-3 top-3 text-gray-400" />
+                      <input
+                        id="name"
+                        type="text"
+                        autoComplete="name"
+                        required
+                        className="appearance-none rounded-lg relative block w-full pl-10 pr-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                        placeholder="Full Name"
+                        {...signupForm.register("name")}
+                      />
+                    </div>
+                    <div className="relative">
+                      <FaEnvelope className="absolute left-3 top-3 text-gray-400" />
+                      <input
+                        id="email"
+                        type="email"
+                        autoComplete="email"
+                        required
+                        className="appearance-none rounded-lg relative block w-full pl-10 pr-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                        placeholder="Email address"
+                        {...signupForm.register("email")}
+                      />
+                    </div>
+                    <div className="relative">
+                      <FaPhone className="absolute left-3 top-3 text-gray-400" />
+                      <input
+                        id="number"
+                        type="text"
+                        autoComplete="tel"
+                        required
+                        className="appearance-none rounded-lg relative block w-full pl-10 pr-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                        placeholder="Phone Number"
+                        {...signupForm.register("number")}
+                      />
+                    </div>
+                    <div className="relative">
+                      <FaLock className="absolute left-3 top-3 text-gray-400" />
+                      <input
+                        id="password"
+                        type="password"
+                        autoComplete="new-password"
+                        required
+                        className="appearance-none rounded-lg relative block w-full pl-10 pr-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                        placeholder="Password"
+                        {...signupForm.register("password")}
+                      />
+                    </div>
+                    <div className="relative">
+                      <FaLock className="absolute left-3 top-3 text-gray-400" />
+                      <input
+                        id="confirmPassword"
+                        type="password"
+                        autoComplete="new-password"
+                        required
+                        className="appearance-none rounded-lg relative block w-full pl-10 pr-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                        placeholder="Confirm Password"
+                        {...signupForm.register("confirmPassword")}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <button
+                      type="submit"
+                      className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300"
+                    >
+                      Sign Up
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+          {showModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300">
+              <div className="w-80 bg-white p-4 rounded-lg shadow-lg transform transition-transform duration-300">
+                <h2 className="text-lg font-bold mb-4">Enter OTP</h2>
+                <p className="text-sm text-gray-600">
+                  Phone Number: {signupForm.getValues("number")}
+                </p>
+                <div className="flex justify-between mt-2">
+                  {otp.map((_, i) => (
+                    <input
+                      key={i}
+                      type="text"
+                      maxLength={1}
+                      className="w-10 h-10 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      ref={(el) => (otpRefs.current[i] = el)}
+                      onChange={(e) => handleOtpChange(e, i)}
+                    />
+                  ))}
+                </div>
+                <div className="text-center mt-4">
+                  <span className="text-sm text-gray-600">
+                    {counter > 0 ? (
+                      `Resend OTP in ${counter}s`
+                    ) : (
+                      <button onClick={handleResendOtp} className="text-blue-600 hover:text-blue-800">
+                        Resend OTP
+                      </button>
+                    )}
+                  </span>
+                </div>
+                <button
+                  onClick={handleSubmitOtp}
+                  className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-all duration-300"
+                >
+                  Submit
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
