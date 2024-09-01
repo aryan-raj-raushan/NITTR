@@ -11,6 +11,7 @@ export const CreateBookingValidator = z.object({
   userName: z.string(),
   userEmail: z.string(),
   remark: z.string(),
+  bookPaymentId: z.string().optional(),
   guestIds: z.array(z.string()).min(1),
   nosRooms: z.number().min(1).optional(),
   nosBeds: z.number().min(1).optional(),

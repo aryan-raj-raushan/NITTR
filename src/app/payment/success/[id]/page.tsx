@@ -6,7 +6,8 @@ export default async function Page({ params }: { params: { id: string } }) {
 
   if (booking) {
     return <BookingConfirmedPage booking={booking} />;
-  } else {
+  } 
+  else {
     return <div>INVALID BOOKING ID</div>;
   }
 }

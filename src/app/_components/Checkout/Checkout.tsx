@@ -129,12 +129,11 @@ export default function Checkout({
     try {
       const response = await axios.post(CreateOrder, {
         orderid: bookingId,
-        amount: "5",
+        amount: amount,
         return_url: ReturnUrl,
         additional_info1: bookingDetails?.id,
         additional_info2: "Info2",
       });
-
       initiateBillDeskPayment(response?.data);
     } catch (error) {
       console.error("Error initiating online payment:", error);
