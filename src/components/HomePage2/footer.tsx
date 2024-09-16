@@ -1,13 +1,10 @@
 import Image from "next/image";
 import React from "react";
-import { FaLocationDot } from "react-icons/fa6";
-import { FaPhone } from "react-icons/fa6";
 import logo from "public/nitttrLogo.png";
 
 const Footer = () => {
   const quickLinks = [
     { href: "https://nitttrbpl.ac.in/about.php", text: "About Us" },
-    { href: "https://nitttrbpl.ac.in/photo_gallery.php", text: "Photo Gallery" },
     { href: "https://nitttrbpl.ac.in/women-cell.php", text: "Women Cell" },
     { href: "https://nitttrbpl.ac.in/Newspaper.php", text: "News" },
     { href: "https://nitttrbpl.ac.in/minority_cell.php", text: "SC/ST/OBC/PWD/Minority Cell" },
@@ -42,8 +39,8 @@ const Footer = () => {
           </div>
         </div>
         <div className="flex w-full md:w-1/3 flex-col items-start md:items-center justify-start mb-8 md:mb-0">
-          <ul className="mt-4 flex  flex-col gap-2">
-          <h2 className="text-xl mb-2 font-bold">Quick links</h2>
+          <ul className="mt-4 flex flex-col gap-2">
+            <h2 className="text-xl mb-2 font-bold">Quick links</h2>
             {quickLinks.map((link) => (
               <li key={link.href}>
                 <a href={link.href} target="_blank" className="hover:underline" rel="noopener noreferrer">
@@ -55,7 +52,7 @@ const Footer = () => {
         </div>
         <div className="flex w-full md:w-1/3 flex-col items-start md:items-center justify-start">
           <ul className="mt-4 flex flex-col gap-2">
-          <h2 className="text-xl mb-2 font-bold">Important Links</h2>
+            <h2 className="text-xl mb-2 font-bold">Important Links</h2>
             {importantLinks.map((link) => (
               <li key={link.href}>
                 <a href={link.href} target="_blank" className="hover:underline" rel="noopener noreferrer">
@@ -65,6 +62,9 @@ const Footer = () => {
             ))}
           </ul>
         </div>
+      </div>
+      <div className="mt-8 text-center">
+        <p className="text-sm text-start pl-10">&copy; {new Date().getFullYear()} NITTTR. All rights reserved.</p>
       </div>
     </footer>
   );
