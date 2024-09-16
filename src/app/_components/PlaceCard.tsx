@@ -1,10 +1,10 @@
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaBed } from "react-icons/fa";
-import { MdBedroomParent } from "react-icons/md";
-import { MdOutlineEventAvailable } from "react-icons/md";
+import { MdBedroomParent, MdOutlineEventAvailable } from "react-icons/md";
 // import { SiLevelsdotfyi } from "react-icons/si";
-import React from "react";
+
 const AppPlaceCard = ({
   data,
   img,
@@ -13,10 +13,17 @@ const AppPlaceCard = ({
   xBookingType,
   availability
 }: any) => {
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+
+  const handleClick = () => {
+    setIsButtonDisabled(true);
+    // You might want to add additional logic here, like navigating to a booking page
+  };
+
   return (
-    <div className="drop-shadow-gray-400 flex max-w-xs flex-col rounded-xl border border-gray-300  bg-gradient-to-tr from-slate-200 via-white to-gray-300 p-4 pt-4 drop-shadow-md hover:drop-shadow-xl">
+    <div className="drop-shadow-gray-400 flex max-w-[600px] flex-col rounded-xl border border-gray-300 bg-gradient-to-tr from-slate-200 via-white to-gray-300 p-4 pt-4 drop-shadow-md hover:drop-shadow-xl">
       {/* left - image */}
-      <div className="relative mb-2 h-52 w-full sm:h-44 md:mb-0 ">
+      <div className="relative mb-2 h-52 w-full sm:h-44 md:mb-0">
         <Image
           priority={true}
           src={img}
@@ -31,8 +38,7 @@ const AppPlaceCard = ({
         {/* detail top */}
         <div className="flex w-auto flex-col gap-2">
           <div className="flex items-center justify-between">
-            <span className="flex items-center text-sm font-medium text-gray-500 ">
-              {" "}
+            <span className="flex items-center text-sm font-medium text-gray-500">
               <MdBedroomParent className="mr-1 text-2xl" /> {data.value}
             </span>
             <div className="flex items-center gap-2 pl-2">
@@ -50,7 +56,6 @@ const AppPlaceCard = ({
         </div>
 
         {/* detail bottom */}
-
         <div className="order-first flex w-full flex-col gap-3 sm:order-none">
           <div className="flex items-center justify-center w-full">
             <Link
@@ -58,8 +63,12 @@ const AppPlaceCard = ({
               href={`/hostel/${data?.id}?checkin=${checkIn}&checkout=${checkOut}&type=${xBookingType}`}
               className="flex w-full"
             >
-              <button className="w-full mx-2 rounded-lg bg-primaryBackground p-2 px-4 text-white duration-300 hover:bg-blue-600 active:scale-90" >
-                Book Now
+              <button
+                className={`w-full mx-2 rounded-lg p-2 px-4 text-white duration-300 ${isButtonDisabled ? 'bg-gray-400 cursor-not-allowed' : 'bg-primaryBackground hover:bg-blue-600 active:scale-90'}`}
+                onClick={handleClick}
+                disabled={isButtonDisabled}
+              >
+                {isButtonDisabled ? 'wait...' : 'Book Now'}
               </button>
             </Link>
           </div>

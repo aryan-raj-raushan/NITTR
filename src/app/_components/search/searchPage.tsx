@@ -108,6 +108,7 @@ const SearchPage = ({ bookings }: any) => {
   const filteredRooms: any = roomDetails?.filter(
     (room: any) => guests <= room?.totalBed,
   );
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   return (
     <>
@@ -119,7 +120,10 @@ const SearchPage = ({ bookings }: any) => {
         <div className="mx-auto flex min-h-screen  max-w-[1280px] flex-col px-5">
           <main className="flex flex-col ">
             <div className="pt-10 flex justify-center">
-              <SearchForm aboveClass="" belowClass="" />
+            <SearchForm aboveClass="flex-col justify-start" belowClass="" setErrorMessage={setErrorMessage} />
+                  {errorMessage && (
+                    <p className="text-red-500 text-sm">{errorMessage}</p>
+                  )}
             </div>
             <div className="px-0 pb-8 pt-4 duration-500  sm:px-4 lg:pt-8">
               <span className="mb-2 inline-block text-lg text-gray-500">
