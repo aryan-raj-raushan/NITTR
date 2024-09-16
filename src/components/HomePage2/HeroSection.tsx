@@ -4,6 +4,7 @@ import SearchForm from "~/app/_components/SearchForm";
 
 const HeroSection = ({ images }: any) => {
   const [currentImage, setCurrentImage] = useState(0);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -20,10 +21,10 @@ const HeroSection = ({ images }: any) => {
         </h2>
       </div>
 
-      <div className="flex w-full flex-col items-center justify-center decoration-gray-900">
-        <div className="w-full max-w-[1280px] mx-auto px-5">
+      <div className="flex w-full flex-col items-center justify-center decoration-gray-900 ">
+        <div className="w-full max-w-[1280px] mx-auto sm:px-5 px-0">
           <div className="flex w-full flex-col items-center justify-end lg:flex-row">
-            <div className="relative flex w-full flex-col gap-2 rounded-l-xl bg-blue-50 p-8 pb-12 lg:w-[40%]">
+            <div className="relative flex w-full flex-col gap-2 rounded-l-xl bg-blue-50 sm:p-8 p-4 pb-12 lg:w-[40%]">
               <h1 className="mb-4 text-lg font-bold sm:text-lg md:text-xl lg:text-2xl xl:text-4xl">
                 NITTTR — Comfortable accommodations for visitors
               </h1>
@@ -32,7 +33,10 @@ const HeroSection = ({ images }: any) => {
               </p>
               <div className="z-10">
                 <Suspense>
-                  <SearchForm aboveClass="flex-col justify-start" belowClass="" />
+                  <SearchForm aboveClass="flex-col justify-start" belowClass="" setErrorMessage={setErrorMessage} />
+                  {errorMessage && (
+                    <p className="text-red-500 text-sm">{errorMessage}</p>
+                  )}
                 </Suspense>
               </div>
             </div>

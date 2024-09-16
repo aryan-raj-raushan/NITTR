@@ -81,6 +81,7 @@ const Choices = [
 const PhotoModal = ({ modalOpen, setModalOpen }: any) => {
   const [selectedImages, setSelectedImages] = useState([]);
   const [modalTitle, setModalTitle] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleOpenModal = (title: any, images: any) => {
     setSelectedImages(images);
@@ -212,8 +213,11 @@ const PhotoModal = ({ modalOpen, setModalOpen }: any) => {
                 </button>
               </div>
               <div className="z-10">
-                <Suspense>
-                  <SearchForm aboveClass="flex-col justify-start" belowClass="" />
+              <Suspense>
+                  <SearchForm aboveClass="flex-col justify-start" belowClass="" setErrorMessage={setErrorMessage} />
+                  {errorMessage && (
+                    <p className="text-red-500 text-sm">{errorMessage}</p>
+                  )}
                 </Suspense>
               </div>
 

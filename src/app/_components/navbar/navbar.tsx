@@ -115,13 +115,8 @@ const Navbar = () => {
             <div className="flex items-center justify-between py-4">
               <div className="flex items-center space-x-4">
                 <Link href="https://nitttrbpl.ac.in">
-                  <div className="relative h-14 w-14">
-                    <Image
-                      src={logo}
-                      layout="fill"
-                      alt="logo"
-                      className="rounded-full"
-                    />
+                  <div className="relative h-20 w-20">
+                    <Image src={logo} layout="fill" alt="logo" className="rounded-full" />
                   </div>
                 </Link>
               </div>
@@ -188,7 +183,6 @@ export default Navbar;
 export const NavBarData = {
   pages: [
     { name: "Home", href: "/" },
-    { name: "Institute", href: "https://nitttrbpl.ac.in" },
     { name: "Contact Us", href: "/contact-us" },
     { name: "Gallery", href: "/gallery" },
     { name: "My Bookings", href: "/myBookings" },
