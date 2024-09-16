@@ -43,17 +43,19 @@ export default function AccountDropdown() {
       <DropdownMenuContent>
         <DropdownMenuLabel>{isLogin ? name : "My Account"}</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        
+
         {isLogin && (
           <Link href="/profile">
             <DropdownMenuItem>Profile</DropdownMenuItem>
           </Link>
         )}
 
-        <Link href="/myBookings">
-          <DropdownMenuItem>My bookings</DropdownMenuItem>
-        </Link>
-
+        {isLogin && (
+          <Link href="/myBookings">
+            <DropdownMenuItem>My bookings</DropdownMenuItem>
+          </Link>
+        )}
+        
         {role === UserPermissionRole.ADMIN && (
           <Link href="/admin">
             <DropdownMenuItem>Admin Dashboard</DropdownMenuItem>

@@ -41,7 +41,7 @@ const Navbar = () => {
   const closeMenu = () => setOpen(false);
 
   return (
-    <nav className="w-full sm:bg-white bg-gray-800 text-white">
+    <nav className="w-full bg-gray-800 text-white sm:bg-white">
       {/* Mobile menu */}
       <Transition.Root show={open} as={Fragment}>
         <Dialog as="div" className="fixed inset-0 z-50" onClose={closeMenu}>
@@ -66,10 +66,10 @@ const Navbar = () => {
             leaveFrom="translate-x-0"
             leaveTo="translate-x-full"
           >
-            <div className="relative ml-auto w-full max-w-xs bg-gray-800 text-white shadow-xl rounded-l-2xl p-6">
+            <div className="relative ml-auto w-full max-w-xs rounded-l-2xl bg-gray-800 p-6 text-white shadow-xl">
               <button
                 type="button"
-                className="absolute top-4 right-4 text-gray-400 hover:text-white focus:outline-none"
+                className="absolute right-4 top-4 text-gray-400 hover:text-white focus:outline-none"
                 onClick={closeMenu}
               >
                 <FiX className="h-6 w-6" aria-hidden="true" />
@@ -79,15 +79,24 @@ const Navbar = () => {
                   {isLogin ? (
                     <AccountDropdown />
                   ) : (
-                    <Button onClick={() => { signIn(); closeMenu(); }} className="w-full bg-black text-white py-2 rounded-lg shadow-md hover:opacity-90 transition-opacity">
+                    <Button
+                      onClick={() => {
+                        signIn();
+                        closeMenu();
+                      }}
+                      className="w-full rounded-lg bg-black py-2 text-white shadow-md transition-opacity hover:opacity-90"
+                    >
                       Login
                     </Button>
                   )}
                 </div>
-                <div className="flex flex-col gap-4 w-full">
+                <div className="flex w-full flex-col gap-4">
                   {NavBarData.pages.map((page, index) => (
                     <Link key={index} href={page.href} className="w-full">
-                      <Button onClick={closeMenu} className="w-full text-left px-4 py-2 text-lg bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors">
+                      <Button
+                        onClick={closeMenu}
+                        className="w-full rounded-lg bg-gray-700 px-4 py-2 text-left text-lg transition-colors hover:bg-gray-600"
+                      >
                         {page.name}
                       </Button>
                     </Link>
@@ -107,27 +116,40 @@ const Navbar = () => {
               <div className="flex items-center space-x-4">
                 <Link href="https://nitttrbpl.ac.in">
                   <div className="relative h-14 w-14">
-                    <Image src={logo} layout="fill" alt="logo" className="rounded-full" />
+                    <Image
+                      src={logo}
+                      layout="fill"
+                      alt="logo"
+                      className="rounded-full"
+                    />
                   </div>
                 </Link>
-                
               </div>
               <div className="flex items-center space-x-6">
-                  {NavBarData.pages.map((page, index) => (
+                {NavBarData.pages.map((page, index) => {
+                  // Conditionally render "My Bookings" based on isLogin state
+                  if (page.name === "My Bookings" && !isLogin) {
+                    return null; // Don't render "My Bookings" if not logged in
+                  }
+                  return (
                     <Link
                       key={index}
                       href={page.href}
-                      className="text-lg text-gray-600 font-medium  hover:underline"
+                      className="text-lg font-medium text-gray-600 hover:underline"
                     >
                       {page.name}
                     </Link>
-                  ))}
-                </div>
+                  );
+                })}
+              </div>
               <div className="flex items-center space-x-4">
                 {isLogin ? (
                   <AccountDropdown />
                 ) : (
-                  <Button onClick={signIn} className="bg-black text-white px-4 py-2 rounded-lg shadow-md hover:opacity-90 transition-opacity">
+                  <Button
+                    onClick={signIn}
+                    className="rounded-lg bg-black px-4 py-2 text-white shadow-md transition-opacity hover:opacity-90"
+                  >
                     Login
                   </Button>
                 )}
@@ -141,7 +163,12 @@ const Navbar = () => {
       <div className="flex items-center justify-between p-4 md:hidden">
         <Link href="https://nitttrbpl.ac.in">
           <div className="relative h-10 w-10">
-            <Image src={logo} layout="fill" alt="logo" className="rounded-full" />
+            <Image
+              src={logo}
+              layout="fill"
+              alt="logo"
+              className="rounded-full"
+            />
           </div>
         </Link>
         <button

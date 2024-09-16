@@ -4,21 +4,9 @@ import Link from "next/link";
 import {
   ChevronLeft,
   ChevronRight,
-  // Copy,
   CreditCard,
   File,
-  // Home,
-  // LineChart,
   ListFilter,
-  // MoreVertical,
-  // Package,
-  // Package2,
-  // PanelLeft,
-  // Search,
-  // Settings,
-  // ShoppingCart,
-  // Truck,
-  // Users2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -34,10 +22,8 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  // DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -50,19 +36,12 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-// import {
-//   Tooltip,
-//   TooltipContent,
-//   TooltipTrigger,
-// } from "@/components/ui/tooltip";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { DataTable } from "../table/data-table";
 import { columns } from "../table/columns";
 import {
   // BookingDetails,
   GuestHouse,
-  RoomCharges,
-  TypeOrg,
 } from "@prisma/client";
 import { useMemo, useState } from "react";
 import {
@@ -70,8 +49,6 @@ import {
   emptyBooking,
 } from "~/utils/validators/bookingValidators";
 import { useRouter } from "next/navigation";
-// import { api } from "~/trpc/react";
-// import { removeUnderscore } from "~/lib/utils";
 import AdminNav from "./AdminNav";
 import {
   subDays,
@@ -86,19 +63,6 @@ import { toast } from "react-toastify";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { removeUnderscore } from "~/lib/utils";
-
-// function findRoomCharge(
-//   roomCharges: any,
-//   booking: TbookingsValidator,
-//   typeOrg: TypeOrg,
-// ) {
-//   const rates = roomCharges.find((r: any) => {
-//     return r.hostelName == booking.hostelName;
-//   });
-//   if (rates) {
-//     return rates[typeOrg];
-//   } else return 0;
-// }
 
 export default function AdminDashboardV2({
   bookings,
