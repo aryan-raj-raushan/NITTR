@@ -230,11 +230,13 @@ export const bookingRouter = createTRPCRouter({
       };
     }),
 
-    updateBookingById: protectedProcedure
-    .input(z.object({ id: z.string(), bookingStatus: z.custom<BookingStatus>() }))
+  updateBookingById: protectedProcedure
+    .input(
+      z.object({ id: z.string(), bookingStatus: z.custom<BookingStatus>() }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { id, bookingStatus } = input;
-  
+
       // Fetch the booking details
       const booking = await ctx.db.bookingDetails.findUnique({
         where: { id },
@@ -243,15 +245,15 @@ export const bookingRouter = createTRPCRouter({
           guests: true,
         },
       });
-  
+
       if (!booking) {
         throw new Error("Booking not found");
       }
-  
+
       const roomDetails = await ctx.db.roomDetails.findMany({
         where: { hostelName: booking.hostelName },
       });
-  
+
       const confirmedBookings = await ctx.db.bookingDetails.findMany({
         where: {
           hostelName: booking.hostelName,
@@ -259,73 +261,76 @@ export const bookingRouter = createTRPCRouter({
           id: { not: booking.id },
         },
       });
-  
+
       const calculateAvailability = (
         roomDetails: any[],
         confirmedBookings: any[],
         checkInDate: Date,
-        checkOutDate: Date
+        checkOutDate: Date,
       ) => {
         return roomDetails.map((roomDetail) => {
           let availableRooms = roomDetail.totalBed;
-  
+
           confirmedBookings.forEach((confirmedBooking) => {
-            const bookedFrom = startOfDay(new Date(confirmedBooking.bookedFromDt));
+            const bookedFrom = startOfDay(
+              new Date(confirmedBooking.bookedFromDt),
+            );
             const bookedTo = startOfDay(new Date(confirmedBooking.bookedToDt));
             const desiredFrom = startOfDay(new Date(checkInDate));
             const desiredTo = startOfDay(new Date(checkOutDate));
-  
+
             if (desiredFrom < bookedTo && desiredTo > bookedFrom) {
               if (confirmedBooking.roomType === roomDetail.roomType) {
                 availableRooms -= confirmedBooking.bookedBed;
               }
             }
           });
-  
+
           return {
             roomType: roomDetail.roomType,
             availableRooms: availableRooms,
           };
         });
       };
-  
+
       const availability = calculateAvailability(
         roomDetails,
         confirmedBookings,
         new Date(booking.bookedFromDt),
-        new Date(booking.bookedToDt)
+        new Date(booking.bookedToDt),
       );
-  
+
       const requestedRoomType = roomDetails.find(
-        (roomDetail) => roomDetail.roomType === booking.roomType
+        (roomDetail) => roomDetail.roomType === booking.roomType,
       );
-  
+
       if (!requestedRoomType) {
         throw new Error("Room type not found");
       }
-  
+
       const availableRoomsForRequestedType = availability.find(
-        (room) => room.roomType === requestedRoomType.roomType
+        (room) => room.roomType === requestedRoomType.roomType,
       )?.availableRooms;
-  
+
       if (
         availableRoomsForRequestedType === undefined ||
-        (booking.bookedBed !== null && availableRoomsForRequestedType < booking.bookedBed)
+        (booking.bookedBed !== null &&
+          availableRoomsForRequestedType < booking.bookedBed)
       ) {
         throw new Error("Not enough available rooms for the requested booking");
       }
-  
+
       // Proceed with the update if the rooms are available
       const updatedBooking = await ctx.db.bookingDetails.update({
         where: { id },
         data: { bookingStatus },
         include: { user: true, guests: true },
       });
-  
+
       const sendEmail = async (subject: string, text: string) => {
         const userEmail = process.env.EMAIL_USER;
         const recipientEmail = booking.userEmail ?? "no-reply@example.com";
-  
+
         try {
           await transporter.sendMail({
             from: userEmail,
@@ -338,35 +343,33 @@ export const bookingRouter = createTRPCRouter({
           console.error(`Failed to send email to ${recipientEmail}:`, error);
         }
       };
-  
+
       switch (bookingStatus) {
         case BookingStatus.CHECKOUT:
           await sendEmail(
             "Checkout Confirmation",
-            `Your checkout for booking ID ${booking.id} has been confirmed. Thank you for staying with us!`
+            `Your checkout for booking ID ${booking.id} has been confirmed. Thank you for staying with us!`,
           );
           break;
-  
+
         case BookingStatus.CONFIRMED:
           await sendEmail(
             "Booking Confirmation",
-            `Your booking with ID ${booking.id} has been confirmed.`
+            `Your booking with ID ${booking.id} has been confirmed.`,
           );
           break;
-  
+
         case BookingStatus.CANCELED:
           await sendEmail(
             "Booking Cancellation",
-            `Your booking with ID ${booking.id} has been canceled.`
+            `Your booking with ID ${booking.id} has been canceled.`,
           );
           break;
-  
+
         default:
           console.log("Unknown booking status");
       }
-  
+
       return { booking };
-    })
+    }),
 });
-
-
