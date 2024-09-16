@@ -25,15 +25,13 @@ export default function Home() {
   return (
     <main className="flex flex-col justify-center items-center py-14">
       <>
-        <div
-
-        >
-          <div className="flex flex-col gap-2 justify-center items-center text-center max-w-[1280px] mx-auto">
-            <div className="font-bold text-primary text-xl md:text-4xl">NATIONAL INSTITUTE OF</div>
+        <div>
+          <div className="flex flex-col gap-2 justify-center items-center text-center max-w-[1280px] mx-auto px-5">
+            <div className="font-bold text-primary text-base sm:text-3xl md:text-4xl">NATIONAL INSTITUTE OF</div>
           </div>
 
-          <div className="flex flex-col gap-2 justify-center items-center text-center max-w-[1280px] mx-auto">
-            <div className="font-bold text-primary text-lg sm:text-3xl md:text-4xl"> TECHNICAL TEACHERS TRAINING AND RESEARCH, BHOPAL</div>
+          <div className="flex flex-col gap-2 justify-center items-center text-center max-w-[1280px] mx-auto px-5" >
+            <div className="font-bold text-primary text-base sm:text-3xl md:text-4xl"> TECHNICAL TEACHERS TRAINING AND RESEARCH, BHOPAL</div>
           </div>
 
           <div className="flex flex-col gap-2 justify-center items-center text-center max-w-[1280px] mx-auto mt-4">

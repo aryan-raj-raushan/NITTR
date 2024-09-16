@@ -9,7 +9,7 @@ import Link from 'next/link';
 
 const MapSection = () => {
   return (
-    <div className=" mx-auto flex  w-[80%] max-w-[1280px]  flex-col py-12 sm:w-full">
+    <div className=" mx-auto flex  w-[95%] max-w-[1280px]  flex-col py-12 sm:w-full bg-gray-200 rounded-xl">
       <div className="mb-8 flex flex-col items-center justify-center text-center">
         <h2 className="montserrat flex w-full items-center justify-center text-3xl font-bold text-bg-primaryBackground ">
           We're Here For You

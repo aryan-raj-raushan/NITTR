@@ -18,7 +18,7 @@ const vipData = [{
 }]
 
 export default function VipCard() {
-  return <Card className="flex sm:flex-row flex-col items-center gap-2 sm:w-[95%] w-[70%] p-7  max-w-[1280px] mx-auto mt-10 bg-gray-400">
+  return <Card className="flex sm:flex-row flex-col items-center gap-2 sm:w-[95%] w-[90%] p-7  max-w-[1280px] mx-auto mt-10 bg-gray-200">
     <div className="w-full text-sm col-span-3 md:col-span-1 flex flex-col justify-center items-center basis-1/2">
       <div className="text-primary font-bold text-2xl">ABOUT NITTTR</div>
       <p className="text-gray-700 font-medium text-justify" style={{ textAlign: "justify" }}>
