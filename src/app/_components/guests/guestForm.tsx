@@ -1,10 +1,14 @@
-import { useForm } from "react-hook-form";
+"use client";
+import { FieldError, useForm } from "react-hook-form";
 import { useToast } from "~/components/ui/use-toast";
 import { api } from "~/trpc/react";
 import { Gender, MaritalStatus } from "@prisma/client";
 import { removeUnderscore } from "~/lib/utils";
+import { useState } from "react";
 
 function GuestForm({ roomCharges }: any) {
+  const [apiError, setApiError] = useState("");
+
   const { toast } = useToast();
   const form = useForm({
     mode: "onChange",
@@ -14,9 +18,22 @@ function GuestForm({ roomCharges }: any) {
     onSuccess: async ({ guest }: any) => {
       window.location.reload();
     },
+    onError: (error) => {
+      if (error.message.includes("Mobile number")) {
+        toast({
+          title: "Mobile Number Error",
+          description: "Mobile number should be 10 digits",
+          variant: "destructive",
+        });
+      } else {
+        setApiError(error.message);
+      }
+    },
   });
+  
 
   function onSubmit(data: any) {
+    setApiError("");
     createGuestMutation.mutate(data);
     toast({
       title: "You submitted the Guest Details:",
@@ -37,6 +54,44 @@ function GuestForm({ roomCharges }: any) {
   } = form;
 
   const hasGST = watch("hasGST");
+  const idCardType = watch("idCardType");
+
+  // Validation patterns
+  const idValidationPatterns = {
+    aadhar: /^[2-9]{1}[0-9]{3}[0-9]{4}[0-9]{4}$/,
+    pan: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
+    driving_license: /^(([A-Z]{2}[0-9]{2})( )|([A-Z]{2}-[0-9]{2}))((19|20)[0-9][0-9])[0-9]{7}$/,
+    passport: /^[A-Z]{1}[0-9]{7}$/
+  };
+
+  const gstPattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+
+  // Custom validation functions
+  const validateIdCardNumber = (value: string) => {
+    if (!idCardType) return true; // If no ID type is selected, don't validate
+    const pattern = idValidationPatterns[idCardType as keyof typeof idValidationPatterns];
+    return pattern.test(value) || `Invalid ${idCardType.replace('_', ' ')} number`;
+  };
+
+  const validateName = (value: string) => {
+    return value.length > 3 || "Name must be more than 3 characters long";
+  };
+
+  const validateGST = (value: string) => {
+    return gstPattern.test(value) || "Invalid GST number format";
+  };
+
+  // Helper function to safely get error message
+  const getErrorMessage = (error: any) => {
+    if (typeof error === 'string') {
+      return error;
+    }
+    if (error && 'message' in error) {
+      return error.message as string;
+    }
+    return "This field is invalid";
+  };
+
 
   return (
     <div className="flex h-full w-full justify-center overflow-y-auto">
@@ -44,6 +99,7 @@ function GuestForm({ roomCharges }: any) {
         onSubmit={handleSubmit(onSubmit)}
         className="w-full space-y-6 bg-white p-6 rounded-t-lg lg:rounded-lg"
       >
+       
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2">
             Who are you booking for?
@@ -84,11 +140,14 @@ function GuestForm({ roomCharges }: any) {
           <input
             type="text"
             placeholder="Enter name"
-            {...control.register("name", { required: true })}
+            {...control.register("name", { 
+              required: "Name is required",
+              validate: validateName
+            })}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
           {errors.name && (
-            <p className="mt-2 text-red-500">Name is required</p>
+            <p className="mt-2 text-red-500">{getErrorMessage(errors.name)}</p>
           )}
         </div>
 
@@ -102,9 +161,6 @@ function GuestForm({ roomCharges }: any) {
             {...control.register("mobileNo", { required: true })}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
-          {errors.mobileNo && (
-            <p className="mt-2 text-red-500">Mobile number is required</p>
-          )}
         </div>
 
         <div className="mb-4">
@@ -256,11 +312,14 @@ function GuestForm({ roomCharges }: any) {
           <input
             type="text"
             placeholder="Enter ID card number"
-            {...control.register("idCardNumber", { required: true })}
+            {...control.register("idCardNumber", { 
+              required: "ID card number is required",
+              validate: validateIdCardNumber
+            })}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
           {errors.idCardNumber && (
-            <p className="mt-2 text-red-500">ID card number is required</p>
+            <p className="mt-2 text-red-500">{getErrorMessage(errors.idCardNumber)}</p>
           )}
         </div>
 
@@ -269,7 +328,7 @@ function GuestForm({ roomCharges }: any) {
             Do you have GST?
           </label>
           <select
-            {...control.register("hasGST", { required: true })}
+            {...control.register("hasGST", { required: "This field is required" })}
             className="block w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
           >
             <option value="">Select an option</option>
@@ -277,7 +336,7 @@ function GuestForm({ roomCharges }: any) {
             <option value="no">No</option>
           </select>
           {errors.hasGST && (
-            <p className="mt-2 text-red-500">This field is required</p>
+            <p className="mt-2 text-red-500">{getErrorMessage(errors.hasGST)}</p>
           )}
         </div>
 
@@ -289,15 +348,18 @@ function GuestForm({ roomCharges }: any) {
             <input
               type="text"
               placeholder="Enter GST number"
-              {...control.register("gstNumber", { required: true })}
+              {...control.register("gstNumber", { 
+                required: "GST number is required",
+                validate: validateGST
+              })}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             />
             {errors.gstNumber && (
-              <p className="mt-2 text-red-500">GST number is required</p>
+              <p className="mt-2 text-red-500">{getErrorMessage(errors.gstNumber)}</p>
             )}
           </div>
         )}
-
+ 
         <button
           type="submit"
           className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"

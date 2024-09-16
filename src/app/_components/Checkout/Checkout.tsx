@@ -54,6 +54,7 @@ export default function Checkout({
   const userName = name;
   const userEmail = email;
   const [paymentTotal, setPaymentTotal] = useState<any>();
+  const [isBookingLoading, setIsBookingLoading] = useState(false);
 
   const createBookingMutation = api.booking.createBooking.useMutation({
     onSuccess: async ({ bookingDetails }: any) => {
@@ -74,11 +75,15 @@ export default function Checkout({
         }, 3000);
         setLoading(true);
       } else {
-        initiateOnlinePayment(paymentTotal, bookingDetails);
-        setLoading(true);
+        await initiateOnlinePayment(paymentTotal, bookingDetails);
       }
-      setLoading(false);
-    },
+      setIsBookingLoading(false);
+    }, onError: () => {
+      setIsBookingLoading(false);
+      toast.error("Booking failed. Please try again.", {
+        // ... add appropriate toast configuration
+      });
+    }
   });
 
   const initiateBillDeskPayment = (response: any) => {
@@ -492,19 +497,19 @@ export default function Checkout({
 
                           <Button
                             onClick={() => {
+                              if (isBookingLoading) return; // Prevent multiple clicks
                               if (!selectedGuests.length) {
-                                return alert("Please Select atleast 1 Guest");
+                                return alert("Please Select at least 1 Guest");
                               }
                               if (!selectedNumberOfRoomsOrBeds) {
                                 return alert("Please Select Number of Rooms");
                               }
-                              if (
-                                selectedGuests.length > roomDetails?.totalBed
-                              ) {
+                              if (selectedGuests.length > roomDetails?.totalBed) {
                                 return alert(
-                                  "Number of Selected Guests and Number of Selected Beds should be equal",
+                                  "Number of Selected Guests and Number of Selected Beds should be equal"
                                 );
                               }
+                              setIsBookingLoading(true);
                               setPaymentTotal(total);
                               createBookingMutation.mutate({
                                 hostelName: roomDetails.hostelName,
@@ -526,8 +531,9 @@ export default function Checkout({
                                 paymentMode: selectedPaymentMethod,
                               });
                             }}
+                            disabled={isBookingLoading}
                           >
-                            Confirm Booking
+                            {isBookingLoading ? "Processing..." : "Confirm Booking"}
                           </Button>
                         </div>
                       </dl>

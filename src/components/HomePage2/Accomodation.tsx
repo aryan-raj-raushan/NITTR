@@ -8,6 +8,7 @@ import SearchForm from '~/app/_components/SearchForm';
 import { motion } from "framer-motion";
 
 const Accomodation = ({ showModal, setShowModal }: any) => {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const openModal = () => {
     setShowModal(true);
@@ -139,7 +140,10 @@ const Accomodation = ({ showModal, setShowModal }: any) => {
               &times;
             </button>
             <div className='pt-1'>
-              <SearchForm aboveClass="justify-center" belowClass="w-fit" />
+            <SearchForm  aboveClass="flex-col justify-start" belowClass="" setErrorMessage={setErrorMessage} />
+                  {errorMessage && (
+                    <p className="text-red-500 text-sm">{errorMessage}</p>
+                  )}
             </div>
           </div>
         </div>

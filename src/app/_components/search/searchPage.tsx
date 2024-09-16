@@ -28,6 +28,7 @@ const SearchPage = ({ bookings }: any) => {
   // useState<RouterOutputs["room"]["getRoomsByGuestHouse"]["roomDetails"]>();
   const [loading, setLoading] = useState(true);
   const [availableRooms, setAvailableRooms] = useState<any>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setLocation(xlocation?.toString()!);
@@ -108,7 +109,7 @@ const SearchPage = ({ bookings }: any) => {
   const filteredRooms: any = roomDetails?.filter(
     (room: any) => guests <= room?.totalBed,
   );
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
 
   return (
     <>

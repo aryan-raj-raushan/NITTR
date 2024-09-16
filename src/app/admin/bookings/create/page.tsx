@@ -11,6 +11,7 @@ import SearchForm from "~/app/_components/SearchForm";
 
 export default function Page() {
   const [guests, setGuests] = useState<GuestProfile[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [selectedGuests, setSelectedGuests] = useState<GuestProfile[]>([]);
   const { id } = useAppSelector((store: any) => store.auth);
   const userId = id;
@@ -64,11 +65,11 @@ export default function Page() {
           </DialogContent>
           <div className="flex flex-col items-center justify-center gap-8">
             <div className="pt-10 ">
-              <SearchForm
-                aboveClass="justify-center"
-                belowClass="w-fit"
-                guests={selectedGuests.length}
-              />
+              
+              <SearchForm guests={selectedGuests.length} aboveClass=" justify-start" belowClass="" setErrorMessage={setErrorMessage} />
+                  {errorMessage && (
+                    <p className="text-red-500 text-sm">{errorMessage}</p>
+                  )}
             </div>
             <div className="flex min-w-[40rem] flex-col items-center justify-center ">
               <div>
