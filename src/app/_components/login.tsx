@@ -26,7 +26,10 @@ import Image from "next/image";
 import { VerifiedIcon } from "~/components/Assets";
 import { usePreviousRoute } from "~/hooks/usePreviousRoute";
 import { FaEnvelope, FaLock, FaPhone, FaUser } from "react-icons/fa6";
-import { MdOutlineArrowBackIosNew, MdOutlineArrowForwardIos } from "react-icons/md";
+import {
+  MdOutlineArrowBackIosNew,
+  MdOutlineArrowForwardIos,
+} from "react-icons/md";
 
 const AuthCredentialsValidator = z
   .object({
@@ -375,7 +378,7 @@ export default function Login() {
     setValue("email", values?.email);
     setValue("password", values?.password);
   };
-//hi
+  //hi
   const handleGoogleSignin = useGoogleLogin({
     onSuccess: async (res) => {
       try {
@@ -518,503 +521,524 @@ export default function Login() {
   return (
     <>
       <div className="hidden md:block">
-      <div className="relative my-10 flex min-h-full items-center justify-center">
-        <div className="relative min-h-[480px] w-full max-w-7xl overflow-hidden rounded-lg bg-white shadow-lg">
-          <div
-            className={`duration-600 absolute inset-0 flex transform transition-transform ${rightPanelActive ? "translate-x-0" : "translate-x-1/2"}`}
-          >
+        <div className="relative my-10 flex min-h-full items-center justify-center">
+          <div className="relative min-h-[480px] w-full max-w-7xl overflow-hidden rounded-lg bg-white shadow-lg">
             <div
-              className={`duration-600 flex h-full w-1/2 flex-col items-center justify-center px-8 py-3 transition-opacity ${rightPanelActive ? "pointer-events-none opacity-0" : "opacity-100"}`}
+              className={`duration-600 absolute inset-0 flex transform transition-transform ${rightPanelActive ? "translate-x-0" : "translate-x-1/2"}`}
             >
-              <form
-                onSubmit={signupForm.handleSubmit(onSubmitSignup)}
-                className="no-scrollbar w-full space-y-3 overflow-y-auto text-center"
+              <div
+                className={`duration-600 flex h-full w-1/2 flex-col items-center justify-center px-8 py-3 transition-opacity ${rightPanelActive ? "pointer-events-none opacity-0" : "opacity-100"}`}
               >
-                <h1 className="font-bold">Create Account</h1>
-                <div className="my-2 flex justify-center">
-                  <button
-                    type="button"
-                    onClick={() => handleGoogleSignin()}
-                    className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
-                  >
-                    <FaGoogle />
-                  </button>
-                  <button
-                    type="button"
-                    className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
-                    onClick={signInWithPhone}
-                  >
-                    <FaPhoneAlt />
-                  </button>
-                  <button
-                    type="button"
-                    className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
-                    onClick={signInWithEmail}
-                  >
-                    <IoIosMail />
-                  </button>
-                </div>
-                <span className="text-sm">
-                  {isOtp
-                    ? " or use your email for registration"
-                    : " or use your phone for registration"}
-                </span>
-                <input
-                  type="text"
-                  placeholder="Name"
-                  className="mt-2 w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
-                  {...signupForm.register("name")}
-                />
-                <input
-                  type="email"
-                  placeholder="Email"
-                  className=" w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
-                  {...signupForm.register("email")}
-                />
-                <div className="!relative">
+                <form
+                  onSubmit={signupForm.handleSubmit(onSubmitSignup)}
+                  className="no-scrollbar w-full space-y-3 overflow-y-auto text-center"
+                >
+                  <h1 className="font-bold">Create Account</h1>
+                  <div className="my-2 flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => handleGoogleSignin()}
+                      className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
+                    >
+                      <FaGoogle />
+                    </button>
+                    <button
+                      type="button"
+                      className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
+                      onClick={signInWithPhone}
+                    >
+                      <FaPhoneAlt />
+                    </button>
+                    <button
+                      type="button"
+                      className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
+                      onClick={signInWithEmail}
+                    >
+                      <IoIosMail />
+                    </button>
+                  </div>
+                  <span className="text-sm">
+                    {isOtp
+                      ? " or use your email for registration"
+                      : " or use your phone for registration"}
+                  </span>
                   <input
                     type="text"
-                    placeholder="Phone Number"
-                    className="mt-1 w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
-                    {...signupForm.register("number")}
+                    placeholder="Name"
+                    className="mt-2 w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
+                    {...signupForm.register("name")}
                   />
-                  {isPhoneVerified && (
-                    <Image
-                      src={VerifiedIcon}
-                      width={500}
-                      height={500}
-                      className="!absolute right-0 top-1.5 z-50 h-8 w-8"
-                      alt="Verified Icon"
-                    />
-                  )}
-                </div>
-
-                <input
-                  type="password"
-                  placeholder="Password"
-                  className="mt-1 w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
-                  {...signupForm.register("password")}
-                />
-                <input
-                  type="password"
-                  placeholder="Confirm Password"
-                  className="mt-1 w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
-                  {...signupForm.register("confirmPassword")}
-                />
-                {otpSent ? (
-                  <button
-                    type="submit"
-                    className="mt-4 transform rounded-full bg-primaryBackground px-12 py-3 text-sm font-bold uppercase text-white transition-transform duration-150 active:scale-95"
-                  >
-                    Verify Email
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleSendOtp}
-                    className="mt-4 transform rounded-full bg-primaryBackground px-12 py-3 text-sm font-bold uppercase text-white transition-transform duration-150 active:scale-95"
-                  >
-                    Send OTP
-                  </button>
-                )}
-              </form>
-            </div>
-
-            {/* Sign in form */}
-            <div
-              className={`duration-600 flex h-full w-1/2 flex-col items-center justify-center p-8 transition-opacity ${rightPanelActive ? "-translate-x-full opacity-100" : "pointer-events-none opacity-0"}`}
-            >
-              <form
-                onSubmit={handleSubmit(onSubmit)}
-                className="w-full space-y-4 text-center"
-              >
-                <h1 className="font-bold">Sign In</h1>
-                <div className="my-4 flex justify-center">
-                  <button
-                    type="button"
-                    onClick={() => handleGoogleSignin()}
-                    className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
-                  >
-                    <FaGoogle />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={signInWithPhone}
-                    className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
-                  >
-                    <FaPhoneAlt />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={signInWithEmail}
-                    className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
-                  >
-                    <IoIosMail className="text-2xl" />
-                  </button>
-                </div>
-                <span className="text-sm">
-                  {isOtp
-                    ? "or use your account"
-                    : "or use your phone for login"}
-                </span>
-                {!isOtp ? (
                   <input
                     type="email"
                     placeholder="Email"
-                    onChange={(e) =>
-                      setFormValues({
-                        ...form.getValues(),
-                        email: e.target.value,
-                      })
-                    }
-                    className="w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
+                    className=" w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
+                    {...signupForm.register("email")}
                   />
-                ) : (
-                  <input
-                    type="number"
-                    placeholder="Phone"
-                    onChange={(e) =>
-                      setFormValues({
-                        ...form.getValues(),
-                        phone: e.target.value,
-                      })
-                    }
-                    className="w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
-                  />
-                )}
-
-                <input
-                  type="password"
-                  placeholder="Password"
-                  onChange={(e) =>
-                    setFormValues({
-                      ...form.getValues(),
-                      password: e.target.value,
-                    })
-                  }
-                  className="w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
-                />
-                {!isOtp ? (
-                  <Link
-                    href="/forget-password"
-                    className="-mt-2 inline-block w-full px-1 text-start text-sm"
-                  >
-                    Forgot password?
-                  </Link>
-                ) : (
-                  <div className="inline-block w-full px-2 text-start text-sm">
-                    Login with otp
+                  <div className="!relative">
+                    <input
+                      type="text"
+                      placeholder="Phone Number"
+                      className="mt-1 w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
+                      {...signupForm.register("number")}
+                    />
+                    {isPhoneVerified && (
+                      <Image
+                        src={VerifiedIcon}
+                        width={500}
+                        height={500}
+                        className="!absolute right-0 top-1.5 z-50 h-8 w-8"
+                        alt="Verified Icon"
+                      />
+                    )}
                   </div>
-                )}
 
-                <div>
-                  <button
-                    type="submit"
-                    className="transform rounded-full bg-primaryBackground px-12 py-3 text-sm font-bold uppercase text-white transition-transform duration-150 active:scale-95"
-                  >
-                    Sign In
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-          <div
-            className={`duration-600 absolute left-1/2 top-0 z-10 h-full w-1/2 transform overflow-hidden transition-transform ${rightPanelActive ? "translate-x-0" : "-translate-x-full"}`}
-          >
-            <div className="flex h-full flex-col items-center justify-center bg-gradient-to-r from-blue-800 from-20% to-primaryBackground p-8 text-white">
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    className="mt-1 w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
+                    {...signupForm.register("password")}
+                  />
+                  <input
+                    type="password"
+                    placeholder="Confirm Password"
+                    className="mt-1 w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
+                    {...signupForm.register("confirmPassword")}
+                  />
+                  {otpSent ? (
+                    <button
+                      type="submit"
+                      className="mt-4 transform rounded-full bg-primaryBackground px-12 py-3 text-sm font-bold uppercase text-white transition-transform duration-150 active:scale-95"
+                    >
+                      Verify Email
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleSendOtp}
+                      className="mt-4 transform rounded-full bg-primaryBackground px-12 py-3 text-sm font-bold uppercase text-white transition-transform duration-150 active:scale-95"
+                    >
+                      Send OTP
+                    </button>
+                  )}
+                </form>
+              </div>
+
+              {/* Sign in form */}
               <div
-                className={`duration-600 absolute inset-y-0 left-0 flex w-full items-center justify-center transition-transform ${rightPanelActive ? "translate-x-full" : "translate-x-0"}`}
+                className={`duration-600 flex h-full w-1/2 flex-col items-center justify-center p-8 transition-opacity ${rightPanelActive ? "-translate-x-full opacity-100" : "pointer-events-none opacity-0"}`}
               >
-                <div className="flex flex-col items-center justify-center text-center">
-                  <h1 className="text-3xl font-bold">Welcome Back!</h1>
-                  <p className="mt-4 w-4/5 text-base">
-                    To keep connected with us please login with your personal
-                    info
-                  </p>
-                  <button
-                    className="mt-6 rounded-full border border-white bg-transparent px-12 py-3 text-sm font-bold uppercase"
-                    onClick={handleSignInClick}
-                  >
-                    Sign In
-                  </button>
+                <form
+                  onSubmit={handleSubmit(onSubmit)}
+                  className="w-full space-y-4 text-center"
+                >
+                  <h1 className="font-bold">Sign In</h1>
+                  <div className="my-4 flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => handleGoogleSignin()}
+                      className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
+                    >
+                      <FaGoogle />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={signInWithPhone}
+                      className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
+                    >
+                      <FaPhoneAlt />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={signInWithEmail}
+                      className="mx-2 flex h-10 w-10 items-center justify-center rounded-full border border-gray-300"
+                    >
+                      <IoIosMail className="text-2xl" />
+                    </button>
+                  </div>
+                  <span className="text-sm">
+                    {isOtp
+                      ? "or use your account"
+                      : "or use your phone for login"}
+                  </span>
+                  {!isOtp ? (
+                    <input
+                      type="email"
+                      placeholder="Email"
+                      onChange={(e) =>
+                        setFormValues({
+                          ...form.getValues(),
+                          email: e.target.value,
+                        })
+                      }
+                      className="w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
+                    />
+                  ) : (
+                    <input
+                      type="number"
+                      placeholder="Phone"
+                      onChange={(e) =>
+                        setFormValues({
+                          ...form.getValues(),
+                          phone: e.target.value,
+                        })
+                      }
+                      className="w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
+                    />
+                  )}
+
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    onChange={(e) =>
+                      setFormValues({
+                        ...form.getValues(),
+                        password: e.target.value,
+                      })
+                    }
+                    className="w-full rounded border-none bg-gray-200 p-2 text-sm outline-none"
+                  />
+                  {!isOtp ? (
+                    <Link
+                      href="/forget-password"
+                      className="-mt-2 inline-block w-full px-1 text-start text-sm"
+                    >
+                      Forgot password?
+                    </Link>
+                  ) : (
+                    <div className="inline-block w-full px-2 text-start text-sm">
+                      Login with otp
+                    </div>
+                  )}
+
+                  <div>
+                    <button
+                      type="submit"
+                      className="transform rounded-full bg-primaryBackground px-12 py-3 text-sm font-bold uppercase text-white transition-transform duration-150 active:scale-95"
+                    >
+                      Sign In
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div
+              className={`duration-600 absolute left-1/2 top-0 z-10 h-full w-1/2 transform overflow-hidden transition-transform ${rightPanelActive ? "translate-x-0" : "-translate-x-full"}`}
+            >
+              <div className="flex h-full flex-col items-center justify-center bg-gradient-to-r from-blue-800 from-20% to-primaryBackground p-8 text-white">
+                <div
+                  className={`duration-600 absolute inset-y-0 left-0 flex w-full items-center justify-center transition-transform ${rightPanelActive ? "translate-x-full" : "translate-x-0"}`}
+                >
+                  <div className="flex flex-col items-center justify-center text-center">
+                    <h1 className="text-3xl font-bold">Welcome Back!</h1>
+                    <p className="mt-4 w-4/5 text-base">
+                      To keep connected with us please login with your personal
+                      info
+                    </p>
+                    <button
+                      className="mt-6 rounded-full border border-white bg-transparent px-12 py-3 text-sm font-bold uppercase"
+                      onClick={handleSignInClick}
+                    >
+                      Sign In
+                    </button>
+                  </div>
+                </div>
+                <div
+                  className={`duration-600 absolute inset-y-0 right-0 flex w-full items-center justify-center transition-transform ${rightPanelActive ? "translate-x-0" : "translate-x-full"}`}
+                >
+                  <div className="flex flex-col items-center justify-center text-center">
+                    <h1 className="text-3xl font-bold">Join Us!</h1>
+                    <p className="mt-4 w-[85%] text-base">
+                      Share your details and begin your unforgettable stay with
+                      us
+                    </p>
+                    <button
+                      className="mt-6 rounded-full border border-white bg-transparent px-12 py-3 text-sm font-bold uppercase"
+                      onClick={handleSignUpClick}
+                    >
+                      Sign Up
+                    </button>
+                  </div>
                 </div>
               </div>
-              <div
-                className={`duration-600 absolute inset-y-0 right-0 flex w-full items-center justify-center transition-transform ${rightPanelActive ? "translate-x-0" : "translate-x-full"}`}
-              >
-                <div className="flex flex-col items-center justify-center text-center">
-                  <h1 className="text-3xl font-bold">Join Us!</h1>
-                  <p className="mt-4 w-[85%] text-base">
-                    Share your details and begin your unforgettable stay with us
-                  </p>
+            </div>
+          </div>
+
+          {showModal && (
+            <div className="fixed inset-0 !z-50 flex w-full items-center justify-center bg-black bg-opacity-50">
+              <div className="w-80 rounded-md bg-white p-4">
+                <h2 className="mb-4 text-lg font-bold">Enter OTP</h2>
+                <p>Phone Number: {signupForm.getValues("number")}</p>
+                <div className="mt-2 flex justify-between">
+                  {[...Array(6)].map((_, i) => (
+                    <input
+                      key={i}
+                      type="text"
+                      maxLength={1}
+                      className="h-10 w-10 rounded-md border text-center"
+                      ref={(el) => (otpRefs.current[i] = el)}
+                      onChange={(e) => handleOtpChange(e, i)}
+                    />
+                  ))}
+                </div>
+                <div className="mt-4 text-center">
+                  <span>
+                    {counter > 0 ? (
+                      `Resend OTP in ${counter}s`
+                    ) : (
+                      <button onClick={handleResendOtp}>Resend OTP</button>
+                    )}
+                  </span>
+                </div>
+                <button
+                  onClick={handleSubmitOtp}
+                  className="mt-4 w-full rounded-md bg-primaryBackground py-2 text-white"
+                >
+                  Submit
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="block md:hidden">
+        <div className="flex h-screen flex-col items-center justify-center bg-white">
+          <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
+            <h2 className="mb-4 text-start text-3xl font-semibold">
+              {isLogin ? "Login" : "Sign Up"}
+            </h2>
+            <p className="mb-4 text-start text-gray-500">
+              {isLogin ? "Welcome back to the app" : "Create a new account"}
+            </p>
+
+            {/* Toggle buttons for Email and Phone Number in Login */}
+            {isLogin && (
+              <div className="mb-6 flex justify-start space-x-4">
+                <button
+                  onClick={() => setUsePhone(false)}
+                  className={`rounded-lg px-2  py-2 ${!usePhone ? "text-blue-500 underline" : "text-gray-700"}`}
+                >
+                  Email
+                </button>
+                <button
+                  onClick={() => setUsePhone(true)}
+                  className={`rounded-lg px-2 py-2 ${usePhone ? "text-blue-500 underline" : "text-gray-700"}`}
+                >
+                  Phone Number
+                </button>
+              </div>
+            )}
+
+            <form
+              onSubmit={
+                isLogin
+                  ? handleSubmit(onSubmit)
+                  : signupForm.handleSubmit(onSubmitSignup)
+              }
+            >
+              {/* Login Form */}
+              {isLogin ? (
+                <>
+                  {usePhone ? (
+                    <div className="mb-4">
+                      <label className="block text-gray-700">
+                        Phone Number
+                      </label>
+                      <input
+                        type="tel"
+                        placeholder="+1234567890"
+                        className="w-full rounded-md border border-gray-300 px-3 py-2"
+                        {...signupForm.register("number")}
+                      />
+                    </div>
+                  ) : (
+                    <div className="mb-4">
+                      <label className="block text-gray-700">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        placeholder="hello@example.com"
+                        className="w-full rounded-md border border-gray-300 px-3 py-2"
+                        {...form.register("email")}
+                      />
+                    </div>
+                  )}
+
+                  <div className="mb-4">
+                    <label className="block text-gray-700">Password</label>
+                    <input
+                      type="password"
+                      placeholder="••••••••"
+                      className="w-full rounded-md border border-gray-300 px-3 py-2"
+                      {...form.register("password")}
+                    />
+                  </div>
+
+                  <div className="mb-4 flex items-center justify-between">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        className="form-checkbox h-4 w-4 text-blue-600"
+                      />
+                      <span className="ml-2 text-gray-700">
+                        Keep me signed in
+                      </span>
+                    </label>
+                    <a
+                      href="#"
+                      className="text-sm text-blue-600 hover:underline"
+                    >
+                      Forgot Password?
+                    </a>
+                  </div>
+
                   <button
-                    className="mt-6 rounded-full border border-white bg-transparent px-12 py-3 text-sm font-bold uppercase"
-                    onClick={handleSignUpClick}
+                    type="submit"
+                    className="mb-4 w-full rounded-md bg-blue-600 py-2 text-white hover:bg-blue-700"
+                  >
+                    Login
+                  </button>
+                </>
+              ) : (
+                <>
+                  {/* Signup Form */}
+                  <div className="mb-4">
+                    <label className="block text-gray-700">Name</label>
+                    <input
+                      type="text"
+                      placeholder="John Doe"
+                      className="w-full rounded-md border border-gray-300 px-3 py-2"
+                      {...signupForm.register("name")}
+                    />
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-gray-700">Phone Number</label>
+                    <input
+                      type="tel"
+                      placeholder="+1234567890"
+                      className="w-full rounded-md border border-gray-300 px-3 py-2"
+                      {...signupForm.register("number")}
+                    />
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-gray-700">Email Address</label>
+                    <input
+                      type="email"
+                      placeholder="hello@example.com"
+                      className="w-full rounded-md border border-gray-300 px-3 py-2"
+                      {...signupForm.register("email")}
+                    />
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-gray-700">Password</label>
+                    <input
+                      type="password"
+                      placeholder="••••••••"
+                      className="w-full rounded-md border border-gray-300 px-3 py-2"
+                      {...signupForm.register("password")}
+                    />
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-gray-700">
+                      Re-enter Password
+                    </label>
+                    <input
+                      type="password"
+                      placeholder="••••••••"
+                      className="w-full rounded-md border border-gray-300 px-3 py-2"
+                      {...signupForm.register("confirmPassword")}
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="mb-4 w-full rounded-md bg-blue-600 py-2 text-white hover:bg-blue-700"
                   >
                     Sign Up
                   </button>
+                </>
+              )}
+            </form>
+
+            {/* Switch between Login and Signup */}
+
+            {/* Google Sign-in */}
+            {isLogin && (
+              <>
+                <div className="my-4 text-center">or sign in with</div>
+                <div className="text-center">
+                  <button
+                    className="w-full rounded-md border bg-gray-100 py-2 text-gray-700 hover:bg-gray-200"
+                    onClick={() => handleGoogleSignin()}
+                  >
+                    <span className="flex items-center justify-center">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png"
+                        alt="Google"
+                        className="mr-2 h-5 w-5"
+                      />
+                      Continue with Google
+                    </span>
+                  </button>
                 </div>
-              </div>
+              </>
+            )}
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-blue-600 hover:underline"
+              >
+                {isLogin
+                  ? "Create an account"
+                  : "Already have an account? Login"}
+              </button>
             </div>
           </div>
         </div>
 
+        {/* OTP Modal */}
         {showModal && (
-          <div className="fixed inset-0 !z-50 flex w-full items-center justify-center bg-black bg-opacity-50">
-            <div className="w-80 rounded-md bg-white p-4">
-              <h2 className="mb-4 text-lg font-bold">Enter OTP</h2>
-              <p>Phone Number: {signupForm.getValues("number")}</p>
-              <div className="mt-2 flex justify-between">
-                {[...Array(6)].map((_, i) => (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="w-full max-w-sm rounded-lg bg-white p-8 shadow-lg">
+              <h3 className="mb-4 text-xl font-semibold">Enter OTP</h3>
+              <div className="mb-4 flex justify-center space-x-2">
+                {otp.map((digit, index) => (
                   <input
-                    key={i}
+                    key={index}
+                    ref={(el) => (otpRefs.current[index] = el)}
                     type="text"
                     maxLength={1}
-                    className="h-10 w-10 rounded-md border text-center"
-                    ref={(el) => (otpRefs.current[i] = el)}
-                    onChange={(e) => handleOtpChange(e, i)}
+                    value={digit}
+                    onChange={(e) => handleOtpChange(e, index)}
+                    className="h-12 w-12 rounded-md border border-gray-300 text-center"
                   />
                 ))}
               </div>
-              <div className="mt-4 text-center">
-                <span>
-                  {counter > 0 ? (
-                    `Resend OTP in ${counter}s`
-                  ) : (
-                    <button onClick={handleResendOtp}>Resend OTP</button>
-                  )}
-                </span>
-              </div>
               <button
                 onClick={handleSubmitOtp}
-                className="mt-4 w-full rounded-md bg-primaryBackground py-2 text-white"
+                className="mb-4 w-full rounded-md bg-blue-600 py-2 text-white hover:bg-blue-700"
               >
-                Submit
+                Submit OTP
+              </button>
+              <p className="text-center text-gray-500">
+                Resend OTP in {counter} seconds
+              </p>
+              <button
+                onClick={handleResendOtp}
+                className="mt-4 text-center text-blue-600 hover:underline"
+                disabled={counter > 0}
+              >
+                Resend OTP
               </button>
             </div>
           </div>
         )}
       </div>
-      </div>
-
-      <div className="block md:hidden">
-  <div className="flex flex-col items-center justify-center h-screen bg-white">
-    <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-      <h2 className="text-3xl font-semibold mb-4 text-start">
-        {isLogin ? 'Login' : 'Sign Up'}
-      </h2>
-      <p className="text-gray-500 text-start mb-4">
-        {isLogin ? 'Welcome back to the app' : 'Create a new account'}
-      </p>
-
-      {/* Toggle buttons for Email and Phone Number in Login */}
-      {isLogin && (
-        <div className="flex justify-start space-x-4 mb-6">
-          <button
-            onClick={() => setUsePhone(false)}
-            className={`px-2 py-2  rounded-lg ${!usePhone ? 'underline text-blue-500' : 'text-gray-700'}`}
-          >
-            Email
-          </button>
-          <button
-            onClick={() => setUsePhone(true)}
-            className={`px-2 py-2 rounded-lg ${usePhone ? 'underline text-blue-500' : 'text-gray-700'}`}
-          >
-            Phone Number
-          </button>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit(isLogin ? onSubmit : onSubmitSignup)}>
-        {/* Login Form */}
-        {isLogin ? (
-          <>
-            {usePhone ? (
-              <div className="mb-4">
-                <label className="block text-gray-700">Phone Number</label>
-                <input
-                  type="tel"
-                  placeholder="+1234567890"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  {...form.register("phone")}
-                />
-              </div>
-            ) : (
-              <div className="mb-4">
-                <label className="block text-gray-700">Email Address</label>
-                <input
-                  type="email"
-                  placeholder="hello@example.com"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  {...form.register("email")}
-                />
-              </div>
-            )}
-
-            <div className="mb-4">
-              <label className="block text-gray-700">Password</label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                {...form.register("password")}
-              />
-            </div>
-
-            <div className="flex justify-between items-center mb-4">
-              <label className="flex items-center">
-                <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600" />
-                <span className="ml-2 text-gray-700">Keep me signed in</span>
-              </label>
-              <a href="#" className="text-sm text-blue-600 hover:underline">
-                Forgot Password?
-              </a>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded-md mb-4 hover:bg-blue-700"
-            >
-              Login
-            </button>
-          </>
-        ) : (
-          <>
-            {/* Signup Form */}
-            <div className="mb-4">
-              <label className="block text-gray-700">Name</label>
-              <input
-                type="text"
-                placeholder="John Doe"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                {...form.register("name")}
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-gray-700">Phone Number</label>
-              <input
-                type="tel"
-                placeholder="+1234567890"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                {...form.register("number")}
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-gray-700">Email Address</label>
-              <input
-                type="email"
-                placeholder="hello@example.com"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                {...form.register("email")}
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-gray-700">Password</label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                {...form.register("password")}
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-gray-700">Re-enter Password</label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                {...form.register("confirmPassword")}
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded-md mb-4 hover:bg-blue-700"
-            >
-              Sign Up
-            </button>
-          </>
-        )}
-      </form>
-
-      {/* Switch between Login and Signup */}
-     
-
-      {/* Google Sign-in */}
-      {isLogin && (
-        <>
-          <div className="my-4 text-center">or sign in with</div>
-          <div className="text-center">
-            <button
-              className="w-full py-2 bg-gray-100 text-gray-700 border rounded-md hover:bg-gray-200"
-              onClick={handleGoogleSignin}
-            >
-              <span className="flex justify-center items-center">
-                <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png"
-                  alt="Google"
-                  className="w-5 h-5 mr-2"
-                />
-                Continue with Google
-              </span>
-            </button>
-          </div>
-        </>
-      )}
-       <div className="text-center mt-4">
-        <button
-          onClick={() => setIsLogin(!isLogin)}
-          className="text-blue-600 hover:underline"
-        >
-          {isLogin ? 'Create an account' : 'Already have an account? Login'}
-        </button>
-      </div>
-    </div>
-  </div>
-
-  {/* OTP Modal */}
-  {showModal && (
-    <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full">
-        <h3 className="text-xl font-semibold mb-4">Enter OTP</h3>
-        <div className="flex justify-center space-x-2 mb-4">
-          {otp.map((digit, index) => (
-            <input
-              key={index}
-              ref={(el) => (otpRefs.current[index] = el)}
-              type="text"
-              maxLength={1}
-              value={digit}
-              onChange={(e) => handleOtpChange(e, index)}
-              className="w-12 h-12 text-center border border-gray-300 rounded-md"
-            />
-          ))}
-        </div>
-        <button
-          onClick={handleSubmitOtp}
-          className="w-full bg-blue-600 text-white py-2 rounded-md mb-4 hover:bg-blue-700"
-        >
-          Submit OTP
-        </button>
-        <p className="text-center text-gray-500">
-          Resend OTP in {counter} seconds
-        </p>
-        <button
-          onClick={handleResendOtp}
-          className="text-center text-blue-600 hover:underline mt-4"
-          disabled={counter > 0}
-        >
-          Resend OTP
-        </button>
-      </div>
-    </div>
-  )}
-</div>
-
     </>
   );
 }
