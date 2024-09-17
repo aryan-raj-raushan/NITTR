@@ -138,7 +138,7 @@ const SearchPage = ({ bookings }: any) => {
                 Review COVID-19 travel restrictions before you book.{" "}
                 <Link href="/">Learn more</Link>
               </p> */}
-              <section className="grid gap-5 md:grid-cols-3 lg:grid-cols-4">
+              <section className="grid sm:gap-48 gap-5 md:grid-cols-3 lg:grid-cols-4">
                 {loading ? (
                   <p>Loading...</p>
                 ) : filteredRooms?.length > 0 ? (

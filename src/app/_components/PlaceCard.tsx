@@ -21,7 +21,7 @@ const AppPlaceCard = ({
   };
 
   return (
-    <div className="drop-shadow-gray-400 flex max-w-[600px] flex-col rounded-xl border border-gray-300 bg-gradient-to-tr from-slate-200 via-white to-gray-300 p-4 pt-4 drop-shadow-md hover:drop-shadow-xl">
+    <div className="drop-shadow-gray-400 flex max-w-[600px] sm:w-[300px] w-full flex-col rounded-xl border border-gray-300 bg-gradient-to-tr from-slate-200 via-white to-gray-300 p-4 drop-shadow-md hover:drop-shadow-xl">
       {/* left - image */}
       <div className="relative mb-2 h-52 w-full sm:h-44 md:mb-0">
         <Image

@@ -28,7 +28,7 @@ export function RecentBookings({ bookings, setSelectedBooking, selectedBooking }
           <div
             key={b.id + index}
             onClick={() => setSelectedBooking(b)}
-            className={`flex items-center rounded-2xl p-3 hover:bg-gray-100 ${selectedBooking?.id == b.id ? "bg-gray-100" : ""} border-b border-gray-300`}
+            className={`flex items-center rounded-2xl p-3 hover:bg-gray-100 ${selectedBooking?.id == b.id ? "bg-gray-100" : ""} border border-gray-300`}
           >
             <div className="flex w-full flex-col gap-2">
               <p className=" flex sm:flex-row flex-col justify-between">

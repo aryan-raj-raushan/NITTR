@@ -117,8 +117,10 @@ export default function MyBookings({
 
   const generateSystematicId = (id: string, index: number) => {
     const prefix = id.substring(0, 5).toUpperCase();
-    return `${prefix}`;
+    const suffix = id.slice(-2).toUpperCase(); // Get the last two characters and convert to uppercase
+    return `${prefix}...${suffix}`;
   };
+  
 
   const filteredBookingsToShow = filteredBookings.slice(0, bookingsToShow);
 
@@ -269,7 +271,7 @@ export default function MyBookings({
                                 <span className="key-style text-lg font-medium">
                                   Guest Details{" "}
                                 </span>
-                                <div className="value-style w-fit rounded-md bg-gray-200 p-2 px-4 text-lg">
+                                <div className="value-style w-fit rounded-md text-lg">
                                   {selectedBooking?.guests.map(
                                     (guest: Guest, index: number) => (
                                       <div
@@ -307,7 +309,7 @@ export default function MyBookings({
                                   )}
                                 </div>
                               </div>
-                              <div>
+                              {/* <div>
                                 <span className="key-style text-lg font-medium">
                                   Room Details{" "}
                                 </span>
@@ -340,7 +342,7 @@ export default function MyBookings({
                                     ),
                                   )}
                                 </div>
-                              </div>
+                              </div> */}
                             </div>
                           )}
                         </CardContent>
