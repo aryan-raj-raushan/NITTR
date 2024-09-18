@@ -97,7 +97,7 @@ function GuestForm({ roomCharges }: any) {
     <div className="flex h-full w-full justify-center overflow-y-auto">
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="w-full space-y-6 bg-white p-6 rounded-t-lg lg:rounded-lg"
+        className="w-full space-y-6 bg-white sm:p-6 p-2 rounded-t-lg lg:rounded-lg"
       >
        
         <div className="mb-4">
@@ -112,7 +112,7 @@ function GuestForm({ roomCharges }: any) {
                 {...control.register("bookingFor", { required: true })}
                 className="hidden peer"
               />
-              <div className="px-4 py-2 text-gray-700 rounded-full border border-gray-300 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 cursor-pointer">
+              <div className="sm:px-4 px-2 py-2 sm:text-base text-sm text-gray-700 rounded-full border border-gray-300 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 cursor-pointer">
                 For myself
               </div>
             </label>
@@ -123,7 +123,7 @@ function GuestForm({ roomCharges }: any) {
                 {...control.register("bookingFor", { required: true })}
                 className="hidden peer"
               />
-              <div className="px-4 py-2 text-gray-700 rounded-full border border-gray-300 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 cursor-pointer">
+              <div className="sm:px-4 px-2 py-2 sm:text-base text-sm text-gray-700 rounded-full border border-gray-300 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 cursor-pointer">
                 For someone else
               </div>
             </label>
@@ -202,7 +202,7 @@ function GuestForm({ roomCharges }: any) {
           <label className="block text-gray-700 text-sm font-bold mb-2">
             Gender
           </label>
-          <div className="flex space-x-4">
+          <div className="flex flex-wrap gap-2">
             {Object.values(Gender).map((gender, index) => (
               <label key={index} className="flex items-center">
                 <input
@@ -254,7 +254,7 @@ function GuestForm({ roomCharges }: any) {
           <label className="block text-gray-700 text-sm font-bold mb-2">
             ID Card Type
           </label>
-          <div className="flex flex-wrap gap-2 space-x-4">
+          <div className="flex flex-wrap gap-2">
             <label className="flex items-center">
               <input
                 type="radio"

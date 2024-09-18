@@ -233,7 +233,7 @@ export default function Checkout({
             {/* Order summary */}
 
             <Dialog>
-              <DialogContent className="no-scrollbar flex h-[60%] w-[80%] flex-wrap items-center justify-center p-10 text-gray-600 sm:h-[90%] sm:w-1/2 ">
+              <DialogContent className="no-scrollbar flex h-[90%] w-[90%] flex-wrap items-center justify-center p-10 text-gray-600 sm:h-[90%] sm:w-1/2 ">
                 <GuestForm roomCharges={roomCharges}></GuestForm>
               </DialogContent>
               <div className="mx-auto mb-10 flex w-full max-w-[1280px] flex-col justify-center gap-8 px-5 sm:flex-row sm:px-0">

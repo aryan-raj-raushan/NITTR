@@ -117,13 +117,13 @@ export default function MyBookings({
 
   const generateSystematicId = (id: string, index: number) => {
     const prefix = id.substring(0, 5).toUpperCase();
-    const suffix = id.slice(-2).toUpperCase(); // Get the last two characters and convert to uppercase
+    const suffix = id.slice(-2).toUpperCase();
     return `${prefix}...${suffix}`;
   };
   
 
   const filteredBookingsToShow = filteredBookings.slice(0, bookingsToShow);
-
+  console.log(initialBookings, "selectedBooking");
   return (
     <>
       {email && bookings?.length > 0 && initialBookings?.length > 0 ? (
@@ -229,7 +229,9 @@ export default function MyBookings({
                       >
                         <CardContent className="max-h-[500px] overflow-y-auto pl-2">
                           {selectedBooking && (
+                            
                             <div className="space-y-5 p-4 text-xs text-black md:text-sm">
+                              
                               <CardTitle className="pt-6">Overview</CardTitle>
                               <div>
                                 <span className="key-style text-lg font-medium">

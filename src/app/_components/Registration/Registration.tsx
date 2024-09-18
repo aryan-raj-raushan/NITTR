@@ -1,12 +1,12 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-// import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { Bounce, toast } from "react-toastify";
 import { ResendEmail } from "~/utils/url/authurl";
 import { useEffect, useState } from "react";
+import { MdEmail } from "react-icons/md";
 
 export const AuthCredentialsValidator = z
   .object({
@@ -73,7 +73,7 @@ export default function RegisterComponent({
     }
   }, []);
 
-  
+
 
   const handleResendVerification = async () => {
     setIsLoading(true);
@@ -141,72 +141,114 @@ export default function RegisterComponent({
   };
 
   return (
-          <div className="m-4 w-[600px] border p-4 shadow-lg">
-            <div className="flex flex-col gap-5 max-sm:w-full">
-              <div className="flex flex-col items-center gap-5">
-                <div className="flex w-fit items-center justify-center rounded-full bg-[#F0FDF4] p-4">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="48"
-                    height="48"
-                    viewBox="0 0 48 48"
-                    fill="none"
-                  >
-                    <rect
-                      x="6"
-                      y="10"
-                      width="36"
-                      height="28"
-                      rx="2.66667"
-                      stroke="#22C35E"
-                      strokeWidth="3.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M6 14L24 26L42 14"
-                      stroke="#22C35E"
-                      strokeWidth="3.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-                <p className="text-center text-2xl font-medium text-primary">
-                  {formatTime(countdown)}
-                </p>
-                <p className="text-center text-[25px] font-medium text-primary">
-                  Verify your email to proceed
-                </p>
-                <p className="text-center">
-                  We just sent an email to the address{" "}
-                  <span className="font-bold text-primary">{email}</span>
-                  <br />
-                  Please check your email and click on the link provided <br />{" "}
-                  to verify your address
-                </p>
-              </div>
-
-              <div className="flex w-full justify-evenly gap-5 max-sm:w-full max-sm:flex-col">
-                <button
-                  className={`w-full ${isLoading ? "loading" : ""} rounded-md border border-gray-300 px-4 py-2`}
-                  type="submit"
-                  onClick={handleResendVerification}
-                  disabled={countdown > 0}
-                >
-                  {isLoading
-                    ? "Resending Email..."
-                    : "Resend Verification Email"}
-                </button>
-                <button
-                  className="w-full rounded-md bg-primary px-4 py-2 text-white"
-                  type="submit"
-                  onClick={handleOpenGmailBox}
-                >
-                  Go to My Inbox
-                </button>
-              </div>
-            </div>
+    <>
+    <div className="m-4 w-[600px] border p-4 shadow-lg sm:block hidden">
+      <div className="flex flex-col gap-5 max-sm:w-full">
+        <div className="flex flex-col items-center gap-5">
+          <div className="flex w-fit items-center justify-center rounded-full bg-[#F0FDF4] p-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="48"
+              height="48"
+              viewBox="0 0 48 48"
+              fill="none"
+            >
+              <rect
+                x="6"
+                y="10"
+                width="36"
+                height="28"
+                rx="2.66667"
+                stroke="#22C35E"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M6 14L24 26L42 14"
+                stroke="#22C35E"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </div>
+          <p className="text-center text-2xl font-medium text-primary">
+            {formatTime(countdown)}
+          </p>
+          <p className="text-center text-[25px] font-medium text-primary">
+            Verify your email to proceed
+          </p>
+          <p className="text-center">
+            We just sent an email to the address{" "}
+            <span className="font-bold text-primary">{email}</span>
+            <br />
+            Please check your email and click on the link provided <br />{" "}
+            to verify your address
+          </p>
+        </div>
+
+        <div className="flex w-full justify-evenly gap-5 max-sm:w-full max-sm:flex-col">
+          <button
+            className={`w-full ${isLoading ? "loading" : ""} rounded-md border border-gray-300 px-4 py-2`}
+            type="submit"
+            onClick={handleResendVerification}
+            disabled={countdown > 0}
+          >
+            {isLoading
+              ? "Resending Email..."
+              : "Resend Verification Email"}
+          </button>
+          <button
+            className="w-full rounded-md bg-primary px-4 py-2 text-white"
+            type="submit"
+            onClick={handleOpenGmailBox}
+          >
+            Go to My Inbox
+          </button>
+        </div>
+      </div>
+    </div>
+    <div className="m-2 w-full max-w-[400px] border p-4 shadow-lg rounded-lg block md:hidden">
+      <div className="flex flex-col gap-4">
+        {/* Icon and Countdown */}
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex items-center justify-center rounded-full bg-[#F0FDF4] p-4">
+            <MdEmail size={48} className="text-[#22C35E]" />
+          </div>
+          <p className="text-center text-xl font-semibold text-primary">
+            {formatTime(countdown)}
+          </p>
+          <p className="text-center text-lg font-medium text-primary">
+            Verify your email to proceed
+          </p>
+          <p className="text-center text-sm text-gray-600">
+            We just sent an email to{" "}
+            <span className="font-bold text-primary">{email}</span>. <br />
+            Please check your inbox and click the link to verify your email.
+          </p>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex flex-col gap-3">
+          <button
+            className={`w-full rounded-md border border-gray-300 px-4 py-2 text-sm ${isLoading ? "loading" : ""}`}
+            type="submit"
+            onClick={handleResendVerification}
+            disabled={countdown > 0}
+          >
+            {isLoading ? "Resending Email..." : "Resend Verification Email"}
+          </button>
+          <button
+            className="w-full rounded-md bg-primary px-4 py-2 text-sm text-white"
+            type="submit"
+            onClick={handleOpenGmailBox}
+          >
+            Go to My Inbox
+          </button>
+        </div>
+      </div>
+    </div>
+    </>
   );
 }

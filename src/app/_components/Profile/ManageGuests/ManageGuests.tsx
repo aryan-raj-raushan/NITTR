@@ -137,8 +137,7 @@ const ManageGuests = ({ roomCharges }: any) => {
               <>
                 <Dialog>
                   <DialogContent
-                    className="no-scrollbar  flex flex-wrap items-center justify-center p-10 text-gray-600 "
-                    style={{ width: "50%", height: "90%" }}
+                    className="no-scrollbar  flex flex-wrap items-center justify-center p-10 text-gray-600 sm:w-full w-[90%] sm:h-full h-[90%]"
                   >
                     <GuestForm roomCharges={roomCharges}></GuestForm>
                   </DialogContent>

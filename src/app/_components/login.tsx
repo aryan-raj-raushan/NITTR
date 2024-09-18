@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { FcGoogle } from "react-icons/fc";
 import {
   SendOtp,
   signIn,
@@ -803,7 +804,7 @@ export default function Login() {
 
       <div className="block md:hidden">
         <div className="flex h-screen flex-col items-center justify-center bg-white">
-          <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
+          <div className="w-full max-w-md rounded-lg bg-white p-8 ">
             <h2 className="mb-4 text-start text-3xl font-semibold">
               {isLogin ? "Login" : "Sign Up"}
             </h2>
@@ -886,7 +887,7 @@ export default function Login() {
                       </span>
                     </label>
                     <a
-                      href="#"
+                      href="/forget-password"
                       className="text-sm text-blue-600 hover:underline"
                     >
                       Forgot Password?
@@ -977,11 +978,7 @@ export default function Login() {
                     onClick={() => handleGoogleSignin()}
                   >
                     <span className="flex items-center justify-center">
-                      <img
-                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png"
-                        alt="Google"
-                        className="mr-2 h-5 w-5"
-                      />
+                      <FcGoogle size={24} className="mr-2" />
                       Continue with Google
                     </span>
                   </button>
