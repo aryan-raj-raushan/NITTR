@@ -117,11 +117,13 @@ export default function MyBookings({
 
   const generateSystematicId = (id: string, index: number) => {
     const prefix = id.substring(0, 5).toUpperCase();
-    return `${prefix}`;
+    const suffix = id.slice(-2).toUpperCase();
+    return `${prefix}...${suffix}`;
   };
+  
 
   const filteredBookingsToShow = filteredBookings.slice(0, bookingsToShow);
-
+  console.log(initialBookings, "selectedBooking");
   return (
     <>
       {email && bookings?.length > 0 && initialBookings?.length > 0 ? (
@@ -227,7 +229,9 @@ export default function MyBookings({
                       >
                         <CardContent className="max-h-[500px] overflow-y-auto pl-2">
                           {selectedBooking && (
+                            
                             <div className="space-y-5 p-4 text-xs text-black md:text-sm">
+                              
                               <CardTitle className="pt-6">Overview</CardTitle>
                               <div>
                                 <span className="key-style text-lg font-medium">
@@ -269,7 +273,7 @@ export default function MyBookings({
                                 <span className="key-style text-lg font-medium">
                                   Guest Details{" "}
                                 </span>
-                                <div className="value-style w-fit rounded-md bg-gray-200 p-2 px-4 text-lg">
+                                <div className="value-style w-fit rounded-md text-lg">
                                   {selectedBooking?.guests.map(
                                     (guest: Guest, index: number) => (
                                       <div
@@ -307,7 +311,7 @@ export default function MyBookings({
                                   )}
                                 </div>
                               </div>
-                              <div>
+                              {/* <div>
                                 <span className="key-style text-lg font-medium">
                                   Room Details{" "}
                                 </span>
@@ -340,7 +344,7 @@ export default function MyBookings({
                                     ),
                                   )}
                                 </div>
-                              </div>
+                              </div> */}
                             </div>
                           )}
                         </CardContent>

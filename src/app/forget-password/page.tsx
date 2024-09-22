@@ -148,41 +148,25 @@ const ForgetPassword: React.FC = () => {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      style={{ width: "40%" }}
       className="mx-auto flex h-[55vh] w-full items-center justify-center p-6"
+      style={{ maxWidth: "90%" }} // Adjust form width for smaller screens
     >
       <div
-        className="flex w-full items-center justify-center border p-4 rounded-lg"
-        style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
+        className="flex w-[100%] items-center justify-center border p-4 rounded-lg"
+        style={{ flexDirection: "column", gap: "1.5rem", width: "100%" }}
       >
         {step === 1 && (
           <>
-            <div style={{ width: "100%" }} className="">
-              <p style={{ marginBottom: "0.5rem" }}>Enter your email address</p>
-              <div
-                style={{
-                  width: "100%",
-                  border: "1px solid #E2E8F0",
-                  borderRadius: "5px",
-                  display: "flex",
-                  alignItems: "center",
-                  overflow: "hidden",
-                }}
-              >
-                <div style={{ padding: "0.4rem" }}>
-                  <CiUser
-                    style={{ fontSize: "1.3rem", marginRight: "0.1rem" }}
-                  />
+            <div className="w-full">
+              <p className="mb-2">Enter your email address</p>
+              <div className="w-full flex items-center border border-gray-300 rounded-md overflow-hidden">
+                <div className="p-2">
+                  <CiUser className="text-lg" />
                 </div>
                 <input
                   type="text"
                   placeholder="Username Or Email"
-                  style={{
-                    fontSize: "1rem",
-                    width: "100%",
-                    border: "none",
-                    padding: "0.5rem 0.5rem",
-                  }}
+                  className="w-full text-base p-2 border-none"
                   {...register("email")}
                 />
               </div>
@@ -192,20 +176,14 @@ const ForgetPassword: React.FC = () => {
             </div>
             <button
               type="submit"
-              style={{
-                padding: "0.5rem 2.5rem",
-                backgroundColor: "#3182CE",
-                color: "white",
-                borderRadius: "0.375rem",
-                fontWeight: "500",
-              }}
+              className="py-2 px-6 bg-blue-600 text-white rounded-md font-medium w-full"
             >
               {isLoading ? <Spinner /> : "Continue"}
             </button>
-            <p style={{ fontWeight: "500" }}>
+            <p className="font-medium">
               Do you know the password?{" "}
               <span
-                style={{ color: "#3182CE", cursor: "pointer" }}
+                className="text-blue-600 cursor-pointer"
                 onClick={() => router.push("/login")}
               >
                 Login
@@ -213,79 +191,45 @@ const ForgetPassword: React.FC = () => {
             </p>
           </>
         )}
+  
         {step === 2 && (
           <>
-            <div style={{ width: "100%" }}>
-              <p style={{ marginBottom: "0.25rem" }}>Enter OTP</p>
-              <div
-                style={{
-                  width: "100%",
-                  border: "1px solid #E2E8F0",
-                  borderRadius: "5px",
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "0rem 0.4rem",
-                }}
-              >
-                <TbPasswordFingerprint
-                  style={{ fontSize: "1.3rem", marginRight: "0.1rem" }}
-                />
+            <div className="w-full">
+              <p className="mb-1">Enter OTP</p>
+              <div className="w-full flex items-center border border-gray-300 rounded-md px-2">
+                <TbPasswordFingerprint className="text-lg mr-2" />
                 <input
                   type="number"
                   placeholder="****"
-                  style={{
-                    fontSize: "1rem",
-                    width: "100%",
-                    border: "none",
-                    padding: "0.5rem 0.5rem",
-                  }}
+                  className="w-full text-base p-2 border-none"
                   {...register("OTP")}
                 />
               </div>
-              {errors.OTP && errors.OTP.message}
+              <p className="text-red-500 text-sm mt-1 px-2">
+                {errors.OTP && errors.OTP.message}
+              </p>
             </div>
             <button
               type="submit"
-              style={{
-                padding: "0.5rem 2.5rem",
-                backgroundColor: "#3182CE",
-                color: "white",
-                borderRadius: "0.375rem",
-                fontWeight: "500",
-              }}
+              className="py-2 px-6 bg-blue-600 text-white rounded-md font-medium w-full"
             >
               {isLoading ? <Spinner /> : "Continue"}
             </button>
           </>
         )}
+  
         {step === 3 && (
           <>
-            <div style={{ width: "100%" }}>
-              <p style={{ marginBottom: "0.25rem" }}>New Password</p>
-              <div
-                style={{
-                  width: "100%",
-                  border: "1px solid #E2E8F0",
-                  borderRadius: "5px",
-                  display: "flex",
-                  alignItems: "center",
-                  overflow: "hidden",
-                }}
-              >
-                <div style={{ padding: "0.5rem" }}>
-                  <TbPasswordUser
-                    style={{ fontSize: "1.3rem", marginRight: "0.1rem" }}
-                  />
+            <div className="w-full">
+              <p className="mb-1">New Password</p>
+              <div className="w-full flex items-center border border-gray-300 rounded-md overflow-hidden">
+                <div className="p-2">
+                  <TbPasswordUser className="text-lg" />
                 </div>
                 <input
                   type={visiblePass.one ? "text" : "password"}
                   placeholder="****"
-                  style={{
-                    fontSize: "1rem",
-                    width: "100%",
-                    border: "none",
-                    padding: "0.4rem",
-                  }}
+                  className="w-full text-base p-2 border-none"
                   {...register("password")}
                 />
                 <div
@@ -295,44 +239,25 @@ const ForgetPassword: React.FC = () => {
                       one: !visiblePass.one,
                     })
                   }
-                  style={{
-                    fontSize: "1.25rem",
-                    backgroundColor: "#EDF2F7",
-                    padding: "0.6rem",
-                    cursor: "pointer",
-                  }}
+                  className="text-lg bg-gray-200 p-2 cursor-pointer"
                 >
                   {visiblePass.one ? <FaEye /> : <FaEyeSlash />}
                 </div>
               </div>
-              {errors.password && "Repeat Password is required"}
+              <p className="text-red-500 text-sm mt-1 px-2">
+                {errors.password && "Repeat Password is required"}
+              </p>
             </div>
-            <div style={{ width: "100%" }}>
-              <p style={{ marginBottom: "0.25rem" }}>Repeat Password</p>
-              <div
-                style={{
-                  width: "100%",
-                  border: "1px solid #E2E8F0",
-                  borderRadius: "5px",
-                  display: "flex",
-                  alignItems: "center",
-                  overflow: "hidden",
-                }}
-              >
-                <div style={{ padding: "0.5rem" }}>
-                  <TbPasswordUser
-                    style={{ fontSize: "1.3rem", marginRight: "0.1rem" }}
-                  />
+            <div className="w-full">
+              <p className="mb-1">Repeat Password</p>
+              <div className="w-full flex items-center border border-gray-300 rounded-md overflow-hidden">
+                <div className="p-2">
+                  <TbPasswordUser className="text-lg" />
                 </div>
                 <input
                   type={visiblePass.two ? "text" : "password"}
                   placeholder="****"
-                  style={{
-                    fontSize: "1rem",
-                    width: "100%",
-                    border: "none",
-                    padding: "0.4rem",
-                  }}
+                  className="w-full text-base p-2 border-none"
                   {...register("repeatPassword")}
                 />
                 <div
@@ -342,27 +267,18 @@ const ForgetPassword: React.FC = () => {
                       two: !visiblePass.two,
                     })
                   }
-                  style={{
-                    fontSize: "1.25rem",
-                    backgroundColor: "#EDF2F7",
-                    padding: "0.6rem",
-                    cursor: "pointer",
-                  }}
+                  className="text-lg bg-gray-200 p-2 cursor-pointer"
                 >
                   {visiblePass.two ? <FaEye /> : <FaEyeSlash />}
                 </div>
               </div>
-              {errors.repeatPassword && errors.repeatPassword.message}
+              <p className="text-red-500 text-sm mt-1 px-2">
+                {errors.repeatPassword && errors.repeatPassword.message}
+              </p>
             </div>
             <button
               type="submit"
-              style={{
-                padding: "0.5rem 2.5rem",
-                backgroundColor: "#3182CE",
-                color: "white",
-                borderRadius: "0.375rem",
-                fontWeight: "500",
-              }}
+              className="py-2 px-6 bg-blue-600 text-white rounded-md font-medium w-full"
             >
               {isLoading ? <Spinner /> : "Reset Password"}
             </button>
@@ -371,6 +287,7 @@ const ForgetPassword: React.FC = () => {
       </div>
     </form>
   );
+  
 };
 
 export default ForgetPassword;
