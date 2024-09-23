@@ -4,10 +4,11 @@ import { ZodError } from "zod";
 import { parse } from 'cookie';
 
 import { db } from "~/server/db";
+import { scheduleBookingExpirationJob } from "../jobs/bookingExpirationJob";
 
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   let userData = {};
-  const cookies = opts.headers.get('cookie');
+  const cookies = opts.headers.get("cookie");
   if (cookies) {
     const parsedCookies = parse(cookies);
     const authData = parsedCookies.authData;
@@ -24,20 +25,24 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
           number: JSON.parse(parsedAuthData.number),
         };
       } catch (error) {
-        console.error('Error parsing auth data from cookie', error);
+        console.error("Error parsing auth data from cookie", error);
       }
     }
   }
 
-  const session ={
-    user:userData
+  const session = {
+    user: userData,
   };
 
-  return {
+  const ctx = {
     db,
     session,
     ...opts,
   };
+
+  scheduleBookingExpirationJob(ctx);
+
+  return ctx;
 };
 
 
