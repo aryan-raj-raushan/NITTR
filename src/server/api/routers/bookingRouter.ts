@@ -301,7 +301,7 @@ export const bookingRouter = createTRPCRouter({
       );
 
       const requestedRoomType = roomDetails.find(
-        (roomDetail) => roomDetail.roomType === booking.roomType,
+        (roomDetail:any) => roomDetail.roomType === booking.roomType,
       );
 
       if (!requestedRoomType) {

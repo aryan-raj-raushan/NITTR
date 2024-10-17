@@ -43,8 +43,8 @@ export default function Checkout({
 }) {
   const [guests, setGuests] = useState<GuestProfile[]>([]);
   const [selectedGuests, setSelectedGuests] = useState<GuestProfile[]>([]);
-  const [selectedNumberOfRoomsOrBeds, setSelectedNumberOfRoomsOrBeds] =
-    useState(1);
+  const [selectedRooms, setSelectedRooms] = useState<number>(1);
+  const [assignedRoomNumbers, setAssignedRoomNumbers] = useState<string[]>([]);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("offline");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -55,6 +55,20 @@ export default function Checkout({
   const userEmail = email;
   const [paymentTotal, setPaymentTotal] = useState<any>();
   const [isBookingLoading, setIsBookingLoading] = useState(false);
+
+  console.log(roomCharges)
+  const generateRoomNumbers = (count: number) => {
+    const baseRoomNumber = 100;
+    return Array.from({ length: count }, (_, index) => 
+      `${baseRoomNumber + index}`
+    );
+  };
+
+  useEffect(() => {
+    const newRoomNumbers = generateRoomNumbers(selectedRooms);
+    setAssignedRoomNumbers(newRoomNumbers);
+  }, [selectedRooms]);
+
 
   const createBookingMutation = api.booking.createBooking.useMutation({
     onSuccess: async ({ bookingDetails }: any) => {
@@ -78,13 +92,101 @@ export default function Checkout({
         await initiateOnlinePayment(paymentTotal, bookingDetails);
       }
       setIsBookingLoading(false);
-    }, onError: () => {
+    },
+    onError: () => {
       setIsBookingLoading(false);
       toast.error("Booking failed. Please try again.", {
-        // ... add appropriate toast configuration
+        position: "top-center",
+        autoClose: 5000,
       });
     }
   });
+
+  const calculateTotal = () => {
+    if (roomDetails) {
+      const totalDays = datediff(checkin, checkout);
+      const ratePerRoom = roomCharges || 0;
+      const subtotal = selectedRooms * ratePerRoom * totalDays;
+      const tax = subtotal * 0.18;
+      return {
+        subtotal,
+        tax,
+        total: subtotal + tax
+      };
+    }
+    return { subtotal: 0, tax: 0, total: 0 };
+  };
+
+  const RoomSelector = () => (
+    <div className="flex flex-col gap-2 mb-4">
+      <label className="text-sm font-medium">Number of Rooms</label>
+      <Select
+        value={selectedRooms.toString()}
+        onValueChange={(value) => setSelectedRooms(parseInt(value))}
+      >
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Select rooms" />
+        </SelectTrigger>
+        <SelectContent>
+          {Array.from({ length: selectedGuests.length }, (_, i) => i + 1).map((num) => (
+            <SelectItem key={num} value={num.toString()}>
+              {num} {num === 1 ? 'Room' : 'Rooms'}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+
+
+  const RoomAssignments = () => (
+    <div className="mt-4 p-4 border rounded-lg">
+      <h3 className="font-medium mb-2">Room Assignments</h3>
+      {assignedRoomNumbers.map((roomNumber, index) => (
+        <div key={roomNumber} className="flex items-center gap-2 mb-2">
+          <span className="font-medium">Room {roomNumber}:</span>
+          <span>{selectedGuests[index]?.name || 'Unassigned'}</span>
+        </div>
+      ))}
+    </div>
+  );
+
+  const handleBookingConfirmation = () => {
+    if (isBookingLoading) return;
+    
+    if (!selectedGuests.length) {
+      return alert("Please select at least 1 guest");
+    }
+    
+    if (selectedRooms > selectedGuests.length) {
+      return alert("Number of rooms cannot exceed number of guests");
+    }
+
+    setIsBookingLoading(true);
+    const { total } = calculateTotal();
+    setPaymentTotal(total);
+
+    createBookingMutation.mutate({
+      hostelName: roomDetails.hostelName,
+      guestIds: selectedGuests.map((g) => g.id),
+      bookingDate: new Date().toISOString(),
+      bookedFromDt: checkin,
+      bookedToDt: checkout,
+      nosRooms: selectedRooms,
+      roomNumbers: assignedRoomNumbers,
+      remark: "",
+      bookingType: "ROOMS",
+      roomId: roomDetails.id,
+      amount: total,
+      roomType: roomDetails?.roomType,
+      userId: userId,
+      userName,
+      userEmail,
+      subtotal: calculateTotal().subtotal,
+      paymentStatus: "Payment Done",
+      paymentMode: selectedPaymentMethod,
+    });
+  };
 
   const initiateBillDeskPayment = (response: any) => {
     if (!response || !response?.links) {
@@ -280,12 +382,6 @@ export default function Checkout({
                           <b>{userId}</b>
                         </div>
                       </div>
-                      {/* <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
-                        <div>Floor</div>
-                        <div>
-                          <b>{roomDetails.floor?.replace(/_/g, " ")}</b>
-                        </div>
-                      </div> */}
 
                       <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3  shadow-xl lg:min-w-fit">
                         <div>Bed Type</div>
@@ -293,13 +389,6 @@ export default function Checkout({
                           <b>{roomDetails?.roomType?.replace(/_/g, " ")}</b>
                         </div>
                       </div>
-
-                      {/* <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3  shadow-xl lg:min-w-fit">
-                        <div>Available Beds</div>
-                        <div>
-                          <b>{roomDetails?.totalBed}</b>
-                        </div>
-                      </div> */}
 
                       <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
                         <div>Occupancy</div>
@@ -423,125 +512,53 @@ export default function Checkout({
                   )}
                 </section>
 
-                <section
-                  aria-labelledby="summary-heading"
-                  className=" flex w-full flex-col sm:w-1/5 "
-                >
-                  <h2 id="summary-heading" className="sr-only">
-                    Order summary
-                  </h2>
+                <section aria-labelledby="summary-heading" className="flex w-full flex-col sm:w-1/5">
+            <Card className="p-4">
+              <RoomSelector />
+              <RoomAssignments />
+              
+              {/* Payment and total calculation */}
+              <div className="mt-4 border-t pt-4">
+                <dl className="space-y-4">
+                  <div className="flex justify-between">
+                    <dt>Subtotal</dt>
+                    <dd>₹{calculateTotal().subtotal}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt>Tax (18%)</dt>
+                    <dd>₹{calculateTotal().tax.toFixed(2)}</dd>
+                  </div>
+                  <div className="flex justify-between font-medium">
+                    <dt>Total</dt>
+                    <dd>₹{calculateTotal().total.toFixed(2)}</dd>
+                  </div>
+                </dl>
 
-                  <ul role="list" className="h-fit w-full ">
-                    {[roomDetails].map((room, index) => (
-                      <li key={room.id + index} className="flex space-x-2 py-6">
-                        <img
-                          src={roomDetails.roomImg[0]}
-                          alt={
-                            "https://plus.unsplash.com/premium_photo-1663126298656-33616be83c32?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                          }
-                          className="h-24 w-24 flex-none rounded-md bg-gray-200 object-cover object-center"
-                        />
-                        <div className="flex flex-col gap-2">
-                          <div className="space-y-1 text-sm font-medium">
-                            <h3 className="text-gray-900">
-                              {room.value}{" "}
-                              <span className="font-bold">{room.code}</span>{" "}
-                            </h3>
-                          </div>
-                          <div className="flex items-center text-sm">
-                            Number of {bookingType} :{" "}
-                            <span className="ml-1 font-bold">
-                              {selectedGuests?.length}
-                            </span>
-                            <div className=""></div>
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                    <div className="sticky top-10 mb-4 flex max-h-72 flex-col rounded-lg border border-b border-gray-200 bg-white px-4 pb-4 pt-1">
-                      <dl className="mt-4 flex flex-col gap-4 text-sm font-medium text-gray-500">
-                        <div className="flex justify-between">
-                          <dt>Subtotal</dt>
-                          <dd className="text-gray-900">₹{subtotal}</dd>
-                        </div>
-                        <div className="flex justify-between">
-                          <dt>Taxes (18%)</dt>
-                          <dd className="text-gray-900">₹{tax.toFixed(2)}</dd>
-                        </div>
-                        <div className="flex flex-col items-center justify-between border-t border-gray-200 py-6 text-gray-900">
-                          <dt className="w-full text-base">
-                            Total (for {selectedGuests.length} {guestLabel}) - ₹
-                            {total.toFixed(2)}
-                          </dt>
+                <div className="mt-6">
+                  <Select
+                    defaultValue={selectedPaymentMethod}
+                    onValueChange={setSelectedPaymentMethod}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose payment type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="offline">Pay at Hostel</SelectItem>
+                      <SelectItem value="online">Pay online</SelectItem>
+                    </SelectContent>
+                  </Select>
 
-                          <div className="pb-2">
-                            <Select
-                              defaultValue={selectedPaymentMethod}
-                              onValueChange={(value) => {
-                                setSelectedPaymentMethod(value);
-                              }}
-                            >
-                              <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Choose payment Type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="offline">
-                                  Pay at Hostel
-                                </SelectItem>
-                                <SelectItem value="online">
-                                  Pay online
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>{" "}
-                          </div>
-
-                          <Button
-                            onClick={() => {
-                              if (isBookingLoading) return; // Prevent multiple clicks
-                              if (!selectedGuests.length) {
-                                return alert("Please Select at least 1 Guest");
-                              }
-                              if (!selectedNumberOfRoomsOrBeds) {
-                                return alert("Please Select Number of Rooms");
-                              }
-                              if (selectedGuests.length > roomDetails?.totalBed) {
-                                return alert(
-                                  "Number of Selected Guests and Number of Selected Beds should be equal"
-                                );
-                              }
-                              setIsBookingLoading(true);
-                              setPaymentTotal(total);
-                              createBookingMutation.mutate({
-                                hostelName: roomDetails.hostelName,
-                                guestIds: selectedGuests.map((g) => g.id),
-                                bookingDate: new Date().toISOString(),
-                                bookedFromDt: checkin,
-                                bookedToDt: checkout,
-                                nosRooms: selectedNumberOfRoomsOrBeds,
-                                remark: "",
-                                bookingType: "BEDS",
-                                roomId: roomDetails.id,
-                                amount: total,
-                                roomType: roomDetails?.roomType,
-                                userId: userId,
-                                userName,
-                                userEmail,
-                                subtotal: subtotal,
-                                paymentStatus: "Payment Done",
-                                paymentMode: selectedPaymentMethod,
-                              });
-                            }}
-                            disabled={isBookingLoading}
-                          >
-                            {isBookingLoading ? "Processing..." : "Confirm Booking"}
-                          </Button>
-                        </div>
-                      </dl>
-
-                      <div className="my-2 flex items-end justify-end"></div>
-                    </div>
-                  </ul>
-                </section>
+                  <Button
+                    className="w-full mt-4"
+                    onClick={handleBookingConfirmation}
+                    disabled={isBookingLoading}
+                  >
+                    {isBookingLoading ? "Processing..." : "Confirm Booking"}
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </section>
               </div>
             </Dialog>
             {/* Checkout form */}
