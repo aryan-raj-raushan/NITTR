@@ -144,7 +144,6 @@ export default function Checkout({
       bookedFromDt: checkin,
       bookedToDt: checkout,
       nosRooms: selectedRooms,
-      roomNumbers: assignedRoomNumbers,
       remark: "",
       bookingType: "ROOM",
       roomId: roomDetails.id,
