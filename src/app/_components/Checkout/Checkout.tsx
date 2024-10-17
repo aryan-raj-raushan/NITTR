@@ -55,8 +55,8 @@ export default function Checkout({
   const userEmail = email;
   const [paymentTotal, setPaymentTotal] = useState<any>();
   const [isBookingLoading, setIsBookingLoading] = useState(false);
+  console.log(roomDetails.hostelName)
 
-  console.log(roomCharges)
   const generateRoomNumbers = (count: number) => {
     const baseRoomNumber = 100;
     return Array.from({ length: count }, (_, index) => 
@@ -105,7 +105,13 @@ export default function Checkout({
   const calculateTotal = () => {
     if (roomDetails) {
       const totalDays = datediff(checkin, checkout);
-      const ratePerRoom = roomCharges || 0;
+      let ratePerRoom = 0;
+      
+      // Check if it's VISVESVARAYA_GUEST_HOUSE and set the rate to 1500
+      if (roomDetails.hostelName === "VISVESVARAYA_GUEST_HOUSE") {
+        ratePerRoom = 1500;
+      }
+      
       const subtotal = selectedRooms * ratePerRoom * totalDays;
       const tax = subtotal * 0.18;
       return {
@@ -115,6 +121,42 @@ export default function Checkout({
       };
     }
     return { subtotal: 0, tax: 0, total: 0 };
+  };
+  const handleBookingConfirmation = () => {
+    if (isBookingLoading) return;
+    
+    if (!selectedGuests.length) {
+      return alert("Please select at least 1 guest");
+    }
+    
+    if (selectedRooms > selectedGuests.length) {
+      return alert("Number of rooms cannot exceed number of guests");
+    }
+
+    setIsBookingLoading(true);
+    const { total } = calculateTotal();
+    setPaymentTotal(total);
+
+    createBookingMutation.mutate({
+      hostelName: roomDetails.hostelName,
+      guestIds: selectedGuests.map((g) => g.id),
+      bookingDate: new Date().toISOString(),
+      bookedFromDt: checkin,
+      bookedToDt: checkout,
+      nosRooms: selectedRooms,
+      roomNumbers: assignedRoomNumbers,
+      remark: "",
+      bookingType: "ROOM",
+      roomId: roomDetails.id,
+      amount: total,
+      roomType: roomDetails?.roomType,
+      userId: userId,
+      userName,
+      userEmail,
+      subtotal: calculateTotal().subtotal,
+      paymentStatus: "Payment Done",
+      paymentMode: selectedPaymentMethod,
+    });
   };
 
   const RoomSelector = () => (
@@ -151,42 +193,7 @@ export default function Checkout({
     </div>
   );
 
-  const handleBookingConfirmation = () => {
-    if (isBookingLoading) return;
-    
-    if (!selectedGuests.length) {
-      return alert("Please select at least 1 guest");
-    }
-    
-    if (selectedRooms > selectedGuests.length) {
-      return alert("Number of rooms cannot exceed number of guests");
-    }
-
-    setIsBookingLoading(true);
-    const { total } = calculateTotal();
-    setPaymentTotal(total);
-
-    createBookingMutation.mutate({
-      hostelName: roomDetails.hostelName,
-      guestIds: selectedGuests.map((g) => g.id),
-      bookingDate: new Date().toISOString(),
-      bookedFromDt: checkin,
-      bookedToDt: checkout,
-      nosRooms: selectedRooms,
-      roomNumbers: assignedRoomNumbers,
-      remark: "",
-      bookingType: "ROOMS",
-      roomId: roomDetails.id,
-      amount: total,
-      roomType: roomDetails?.roomType,
-      userId: userId,
-      userName,
-      userEmail,
-      subtotal: calculateTotal().subtotal,
-      paymentStatus: "Payment Done",
-      paymentMode: selectedPaymentMethod,
-    });
-  };
+  
 
   const initiateBillDeskPayment = (response: any) => {
     if (!response || !response?.links) {
