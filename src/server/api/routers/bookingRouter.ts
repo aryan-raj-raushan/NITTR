@@ -55,28 +55,63 @@ export const bookingRouter = createTRPCRouter({
         roomType,
       } = input;
 
-      const rooms = await ctx.db.roomDetails.findMany({
-        where: { hostelName },
-        take: nosRooms,
+      // First, get the room record and its current bookings
+      const room = await ctx.db.roomDetails.findFirst({
+        where: {
+          hostelName,
+          roomType,
+        },
+        include: {
+          BookingDetails: {
+            where: {
+              AND: [
+                { bookedFromDt: { lte: bookedToDt } },
+                { bookedToDt: { gte: bookedFromDt } }
+              ]
+            },
+            select: {
+              id: true,
+              totalRoom: true,
+            }
+          }
+        }
       });
 
-      let totalRoom = 0;
-      const totalGuests = guestIds.length;
-
-      if (roomType === "SINGLE_BED") {
-        totalRoom = totalGuests;
-      } else if (roomType === "DOUBLE_BED") {
-        totalRoom = Math.ceil(totalGuests / 2);
-      } else if (roomType === "TRIPLE_BED") {
-        totalRoom = Math.ceil(totalGuests / 3);
-      } else if (roomType === "FOUR_BED") {
-        totalRoom = Math.ceil(totalGuests / 4);
+      if (!room) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No rooms found for the specified criteria"
+        });
       }
 
-      if (totalGuests % getRoomCapacity(roomType) !== 0) {
-        totalRoom += 1;
+      // Safely handle BookingDetails array
+      const existingBookings = Array.isArray(room.BookingDetails) ? room.BookingDetails : [];
+      
+      console.log("Room found:", {
+        totalRooms: room.totalRoom,
+        currentBookings: existingBookings.length
+      });
+
+      // Calculate booked rooms
+      const bookedRooms = existingBookings.reduce((total, booking) => {
+        return total + (booking.totalRoom || 0);
+      }, 0);
+
+      const availableRooms = room.totalRoom - bookedRooms;
+
+      console.log(`Total rooms: ${room.totalRoom}`);
+      console.log(`Booked rooms: ${bookedRooms}`);
+      console.log(`Available rooms: ${availableRooms}`);
+      console.log(`Requested rooms: ${nosRooms}`);
+
+      if (availableRooms < nosRooms) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Not enough available rooms for the selected dates. Available: ${availableRooms}, Requested: ${nosRooms}`
+        });
       }
 
+      // Create the booking
       const bookingDetails = await ctx.db.bookingDetails.create({
         data: {
           hostelName,
@@ -88,32 +123,30 @@ export const bookingRouter = createTRPCRouter({
           bookedRoom: roomId,
           bookedBed: guestIds?.length,
           bookPaymentId: "",
-          guestsList: guestIds.map((g: any) => g),
+          guestsList: guestIds,
           userId: userId!,
           userName,
           userEmail,
           amount,
           roomType: roomType,
-          totalRoom: totalRoom,
+          totalRoom: nosRooms, // Number of rooms being booked
           paymentStatus,
           subtotal,
           paymentMode: paymentMode,
         },
       });
 
-      if (rooms.length === nosRooms) {
-        await ctx.db.roomDetails.updateMany({
-          where: {
-            id: { in: rooms.map((r: any) => r.id) },
-          },
-          data: {
-            bookingDetailsId: bookingDetails.id,
-          },
-        });
-      } else {
-        throw new TRPCError({ code: "BAD_REQUEST" });
-      }
+      // Update the room record
+      await ctx.db.roomDetails.update({
+        where: {
+          id: roomId,
+        },
+        data: {
+          bookingDetailsId: bookingDetails.id,
+        },
+      });
 
+      // Update guest profiles
       await ctx.db.guestProfile.updateMany({
         where: {
           id: { in: guestIds },
@@ -122,19 +155,27 @@ export const bookingRouter = createTRPCRouter({
           bookingDetailsId: bookingDetails.id,
         },
       });
-      if (bookingType == "BEDS") {
+
+      if (bookingType === "BEDS") {
         await ctx.db.roomDetails.update({
           where: {
             id: roomId,
           },
           data: {
             guests: {
-              set: guestIds.map((id: any) => ({ id })),
+              set: guestIds.map((id: string) => ({ id })),
             },
           },
         });
       }
-      return { bookingDetails: { ...bookingDetails } };
+
+      return { 
+        bookingDetails: { 
+          ...bookingDetails,
+          availableRooms, // Include this in response for debugging
+          bookedRooms,    // Include this in response for debugging
+        } 
+      };
     }),
 
   getAllBookings: protectedProcedure

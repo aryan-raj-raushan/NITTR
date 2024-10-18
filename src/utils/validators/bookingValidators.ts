@@ -1,5 +1,5 @@
 import { GuestHouse, Prisma } from "@prisma/client";
-import { z } from "zod";
+import { any, z } from "zod";
 import { CreateGuestValidator } from "./guestValidators";
 
 export const CreateBookingValidator = z.object({
@@ -9,7 +9,7 @@ export const CreateBookingValidator = z.object({
   bookedToDt: z.date(),
   userId: z.string(),
   userName: z.string(),
-  bookedRoom: z.array(z.string()),
+  bookedRoom: z.any(),
   userEmail: z.string(),
   remark: z.string(),
   bookPaymentId: z.string().optional(),

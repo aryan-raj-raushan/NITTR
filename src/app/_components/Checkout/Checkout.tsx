@@ -139,7 +139,7 @@ export default function Checkout({
       nosRooms: selectedRooms,
       remark: "",
       bookingType: "ROOM",
-      bookedRoom: assignedRoomNumbers, // This line ensures bookedRoom is included
+      bookedRoom: roomDetails.id, // This line ensures bookedRoom is included
       roomId: roomDetails.id,
       amount: total,
       roomType: roomDetails?.roomType,
