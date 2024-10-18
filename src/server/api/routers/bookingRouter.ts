@@ -33,9 +33,11 @@ export const bookingRouter = createTRPCRouter({
   createBooking: protectedProcedure
     .input(CreateBookingValidator)
     .mutation(async ({ ctx, input }: any) => {
+      console.log("Received booking input:", input);
       const {
         hostelName,
         nosRooms,
+        bookedRoom,
         bookingType,
         roomId,
         guestIds,

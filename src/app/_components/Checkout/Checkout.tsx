@@ -55,7 +55,6 @@ export default function Checkout({
   const userEmail = email;
   const [paymentTotal, setPaymentTotal] = useState<any>();
   const [isBookingLoading, setIsBookingLoading] = useState(false);
-  console.log(roomDetails.hostelName)
 
   const generateRoomNumbers = (count: number) => {
     const baseRoomNumber = 100;
@@ -68,7 +67,6 @@ export default function Checkout({
     const newRoomNumbers = generateRoomNumbers(selectedRooms);
     setAssignedRoomNumbers(newRoomNumbers);
   }, [selectedRooms]);
-
 
   const createBookingMutation = api.booking.createBooking.useMutation({
     onSuccess: async ({ bookingDetails }: any) => {
@@ -93,9 +91,9 @@ export default function Checkout({
       }
       setIsBookingLoading(false);
     },
-    onError: () => {
+    onError: (error) => {
       setIsBookingLoading(false);
-      toast.error("Booking failed. Please try again.", {
+      toast.error(`Booking failed: ${error.message}`, {
         position: "top-center",
         autoClose: 5000,
       });
@@ -105,13 +103,7 @@ export default function Checkout({
   const calculateTotal = () => {
     if (roomDetails) {
       const totalDays = datediff(checkin, checkout);
-      let ratePerRoom = 0;
-      
-      // Check if it's VISVESVARAYA_GUEST_HOUSE and set the rate to 1500
-      if (roomDetails.hostelName === "VISVESVARAYA_GUEST_HOUSE") {
-        ratePerRoom = 1500;
-      }
-      
+      let ratePerRoom = roomDetails.hostelName === "VISVESVARAYA_GUEST_HOUSE" ? 1500 : roomDetails.rate;
       const subtotal = selectedRooms * ratePerRoom * totalDays;
       const tax = subtotal * 0.18;
       return {
@@ -122,6 +114,7 @@ export default function Checkout({
     }
     return { subtotal: 0, tax: 0, total: 0 };
   };
+
   const handleBookingConfirmation = () => {
     if (isBookingLoading) return;
     
@@ -134,7 +127,7 @@ export default function Checkout({
     }
 
     setIsBookingLoading(true);
-    const { total } = calculateTotal();
+    const { total, subtotal } = calculateTotal();
     setPaymentTotal(total);
 
     createBookingMutation.mutate({
@@ -146,17 +139,21 @@ export default function Checkout({
       nosRooms: selectedRooms,
       remark: "",
       bookingType: "ROOM",
+      bookedRoom: assignedRoomNumbers, // This line ensures bookedRoom is included
       roomId: roomDetails.id,
       amount: total,
       roomType: roomDetails?.roomType,
       userId: userId,
       userName,
       userEmail,
-      subtotal: calculateTotal().subtotal,
+      subtotal: subtotal,
       paymentStatus: "Payment Done",
       paymentMode: selectedPaymentMethod,
     });
   };
+
+
+
 
   const RoomSelector = () => (
     <div className="flex flex-col gap-2 mb-4">
