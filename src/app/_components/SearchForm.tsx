@@ -17,10 +17,12 @@ interface SearchFormProps {
 }
 export const formSchema = z.object({
   location: z.string().min(2, { message: "Please Select a Value" }),
-  dates: z.object({
-    from: z.date().optional(),
-    to: z.date().optional(),
-  }).optional(),
+  dates: z
+    .object({
+      from: z.date().optional(),
+      to: z.date().optional(),
+    })
+    .optional(),
   adults: z
     .string()
     .min(1, {
@@ -36,12 +38,12 @@ export const formSchema = z.object({
       message: "Please select at least 1 room",
     })
     .optional(),
-  beds: z
-    .string()
-    .min(1, {
-      message: "Please select at least 1 bed",
-    })
-    .optional(),
+  // beds: z
+  //   .string()
+  //   .min(1, {
+  //     message: "Please select at least 1 bed",
+  //   })
+  //   .optional(),
 });
 
 interface SearchFormProps {
@@ -92,7 +94,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
   });
   // useEffect(() => {
   //   const locationError = form.formState.errors.location?.message;
-  //   setErrorMessage(locationError ?? null); 
+  //   setErrorMessage(locationError ?? null);
   // }, [form.formState.errors.location, setErrorMessage]);
 
   useEffect(() => {
@@ -100,26 +102,16 @@ const SearchForm: React.FC<SearchFormProps> = ({
   }, [guests, xAdults]);
 
   const getRoomDetailsQuery = api.room.getRoomByDetails.useMutation();
+  const bookingType: `ROOM` = "ROOM";
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     const checkin: Date = values.dates?.from ?? today;
     const checkout: Date = values.dates?.to ?? addDays(today, 1);
-    let bookingType: "ROOM" | "BEDS";
-
-    if (selectedGuestHouse === "EXECUTIVE_GUEST_HOUSE") {
-      bookingType = "ROOM";
-    } else {
-      bookingType = "BEDS";
-    }
-
     getRoomDetailsQuery.mutate(
       {
         guestHouse: values.location as GuestHouse,
         bookingType,
-        quantity:
-          selectedGuestHouse === GuestHouse.EXECUTIVE_GUEST_HOUSE
-            ? +values.rooms!
-            : +values.beds!,
+        quantity: +values.rooms!,
       },
       {
         onSuccess: async ({ roomDetails }) => {
@@ -134,7 +126,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
             router.push(`/search?${queryParameters.toString()}`);
           }
         },
-      }
+      },
     );
     utils.room.getRoomsByGuestHouse.invalidate();
     setIsButtonDisabled(true);
@@ -147,13 +139,11 @@ const SearchForm: React.FC<SearchFormProps> = ({
       let minRooms = 1;
 
       if (selectedGuestHouse === "SARAN_GUEST_HOUSE") {
-
         maxRooms = Math.min(guestCount, 3);
       } else if (
         selectedGuestHouse === "EXECUTIVE_GUEST_HOUSE" ||
         selectedGuestHouse === "VISVESVARAYA_GUEST_HOUSE"
       ) {
-
         maxRooms = guestCount;
       }
       const currentRooms = Math.max(minRooms, Math.min(+rooms, maxRooms));
@@ -163,16 +153,19 @@ const SearchForm: React.FC<SearchFormProps> = ({
     updateRooms();
   }, [selectedGuestHouse, guestLength, rooms]);
 
-  const nights = differenceInDays(form.watch("dates.to"), form.watch("dates.from"));
+  const nights = differenceInDays(
+    form.watch("dates.to"),
+    form.watch("dates.from"),
+  );
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   return (
     <>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className={`relative sm:flex hidden w-fit gap-5 flex-col items-start sm:flex-row sm:items-center ${aboveClass}`}
+        className={`relative hidden w-fit flex-col items-start gap-5 sm:flex sm:flex-row sm:items-center ${aboveClass}`}
       >
-        <div className="flex flex-col sm:items-center items-start  sm:flex-row w-full gap-2">
+        <div className="flex w-full flex-col items-start  gap-2 sm:flex-row sm:items-center">
           <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
             <div className="w-full sm:w-fit">
               <label htmlFor="location" className="ml-1 flex font-extrabold">
@@ -180,7 +173,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
               </label>
               <select
                 id="location"
-                className="w-full max-w-full sm:max-w-64 px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                className="w-full max-w-full rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:max-w-64 sm:text-sm"
                 {...form.register("location")}
                 onChange={(e) => {
                   form.setValue("location", e.target.value);
@@ -196,14 +189,11 @@ const SearchForm: React.FC<SearchFormProps> = ({
                   </option>
                 ))}
               </select>
-
             </div>
             {/* <p className="text-red-500 text-sm">
                 {form.formState.errors.location?.message as string}
               </p> */}
           </div>
-
-
 
           <div className="flex w-fit items-center gap-1.5">
             <div className="w-full">
@@ -223,7 +213,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
                     form.setValue("dates.to", end as Date);
                   }}
                   placeholderText="Select your dates"
-                  className="min-w-48 px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                  className="min-w-48 rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
                 />
               </div>
             </div>
@@ -241,70 +231,84 @@ const SearchForm: React.FC<SearchFormProps> = ({
                 <input
                   type="number"
                   id="adults"
-                  className="block w-12 px-2 py-1 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm text-center"
+                  className="block w-12 rounded-md border border-gray-300 bg-white px-2 py-1 text-center shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
                   {...form.register("adults")}
                   value={guestLength}
                   readOnly
                 />
               </div>
-              <p className="text-red-500 text-sm">
+              <p className="text-sm text-red-500">
                 {form.formState.errors.adults?.message as string}
               </p>
             </div>
           </div>
         </div>
         {showGuestPopDown && (
-          <div className="absolute top-16 left-0 z-10 w-full bg-white border border-gray-300 rounded-md shadow-md p-4">
-            <div className="flex justify-between items-center mb-4">
-              <label htmlFor="adults" className="font-extrabold">Adults</label>
+          <div className="absolute left-0 top-16 z-10 w-full rounded-md border border-gray-300 bg-white p-4 shadow-md">
+            <div className="mb-4 flex items-center justify-between">
+              <label htmlFor="adults" className="font-extrabold">
+                Adults
+              </label>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  className="px-2 py-1 bg-gray-200 rounded"
-                  onClick={() => setGuestLength((prev: any) => Math.max(+prev - 1, 1))}
+                  className="rounded bg-gray-200 px-2 py-1"
+                  onClick={() =>
+                    setGuestLength((prev: any) => Math.max(+prev - 1, 1))
+                  }
                 >
                   -
                 </button>
                 <input
                   type="number"
                   id="adults"
-                  className="block w-12 px-2 py-1 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm text-center"
+                  className="block w-12 rounded-md border border-gray-300 bg-white px-2 py-1 text-center shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
                   value={guestLength}
                   onChange={(e) => setGuestLength(e.target.value)}
                   min="1"
                 />
                 <button
                   type="button"
-                  className="px-2 py-1 bg-gray-200 rounded"
+                  className="rounded bg-gray-200 px-2 py-1"
                   onClick={() => setGuestLength((prev: any) => +prev + 1)}
                 >
                   +
                 </button>
               </div>
             </div>
-            <div className="flex justify-between items-center mb-4">
-              <label htmlFor="rooms" className="font-extrabold">Rooms</label>
+            <div className="mb-4 flex items-center justify-between">
+              <label htmlFor="rooms" className="font-extrabold">
+                Rooms
+              </label>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  className="px-2 py-1 bg-gray-200 rounded"
-                  onClick={() => setRooms((prev) => Math.max(+prev - 1, 1).toString())}
+                  className="rounded bg-gray-200 px-2 py-1"
+                  onClick={() =>
+                    setRooms((prev) => Math.max(+prev - 1, 1).toString())
+                  }
                 >
                   -
                 </button>
                 <input
                   type="number"
                   id="rooms"
-                  className="block w-12 px-2 py-1 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm text-center"
+                  className="block w-12 rounded-md border border-gray-300 bg-white px-2 py-1 text-center shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
                   value={rooms}
-                  onChange={(e) => setRooms(Math.min(+e.target.value, guestLength).toString())}
+                  onChange={(e) =>
+                    setRooms(Math.min(+e.target.value, guestLength).toString())
+                  }
                   min="1"
                   max={guestLength}
                 />
                 <button
                   type="button"
-                  className="px-2 py-1 bg-gray-200 rounded"
-                  onClick={() => setRooms((prev) => Math.min(+prev + 1, guestLength).toString())}
+                  className="rounded bg-gray-200 px-2 py-1"
+                  onClick={() =>
+                    setRooms((prev) =>
+                      Math.min(+prev + 1, guestLength).toString(),
+                    )
+                  }
                 >
                   +
                 </button>
@@ -312,7 +316,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
             </div>
             <button
               type="button"
-              className="bg-primaryBackground text-base hover:bg-blue-600 px-4 py-2 rounded-md text-white"
+              className="rounded-md bg-primaryBackground px-4 py-2 text-base text-white hover:bg-blue-600"
               onClick={() => setShowGuestPopDown(false)}
             >
               Done
@@ -320,10 +324,12 @@ const SearchForm: React.FC<SearchFormProps> = ({
           </div>
         )}
 
-        <div className={`mt-auto flex justify-end text-right ${belowClass} w-fit`}>
+        <div
+          className={`mt-auto flex justify-end text-right ${belowClass} w-fit`}
+        >
           <button
             type="submit"
-            className={` text-base hover:bg-blue-600 px-4 py-2 rounded-md text-white ${isButtonDisabled ? 'bg-gray-400 cursor-not-allowed' : 'bg-primaryBackground'}`}
+            className={` rounded-md px-4 py-2 text-base text-white hover:bg-blue-600 ${isButtonDisabled ? "cursor-not-allowed bg-gray-400" : "bg-primaryBackground"}`}
           >
             Search
           </button>
@@ -331,18 +337,18 @@ const SearchForm: React.FC<SearchFormProps> = ({
       </form>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-4 p-2 bg-gray-100 md:hidden"
+        className="flex flex-col gap-4 bg-gray-100 p-2 md:hidden"
       >
         {/* Location Input */}
         <div className="w-full">
           <label htmlFor="location" className="font-bold text-gray-700">
             Select Destination
           </label>
-          <div className="flex items-center border border-gray-300 rounded-md">
+          <div className="flex items-center rounded-md border border-gray-300">
             <FaSearch className="ml-2 text-gray-500" />
             <select
               id="location"
-              className="w-full p-2 bg-gray-100 rounded-md outline-none"
+              className="w-full rounded-md bg-gray-100 p-2 outline-none"
               {...form.register("location", {
                 onChange: (e) => setSelectedGuestHouse(e.target.value),
               })}
@@ -360,59 +366,60 @@ const SearchForm: React.FC<SearchFormProps> = ({
         </div>
 
         {/* Date Picker with Nights */}
-<div className="flex justify-between border border-gray-300 items-center">
-  <FaCalendarAlt className="mx-2 text-gray-500" />
-  <div className="flex flex-col items-start rounded-md pl-0 py-2">
-    <p>Check in</p>
-    <DatePicker
-      selected={form.watch("dates.from")}
-      minDate={today}
-      onChange={(date) => {
-        form.setValue("dates.from", date!);
+        <div className="flex items-center justify-between border border-gray-300">
+          <FaCalendarAlt className="mx-2 text-gray-500" />
+          <div className="flex flex-col items-start rounded-md py-2 pl-0">
+            <p>Check in</p>
+            <DatePicker
+              selected={form.watch("dates.from")}
+              minDate={today}
+              onChange={(date) => {
+                form.setValue("dates.from", date!);
 
-        // Automatically adjust checkout date if it's before the new check-in date
-        if (date! >= form.watch("dates.to")) {
-          const nextDay = new Date(date!);
-          nextDay.setDate(nextDay.getDate() + 1); // Set checkout date to one day after check-in
-          form.setValue("dates.to", nextDay);
-        }
-      }}
-      selectsStart
-      startDate={form.watch("dates.from")}
-      endDate={form.watch("dates.to")}
-      dateFormat={"dd MMM yyyy"}
-      className="bg-gray-100 rounded-md outline-none w-28"
-    />
-  </div>
-  <div className="font-bold bg-slate-400 text-center -ml-4 z-10 rounded-full text-gray-700 text-xs w-16">
-    {nights} Night{nights > 1 ? "s" : ""}
-  </div>
-  <div className="flex flex-col items-start rounded-md">
-    <p>Check out</p>
-    <DatePicker
-      selected={form.watch("dates.to")}
-      minDate={form.watch("dates.from") || today}
-      onChange={(date) => form.setValue("dates.to", date!)}
-      selectsEnd
-      startDate={form.watch("dates.from")}
-      endDate={form.watch("dates.to")}
-      dateFormat={"dd MMM yyyy"}
-      className="bg-gray-100 rounded-md outline-none w-28"
-    />
-  </div>
-</div>
-
+                // Automatically adjust checkout date if it's before the new check-in date
+                if (date! >= form.watch("dates.to")) {
+                  const nextDay = new Date(date!);
+                  nextDay.setDate(nextDay.getDate() + 1); // Set checkout date to one day after check-in
+                  form.setValue("dates.to", nextDay);
+                }
+              }}
+              selectsStart
+              startDate={form.watch("dates.from")}
+              endDate={form.watch("dates.to")}
+              dateFormat={"dd MMM yyyy"}
+              className="w-28 rounded-md bg-gray-100 outline-none"
+            />
+          </div>
+          <div className="z-10 -ml-4 w-16 rounded-full bg-slate-400 text-center text-xs font-bold text-gray-700">
+            {nights} Night{nights > 1 ? "s" : ""}
+          </div>
+          <div className="flex flex-col items-start rounded-md">
+            <p>Check out</p>
+            <DatePicker
+              selected={form.watch("dates.to")}
+              minDate={form.watch("dates.from") || today}
+              onChange={(date) => form.setValue("dates.to", date!)}
+              selectsEnd
+              startDate={form.watch("dates.from")}
+              endDate={form.watch("dates.to")}
+              dateFormat={"dd MMM yyyy"}
+              className="w-28 rounded-md bg-gray-100 outline-none"
+            />
+          </div>
+        </div>
 
         {/* Guests and Rooms */}
         <div className="flex flex-col gap-1">
           <label className="font-bold text-gray-700">Guests & Rooms</label>
           <div
-            className="flex items-center justify-between p-2 border border-gray-300 rounded-md"
+            className="flex items-center justify-between rounded-md border border-gray-300 p-2"
             onClick={() => setShowGuestPopDown(!showGuestPopDown)}
           >
             <div className="flex items-center">
               <FaUserAlt className="mr-2 text-gray-500" />
-              <span>{guestLength} Adults, {rooms} Room</span>
+              <span>
+                {guestLength} Adults, {rooms} Room
+              </span>
             </div>
             <button type="button" className="text-blue-500">
               Edit
@@ -426,9 +433,11 @@ const SearchForm: React.FC<SearchFormProps> = ({
                 <div className="flex gap-2">
                   <button
                     type="button"
-                    className="px-2 py-1 bg-gray-200 rounded"
+                    className="rounded bg-gray-200 px-2 py-1"
                     onClick={() =>
-                      setGuestLength((prev: any) => Math.max(+prev - 1, 1).toString())
+                      setGuestLength((prev: any) =>
+                        Math.max(+prev - 1, 1).toString(),
+                      )
                     }
                   >
                     -
@@ -436,20 +445,22 @@ const SearchForm: React.FC<SearchFormProps> = ({
                   <span>{guestLength}</span>
                   <button
                     type="button"
-                    className="px-2 py-1 bg-gray-200 rounded"
-                    onClick={() => setGuestLength((prev: any) => (+prev + 1).toString())}
+                    className="rounded bg-gray-200 px-2 py-1"
+                    onClick={() =>
+                      setGuestLength((prev: any) => (+prev + 1).toString())
+                    }
                   >
                     +
                   </button>
                 </div>
               </div>
 
-              <div className="flex justify-between mt-2">
+              <div className="mt-2 flex justify-between">
                 <label className="text-gray-700">Rooms</label>
                 <div className="flex gap-2">
                   <button
                     type="button"
-                    className="px-2 py-1 bg-gray-200 rounded"
+                    className="rounded bg-gray-200 px-2 py-1"
                     onClick={() =>
                       setRooms((prev) => Math.max(+prev - 1, 1).toString())
                     }
@@ -459,9 +470,11 @@ const SearchForm: React.FC<SearchFormProps> = ({
                   <span>{rooms}</span>
                   <button
                     type="button"
-                    className="px-2 py-1 bg-gray-200 rounded"
+                    className="rounded bg-gray-200 px-2 py-1"
                     onClick={() =>
-                      setRooms((prev) => Math.min(+prev + 1, +guestLength).toString())
+                      setRooms((prev) =>
+                        Math.min(+prev + 1, +guestLength).toString(),
+                      )
                     }
                   >
                     +
@@ -475,14 +488,11 @@ const SearchForm: React.FC<SearchFormProps> = ({
         {/* Search Button */}
         <button
           type="submit"
-          className={`w-full p-3 mt-4 text-white rounded-md ${isButtonDisabled ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500'}`}
-
+          className={`mt-4 w-full rounded-md p-3 text-white ${isButtonDisabled ? "cursor-not-allowed bg-gray-400" : "bg-blue-500"}`}
         >
           Search
         </button>
-
       </form>
-
     </>
   );
 };

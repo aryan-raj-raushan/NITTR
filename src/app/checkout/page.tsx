@@ -4,9 +4,9 @@ import { TbookingType } from "~/lib/utils";
 
 export default async function Page({
   searchParams,
-}: {
+}: Readonly<{
   searchParams?: { [key: string]: string | string[] | undefined };
-}) {
+}>) {
   const { roomDetails, roomCharges } = await api.room.getRoomById.mutate({ hostelId: searchParams?.id as string })
   if (roomDetails && roomCharges) {
     return <Checkout

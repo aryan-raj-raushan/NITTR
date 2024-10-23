@@ -1,5 +1,5 @@
 "use client";
-import { UserIcon } from "lucide-react";// @ts-ignore
+import { UserIcon } from "lucide-react"; // @ts-ignore
 import { GuestProfile, RoomCharges } from "@prisma/client";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
@@ -34,19 +34,20 @@ export default function Checkout({
   checkin,
   checkout,
   bookingType,
-}: {
+}: Readonly<{
   roomDetails: any;
   roomCharges: RoomCharges;
   checkin: Date;
   checkout: Date;
   bookingType: TbookingType;
-}) {
+}>) {
   const [guests, setGuests] = useState<GuestProfile[]>([]);
   const [selectedGuests, setSelectedGuests] = useState<GuestProfile[]>([]);
-  const [selectedNumberOfRoomsOrBeds, setSelectedNumberOfRoomsOrBeds] =
-    useState(1);
+  const [selectedRooms, setSelectedRooms] = useState(1);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("offline");
   const [loading, setLoading] = useState(false);
+  const [minRooms, setMinRooms] = useState(1);
+  const [maxRooms, setMaxRooms] = useState(1);
   const router = useRouter();
 
   const { id, name, email } = useAppSelector((store: any) => store.auth);
@@ -78,23 +79,24 @@ export default function Checkout({
         await initiateOnlinePayment(paymentTotal, bookingDetails);
       }
       setIsBookingLoading(false);
-    }, onError: () => {
+    },
+    onError: () => {
       setIsBookingLoading(false);
       toast.error("Booking failed. Please try again.", {
         // ... add appropriate toast configuration
       });
-    }
+    },
   });
 
   const initiateBillDeskPayment = (response: any) => {
-    if (!response || !response?.links) {
+    if (!response?.links) {
       console.error("Invalid response or links not present", response);
       return;
     }
     const redirectLink = response.links.find(
       (link: any) => link.rel === "redirect",
     );
-    if (!redirectLink || !redirectLink.parameters) {
+    if (!redirectLink?.parameters) {
       console.error("Redirect link or parameters not found", redirectLink);
       return;
     }
@@ -187,16 +189,49 @@ export default function Checkout({
     getGuestsMutation.mutate({ userId: id ?? "" });
   }, [id]);
 
+  useEffect(() => {
+    if (roomDetails?.roomType) {
+      const roomType = roomDetails.roomType;
+      const guestCount = selectedGuests.length;
+      let newMinRooms = 1;
+      let newMaxRooms = 1;
+
+      switch (roomType) {
+        case "DOUBLE_BED":
+          newMinRooms = Math.ceil(guestCount / 2);
+          newMaxRooms = guestCount;
+          break;
+
+        case "TRIPLE_BED":
+          newMinRooms = Math.ceil(guestCount / 3);
+          newMaxRooms = guestCount;
+          break;
+
+        case "SINGLE_BED":
+          newMinRooms = guestCount;
+          newMaxRooms = guestCount;
+          break;
+
+        default:
+          newMinRooms = 1;
+          newMaxRooms = 1;
+      }
+
+      setMinRooms(newMinRooms);
+      setMaxRooms(newMaxRooms);
+      setSelectedRooms((prevRooms) =>
+        Math.max(newMinRooms, Math.min(newMaxRooms, prevRooms)),
+      );
+    }
+  }, [selectedGuests?.length, roomDetails?.roomType]);
+
   if (roomDetails) {
     const totalDay = datediff(checkin, checkout);
-    const subtotal = selectedGuests.reduce((total, guest) => {
-      const charge = roomCharges?.[guest?.typeOrg] ?? 0;
-      return total + charge * totalDay;
-    }, 0);
-    const tax = subtotal * 0.18;
+    const roomTariff = roomDetails?.roomTarrif ?? 0;
+    const subtotal = selectedRooms * roomTariff * totalDay;
+    const tax = subtotal * 0.18; // 18% tax
     const total = subtotal + tax;
     const guestLabel = selectedGuests.length === 1 ? "guest" : "guests";
-
     const categoryConst: any = {
       GOVERNMENT_OF_INDIA_OFFICIAL: "Government of India Official",
       STATE_GOVERNMENT_OFFICIAL: "State Government Official",
@@ -214,6 +249,8 @@ export default function Checkout({
       INTERNATIONAL_PARTICIPANTS: "International Participants",
       OTHER: "Other",
     };
+
+    console.log("min & max value", minRooms, maxRooms);
 
     const typeBody = (category: any) => categoryConst[category?.typeOrg];
 
@@ -280,12 +317,6 @@ export default function Checkout({
                           <b>{userId}</b>
                         </div>
                       </div>
-                      {/* <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
-                        <div>Floor</div>
-                        <div>
-                          <b>{roomDetails.floor?.replace(/_/g, " ")}</b>
-                        </div>
-                      </div> */}
 
                       <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3  shadow-xl lg:min-w-fit">
                         <div>Bed Type</div>
@@ -293,13 +324,6 @@ export default function Checkout({
                           <b>{roomDetails?.roomType?.replace(/_/g, " ")}</b>
                         </div>
                       </div>
-
-                      {/* <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3  shadow-xl lg:min-w-fit">
-                        <div>Available Beds</div>
-                        <div>
-                          <b>{roomDetails?.totalBed}</b>
-                        </div>
-                      </div> */}
 
                       <div className="flex min-w-44 flex-col items-center justify-center rounded-xl bg-gradient-to-r from-[#d2d2d2] to-[#b1b1b4] p-3 shadow-xl lg:min-w-fit">
                         <div>Occupancy</div>
@@ -312,7 +336,7 @@ export default function Checkout({
 
                   {guests.length < 1 && (
                     <div className="mt-10 flex w-full items-center justify-center rounded-xl border border-gray-300 p-4">
-                      {!!!guests.length && (
+                      {!guests.length && (
                         <GuestForm roomCharges={roomCharges}></GuestForm>
                       )}
                     </div>
@@ -448,12 +472,38 @@ export default function Checkout({
                               <span className="font-bold">{room.code}</span>{" "}
                             </h3>
                           </div>
-                          <div className="flex items-center text-sm">
+                          <div className="flex flex-col gap-y-2 text-sm">
                             Number of {bookingType} :{" "}
-                            <span className="ml-1 font-bold">
+                            {/* <span className="ml-1 font-bold">
                               {selectedGuests?.length}
-                            </span>
-                            <div className=""></div>
+                            </span> */}
+                            <div className="flex items-center justify-center">
+                              <button
+                                className="rounded-l bg-gray-300 px-2 py-1"
+                                onClick={() =>
+                                  setSelectedRooms((prevRooms) =>
+                                    Math.max(minRooms, prevRooms - 1),
+                                  )
+                                }
+                              >
+                                -
+                              </button>
+
+                              <span className="border px-2 py-1">
+                                {selectedRooms}
+                              </span>
+
+                              <button
+                                className="rounded-r bg-gray-300 px-2 py-1"
+                                onClick={() =>
+                                  setSelectedRooms((prevRooms) =>
+                                    Math.min(maxRooms, prevRooms + 1),
+                                  )
+                                }
+                              >
+                                +
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </li>
@@ -468,7 +518,7 @@ export default function Checkout({
                           <dt>Taxes (18%)</dt>
                           <dd className="text-gray-900">₹{tax.toFixed(2)}</dd>
                         </div>
-                        <div className="flex flex-col items-center justify-between border-t border-gray-200 py-6 text-gray-900">
+                        <div className="flex flex-col items-center justify-between gap-y-2 border-t border-gray-200 py-4 text-gray-900">
                           <dt className="w-full text-base">
                             Total (for {selectedGuests.length} {guestLabel}) - ₹
                             {total.toFixed(2)}
@@ -501,12 +551,14 @@ export default function Checkout({
                               if (!selectedGuests.length) {
                                 return alert("Please Select at least 1 Guest");
                               }
-                              if (!selectedNumberOfRoomsOrBeds) {
+                              if (!selectedRooms) {
                                 return alert("Please Select Number of Rooms");
                               }
-                              if (selectedGuests.length > roomDetails?.totalBed) {
+                              if (
+                                selectedGuests.length > roomDetails?.totalBed
+                              ) {
                                 return alert(
-                                  "Number of Selected Guests and Number of Selected Beds should be equal"
+                                  "Number of Selected Guests and Number of Selected Beds should be equal",
                                 );
                               }
                               setIsBookingLoading(true);
@@ -517,9 +569,9 @@ export default function Checkout({
                                 bookingDate: new Date().toISOString(),
                                 bookedFromDt: checkin,
                                 bookedToDt: checkout,
-                                nosRooms: selectedNumberOfRoomsOrBeds,
+                                nosRooms: selectedRooms,
                                 remark: "",
-                                bookingType: "BEDS",
+                                bookingType: "ROOM",
                                 roomId: roomDetails.id,
                                 amount: total,
                                 roomType: roomDetails?.roomType,
@@ -527,13 +579,15 @@ export default function Checkout({
                                 userName,
                                 userEmail,
                                 subtotal: subtotal,
-                                paymentStatus: "Payment Done",
+                                paymentStatus: "Pending",
                                 paymentMode: selectedPaymentMethod,
                               });
                             }}
                             disabled={isBookingLoading}
                           >
-                            {isBookingLoading ? "Processing..." : "Confirm Booking"}
+                            {isBookingLoading
+                              ? "Processing..."
+                              : "Confirm Booking"}
                           </Button>
                         </div>
                       </dl>

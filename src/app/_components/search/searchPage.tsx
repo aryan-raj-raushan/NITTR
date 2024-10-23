@@ -25,7 +25,6 @@ const SearchPage = ({ bookings }: any) => {
   const [checkOut, setCheckOut] = useState<any>();
   const [guests, setGuests] = useState<any>();
   const [roomDetails, setRoomDetails] = useState<any>([]);
-  // useState<RouterOutputs["room"]["getRoomsByGuestHouse"]["roomDetails"]>();
   const [loading, setLoading] = useState(true);
   const [availableRooms, setAvailableRooms] = useState<any>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);

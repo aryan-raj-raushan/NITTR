@@ -5,12 +5,10 @@ import { api } from "~/trpc/server";
 export default async function Page({
   params,
   searchParams,
-}: {
+}: Readonly<{
   params: { hostelId: string };
   searchParams?: { [key: string]: string | string[] | undefined };
-}) {
-
-
+}>) {
   const { roomDetails } = await api.room.getRoomById.mutate({
     hostelId: params.hostelId,
   });

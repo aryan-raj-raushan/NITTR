@@ -1,64 +1,38 @@
 "use client";
 import React from "react";
-import { classNames } from "~/lib/classNames";
 import Link from "next/link";
 // @ts-ignore
-import {  RoomDetails } from "@prisma/client";
+import { RoomDetails } from "@prisma/client";
 import { TbookingType } from "~/lib/utils";
 import { useAppSelector } from "~/store";
-
-
-const roomFeatures = {
-  EXECUTIVE_GUEST_HOUSE: {
-    description:
-      "Experience comfort and convenience in our thoughtfully appointed single room at Saran Guesthouse, nestled within the serene campus of NITTTR Bhopal. Perfect for solo travelers seeking a peaceful retreat, our single room offers a cozy sanctuary equipped with modern amenities for a relaxing stay. Immerse yourself in tranquility while enjoying easy access to nearby attractions and facilities. Book your stay with us for a rejuvenating experience in the heart of Bhopal.",
-    features: [
-      "Double Bed: Sink into plush bedding for a restful night's sleep",
-      "Ensuite Bathroom: Enjoy the convenience of a private bathroom equipped with modern amenities.",
-      "Workspace: Stay productive with a dedicated workspace, ideal for business travelers.",
-      "Complimentary Wi-Fi: Stay connected with high-speed internet access throughout your stay.",
-      "Air Conditioning: Stay cool and comfortable in any season.",
-    ],
-  },
-  SARAN_GUEST_HOUSE: {
-    description:
-      "Discover spacious and cozy double rooms at NITTTR Bhopal, ideal for couples or friends traveling together. Enjoy a comfortable stay with modern amenities. Book your room now!",
-    features: [
-      "attached toilets and bathrooms",
-      "It has separate kitchen and dining facility",
-      " All the rooms are air conditioned and equipped with all modern amenities.",
-    ],
-  },
-  VISVESVARAYA_GUEST_HOUSE: {
-    description:
-      "It has G +1 floor with 26 double bedded rooms with attached toilets and bathrooms. It has separate kitchen and dining facility. All the rooms are air conditioned and equipped with all modern amenities.",
-    features: [
-      "attached toilets and bathrooms",
-      "It has separate kitchen and dining facility",
-      " All the rooms are air conditioned and equipped with all modern amenities.",
-    ],
-  },
-};
-
-import { FaCoffee, FaParking, FaBath, FaWifi, FaSnowflake, FaUsers, FaConciergeBell, FaShower, FaBan, FaTv } from 'react-icons/fa';
-
-
+import {
+  FaCoffee,
+  FaParking,
+  FaBath,
+  FaWifi,
+  FaSnowflake,
+  FaUsers,
+  FaConciergeBell,
+  FaShower,
+  FaBan,
+  FaTv,
+} from "react-icons/fa";
 
 export default function ProductHeroSlider({
   roomDetails,
   checkin,
   checkout,
   bookingType,
-}: {
+}: Readonly<{
   roomDetails: RoomDetails;
   checkin: Date;
   checkout: Date;
   bookingType: TbookingType;
-}) {
+}>) {
   const isLogin = useAppSelector((state: any) => state.auth.authState);
 
   const hostelName = roomDetails.hostelName ?? "";
-  const features = roomFeatures[hostelName as keyof typeof roomFeatures]?.features ?? [];
+  // const features = roomFeatures[hostelName as keyof typeof roomFeatures]?.features ?? [];
 
   const featuress = [
     { icon: FaCoffee, label: "Breakfast" },
@@ -73,69 +47,70 @@ export default function ProductHeroSlider({
     { icon: FaTv, label: "Flat-screen TV" },
   ];
 
-
   return (
     <div className="bg-white">
       <main className="mx-auto max-w-7xl sm:px-6 sm:py-16 lg:px-8">
         <div className="mx-auto max-w-2xl lg:max-w-none">
-          <div className="flex items-center justify-center mb-5">
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900 md:text-3xl w-fit">
+          <div className="mb-5 flex items-center justify-center">
+            <h1 className="w-fit text-2xl font-bold tracking-tight text-gray-900 md:text-3xl">
               {hostelName.replace(/_/g, " ")}
             </h1>
           </div>
           {/* Product */}
-          <div className="flex sm:flex-row flex-col gap-5">
+          <div className="flex flex-col gap-5 sm:flex-row">
             {/* Image gallery */}
-            <div className="flex w-fit sm:px-0 px-2">
-              <div className="grid grid-cols-4 gap-4 mb-6">
+            <div className="flex w-fit px-2 sm:px-0">
+              <div className="mb-6 grid grid-cols-4 gap-4">
                 <div className="col-span-2 row-span-2">
                   <img
                     src={roomDetails.roomImg[0]}
                     alt={hostelName.replace(/_/g, " ")}
-                    className="w-full h-full object-cover rounded-lg"
+                    className="h-full w-full rounded-lg object-cover"
                   />
                 </div>
                 <div className="col-span-2">
                   <img
                     src={roomDetails.roomImg[1]}
                     alt={hostelName.replace(/_/g, " ")}
-                    className="w-full h-full object-cover rounded-lg"
+                    className="h-full w-full rounded-lg object-cover"
                   />
                 </div>
                 <div className="col-span-1">
                   <img
                     src={roomDetails.roomImg[2]}
                     alt={hostelName.replace(/_/g, " ")}
-                    className="w-full h-full object-cover rounded-lg"
+                    className="h-full w-full rounded-lg object-cover"
                   />
                 </div>
                 <div className="col-span-1">
                   <img
                     src={roomDetails.roomImg[3]}
                     alt={hostelName.replace(/_/g, " ")}
-                    className="w-full h-full object-cover rounded-lg"
+                    className="h-full w-full rounded-lg object-cover"
                   />
                 </div>
                 <div className="col-span-4 grid grid-cols-3 gap-4">
                   <img
                     src={roomDetails.roomImg[4]}
                     alt={hostelName.replace(/_/g, " ")}
-                    className="w-full h-full object-cover rounded-lg"
+                    className="h-full w-full rounded-lg object-cover"
                   />
                   <img
                     src={roomDetails.roomImg[0]}
                     alt={hostelName.replace(/_/g, " ")}
-                    className="w-full h-full object-cover rounded-lg"
+                    className="h-full w-full rounded-lg object-cover"
                   />
                   <div className="relative">
                     <img
                       src={roomDetails.roomImg[1]}
                       alt={hostelName.replace(/_/g, " ")}
-                      className="w-full h-full object-cover rounded-lg"
+                      className="h-full w-full rounded-lg object-cover"
                     />
-                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
+                    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black bg-opacity-50">
                       <Link href={`/gallery`}>
-                        <span className="text-white text-lg font-semibold">+20 photos</span>
+                        <span className="text-lg font-semibold text-white">
+                          +20 photos
+                        </span>
                       </Link>
                     </div>
                   </div>
@@ -144,11 +119,8 @@ export default function ProductHeroSlider({
             </div>
 
             {/* Product info */}
-            <div className="flex flex-col gap-2 sm:px-0 px-2">
-
-              
+            <div className="flex flex-col gap-2 px-2 sm:px-0">
               <div className="flex gap-4 pt-4">
-              
                 <h2
                   className={`rounded-xl px-4 py-2 text-lg font-semibold text-gray-100 ${roomDetails?.totalBed !== null && roomDetails.totalBed > 0 ? "bg-green-500" : "bg-red-400"}`}
                 >
@@ -161,25 +133,19 @@ export default function ProductHeroSlider({
                   {roomDetails?.value}
                 </h2>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-2 gap-4 ">
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-2 ">
                 {featuress.map((feature, index) => (
-                  <div key={index} className="flex items-center space-x-2 p-2 border rounded-md shadow-sm w-full">
+                  <div
+                    key={index}
+                    className="flex w-full items-center space-x-2 rounded-md border p-2 shadow-sm"
+                  >
                     <feature.icon className="text-xl" />
                     <span className="w-full">{feature.label}</span>
                   </div>
                 ))}
               </div>
 
-              {/* <div className="mt-6">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  About the room
-                </h3>
-                <p className="mt-2 text-base text-gray-700">
-                  {roomDetails.remark}
-                </p>
-              </div> */}
-
-              <form className="mt-6 mb-2">
+              <form className="mb-2 mt-6">
                 <div className="mt-10 flex">
                   <Link
                     href={
@@ -199,32 +165,6 @@ export default function ProductHeroSlider({
                   </Link>
                 </div>
               </form>
-              {/* 
-              <section aria-labelledby="details-heading" className="mt-12">
-                <h2
-                  id="details-heading"
-                  className="text-lg font-semibold text-gray-900"
-                >
-                  Additional Details
-                </h2>
-                <Accordion type="single" collapsible className="mt-4 w-full">
-                  <AccordionItem value="item-2">
-                    <AccordionTrigger className="text-base font-medium text-gray-700">
-                      Features
-                    </AccordionTrigger>
-                    {features.map(
-                      (d: any, index: any) => (
-                        <AccordionContent
-                          key={d + index}
-                          className="mt-2 text-sm text-gray-600"
-                        >
-                          {d}
-                        </AccordionContent>
-                      ),
-                    )}
-                  </AccordionItem>
-                </Accordion>
-              </section> */}
             </div>
           </div>
         </div>
