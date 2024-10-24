@@ -28,6 +28,8 @@ export function columns(): ColumnDef<TbookingsValidator>[] {
       },
     },
   );
+  
+
   return [
     {
       accessorKey: "id",

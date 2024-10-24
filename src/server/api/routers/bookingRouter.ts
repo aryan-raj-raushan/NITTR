@@ -6,21 +6,6 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { CreateBookingValidator } from "~/utils/validators/bookingValidators";
 import { startOfDay } from "date-fns";
 
-function getRoomCapacity(roomType: string): number {
-  switch (roomType) {
-    case "SINGLE_BED":
-      return 1;
-    case "DOUBLE_BED":
-      return 2;
-    case "TRIPLE_BED":
-      return 3;
-    case "FOUR_BED":
-      return 4;
-    default:
-      throw new Error("Invalid room type");
-  }
-}
-
 const transporter: any = nodemailer.createTransport({
   service: "Gmail",
   auth: {
@@ -58,21 +43,15 @@ export const bookingRouter = createTRPCRouter({
         take: nosRooms,
       });
 
-      let totalRoom = 0;
-      const totalGuests = guestIds.length;
-
+      let totalBeds = 0;
       if (roomType === "SINGLE_BED") {
-        totalRoom = totalGuests;
+        totalBeds = nosRooms;
       } else if (roomType === "DOUBLE_BED") {
-        totalRoom = Math.ceil(totalGuests / 2);
+        totalBeds = Math.ceil(nosRooms * 2);
       } else if (roomType === "TRIPLE_BED") {
-        totalRoom = Math.ceil(totalGuests / 3);
+        totalBeds = Math.ceil(nosRooms * 3);
       } else if (roomType === "FOUR_BED") {
-        totalRoom = Math.ceil(totalGuests / 4);
-      }
-
-      if (totalGuests % getRoomCapacity(roomType) !== 0) {
-        totalRoom += 1;
+        totalBeds = Math.ceil(nosRooms * 4);
       }
 
       const bookingDetails = await ctx.db.bookingDetails.create({
@@ -84,7 +63,7 @@ export const bookingRouter = createTRPCRouter({
           bookedFromDt,
           bookingStatus: BookingStatus.UNCONFIRMED,
           bookedRoom: roomId,
-          bookedBed: guestIds?.length,
+          bookedBed: totalBeds,
           bookPaymentId: "",
           guestsList: guestIds.map((g: any) => g),
           userId: userId!,
@@ -92,7 +71,7 @@ export const bookingRouter = createTRPCRouter({
           userEmail,
           amount,
           roomType: roomType,
-          totalRoom: totalRoom,
+          totalRoom: nosRooms,
           paymentStatus,
           subtotal,
           paymentMode: paymentMode,
@@ -120,7 +99,7 @@ export const bookingRouter = createTRPCRouter({
           bookingDetailsId: bookingDetails.id,
         },
       });
-      if (bookingType == "BEDS") {
+      if (bookingType == "ROOM") {
         await ctx.db.roomDetails.update({
           where: {
             id: roomId,
@@ -269,7 +248,8 @@ export const bookingRouter = createTRPCRouter({
         checkOutDate: Date,
       ) => {
         return roomDetails.map((roomDetail) => {
-          let availableRooms = roomDetail.totalBed;
+          let availableRooms = roomDetail.totalRoom;
+          let availableBeds = roomDetail.totalBed;
 
           confirmedBookings.forEach((confirmedBooking) => {
             const bookedFrom = startOfDay(
@@ -281,7 +261,8 @@ export const bookingRouter = createTRPCRouter({
 
             if (desiredFrom < bookedTo && desiredTo > bookedFrom) {
               if (confirmedBooking.roomType === roomDetail.roomType) {
-                availableRooms -= confirmedBooking.bookedBed;
+                availableRooms -= confirmedBooking.totalRoom;
+                availableBeds -= confirmedBooking.bookedBed;
               }
             }
           });
@@ -289,6 +270,7 @@ export const bookingRouter = createTRPCRouter({
           return {
             roomType: roomDetail.roomType,
             availableRooms: availableRooms,
+            availableBeds: availableBeds,
           };
         });
       };
@@ -320,8 +302,7 @@ export const bookingRouter = createTRPCRouter({
         throw new Error("Not enough available rooms for the requested booking");
       }
 
-      // Proceed with the update if the rooms are available
-      const updatedBooking = await ctx.db.bookingDetails.update({
+        await ctx.db.bookingDetails.update({
         where: { id },
         data: { bookingStatus },
         include: { user: true, guests: true },

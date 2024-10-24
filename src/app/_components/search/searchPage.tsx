@@ -30,13 +30,13 @@ const SearchPage = ({ bookings }: any) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    setLocation(xlocation?.toString()!);
+    setLocation(xlocation?.toString());
     if (xcheckIn) setCheckIn(new Date(xcheckIn.toString()));
     if (xcheckOut) setCheckOut(new Date(xcheckOut.toString()));
     if (xAdults) setGuests(Number(xAdults));
   }, [xcheckIn, xcheckOut, xAdults, xlocation]);
 
-  const { data, isLoading } = api.room.getRoomsByGuestHouse.useQuery(
+  api.room.getRoomsByGuestHouse.useQuery(
     { guestHouse: xlocation },
     {
       enabled: !!location,
@@ -46,7 +46,7 @@ const SearchPage = ({ bookings }: any) => {
           setLoading(false);
         }
       },
-    },
+    }
   );
 
   useEffect(() => {
@@ -58,6 +58,8 @@ const SearchPage = ({ bookings }: any) => {
         (booking: any) => booking.hostelName === location,
       );
 
+      console.log("confirm", confirmedBookings);
+
       const calculateAvailability = (
         roomDetails: any,
         locationFilteredBookings: any,
@@ -65,26 +67,26 @@ const SearchPage = ({ bookings }: any) => {
         checkOutDate: Date,
       ) => {
         return roomDetails.map((roomDetail: any) => {
-          // let availableRooms = roomDetail.totalRoom;
-          let availableRooms = roomDetail.totalBed;
+          let availableBeds = roomDetail.totalBed;
+          let availableRooms = roomDetail.totalRoom;
 
           locationFilteredBookings.forEach((booking: any) => {
             const bookedFrom = startOfDay(new Date(booking.bookedFromDt));
             const bookedTo = startOfDay(new Date(booking.bookedToDt));
             const desiredFrom = startOfDay(new Date(checkInDate));
-            const desiredTo = startOfDay(new Date(checkOutDate));   
+            const desiredTo = startOfDay(new Date(checkOutDate));
 
-              if (desiredFrom < bookedTo && desiredTo > bookedFrom) {
-                if (booking.roomType === roomDetail.roomType) {
-                  // availableRooms -= 1;
-                  // availableRooms -= booking.totalRoom;
-                  availableRooms -= booking.bookedBed;
-                }
+            if (desiredFrom < bookedTo && desiredTo > bookedFrom) {
+              if (booking.roomType === roomDetail.roomType) {
+                availableBeds -= booking.bookedBed;
+                availableRooms -= booking.totalRoom;
               }
-            });
+            }
+          });
           return {
             roomType: roomDetail.roomType,
             availableRooms: availableRooms,
+            availableBeds: availableBeds,
           };
         });
       };
