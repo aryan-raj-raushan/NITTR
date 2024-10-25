@@ -1,4 +1,4 @@
-import xlsx, { IJsonSheet } from "json-as-xlsx";
+import xlsx from "json-as-xlsx";
 import { TbookingsValidator } from "~/utils/validators/bookingValidators";
 import { format } from 'date-fns';
 

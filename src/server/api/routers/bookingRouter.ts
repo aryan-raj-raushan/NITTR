@@ -75,6 +75,7 @@ export const bookingRouter = createTRPCRouter({
           paymentStatus,
           subtotal,
           paymentMode: paymentMode,
+          roomOccupied : [],
         },
       });
 
@@ -302,11 +303,81 @@ export const bookingRouter = createTRPCRouter({
         throw new Error("Not enough available rooms for the requested booking");
       }
 
+      const roomAllotment = async (booking: any, roomType: any) => {
+        let startRoom = 0;
+      
+        // Determine the starting room number based on room type
+        if (roomType === "SINGLE_BED") {
+          startRoom = 101;
+        } else if (roomType === "DOUBLE_BED") {
+          startRoom = 201;
+        } else if (roomType === "TRIPLE_BED") {
+          startRoom = 301;
+        } else {
+          throw new Error("Invalid room type");
+        }
+      
+        // Get all confirmed bookings for the same room type and hostel
+        const confirmedBookings = await ctx.db.bookingDetails.findMany({
+          where: {
+            hostelName: booking.hostelName,
+            bookingStatus: BookingStatus.CONFIRMED,
+            roomType: roomType,
+          },
+        });
+      
+        const checkInDate = new Date(booking.bookedFromDt);
+        const checkOutDate = new Date(booking.bookedToDt);
+      
+        const occupiedRooms = new Set();
+      
+        // Identify rooms that are already occupied during the requested date range
+        confirmedBookings.forEach((confirmedBooking) => {
+          const bookedFrom = new Date(confirmedBooking.bookedFromDt);
+          const bookedTo = new Date(confirmedBooking.bookedToDt);
+      
+          // Check if the requested dates overlap with existing bookings
+          if (
+            (checkInDate < bookedTo && checkOutDate > bookedFrom) &&
+            confirmedBooking.roomOccupied
+          ) {
+            confirmedBooking.roomOccupied.forEach((room: string) => {
+              occupiedRooms.add(room); // Track occupied rooms
+            });
+          }
+        });
+      
+        const allottedRooms: string[] = [];
+      
+        // Loop to allot the requested number of rooms
+        for (let roomNo = startRoom; roomNo < startRoom + 100 && allottedRooms.length < booking.totalRoom; roomNo++) {
+          if (!occupiedRooms.has(roomNo.toString())) {
+            allottedRooms.push(roomNo.toString()); // Add the available room
+          }
+        }
+      
+        if (allottedRooms.length < booking.totalRoom) {
+          throw new Error(`Not enough available rooms for the requested booking. Needed: ${booking.totalRoom}, Available: ${allottedRooms.length}`);
+        }
+      
+        await ctx.db.bookingDetails.update({
+          where: { id: booking.id },
+          data: {
+            roomOccupied: { push: allottedRooms }, 
+          },
+        });
+      
+        return allottedRooms;
+      };
+      
+      
+
         await ctx.db.bookingDetails.update({
         where: { id },
         data: { bookingStatus },
         include: { user: true, guests: true },
       });
+
 
       const sendEmail = async (subject: string, text: string) => {
         const userEmail = process.env.EMAIL_USER;
@@ -327,20 +398,41 @@ export const bookingRouter = createTRPCRouter({
 
       switch (bookingStatus) {
         case BookingStatus.CHECKOUT:
+          await ctx.db.bookingDetails.update({
+            where: { id },
+            data: {
+              roomOccupied: []
+            },
+          });
           await sendEmail(
             "Checkout Confirmation",
             `Your checkout for booking ID ${booking.id} has been confirmed. Thank you for staying with us!`,
           );
           break;
 
-        case BookingStatus.CONFIRMED:
-          await sendEmail(
-            "Booking Confirmation",
-            `Your booking with ID ${booking.id} has been confirmed.`,
-          );
+        case BookingStatus.CONFIRMED: {
+          if (booking.bookingStatus !== BookingStatus.CONFIRMED) {
+            const allottedRoom = await roomAllotment(booking, booking.roomType);
+            await sendEmail(
+              "Booking Confirmation",
+              `Your booking with ID ${booking.id} has been confirmed. Allotted room: ${allottedRoom}.`,
+            );
+          } else {
+            await sendEmail(
+              "Booking Confirmation",
+              `Your booking with ID ${booking.id} has been confirmed.`,
+            );
+          }
           break;
+        }
 
         case BookingStatus.CANCELED:
+          await ctx.db.bookingDetails.update({
+            where: { id },
+            data: {
+              roomOccupied: [] 
+            },
+          });
           await sendEmail(
             "Booking Cancellation",
             `Your booking with ID ${booking.id} has been canceled.`,
