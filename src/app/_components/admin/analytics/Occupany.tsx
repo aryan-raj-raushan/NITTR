@@ -179,7 +179,7 @@ export default function OccupancyReport({
 
     // Filter the bookings based on the selected hostel
     const hostelFilteredBookings = filteredBookings.filter(
-      (booking) => booking.hostelName === hostel,
+      (booking:any) => booking.hostelName === hostel,
     );
 
     return hostelFilteredBookings.sort((a: any, b: any) => {
