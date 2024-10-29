@@ -17,7 +17,6 @@ const AppPlaceCard = ({
 
   const handleClick = () => {
     setIsButtonDisabled(true);
-    // You might want to add additional logic here, like navigating to a booking page
   };
 
   return (
@@ -49,7 +48,7 @@ const AppPlaceCard = ({
           <div className="flex items-center">
             <span className="flex items-center text-base font-semibold">
               <MdOutlineEventAvailable className="mr-1 text-2xl" />
-              Beds Available - {availability}
+              Rooms Available - {availability}
             </span>
           </div>
           <h3 className="flex pl-2 text-sm">{data.remark}</h3>

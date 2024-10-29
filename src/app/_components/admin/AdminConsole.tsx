@@ -56,7 +56,7 @@ const emptyBooking: any = {
   paymentMode: "",
 };
 
-export default function AdminConsole({ bookings, hostelName }: { bookings: TbookingsValidator[], hostelName: GuestHouse }) {
+export default function AdminConsole({ bookings, hostelName }: Readonly<{ bookings: TbookingsValidator[], hostelName: GuestHouse }>) {
   const [selectedBooking, setSelectedBooking] = useState<BookingDetails>(bookings[0] ?? emptyBooking)
   const router = useRouter();
   return (

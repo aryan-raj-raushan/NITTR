@@ -5,8 +5,8 @@
       "value": "Deluxe Room",
       "ghName": "Grand Hotel",
       "roomType": "SINGLE_BED",
-      "totalBed": 12,
-      "totalRoom": 12,
+      "totalBed": 50,
+      "totalRoom": 50,
       "occupancy": "SINGLE",
       "roomImg": [
         "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/_DSC0346+(2).JPG",
@@ -21,7 +21,7 @@
       "geaser": "YES",
       "airCooled": "NO",
       "remark": "Experience comfort and convenience in our single rooms at NITTTR Bhopal. Perfect for solo travelers or individuals seeking privacy. Explore our affordable accommodation options today!",
-      "roomTarrif": "EXECTIVE_3500",
+      "roomTarrif": 1500,
       "price":{
           "CENTRAL_GOVT": "",
           "PRIVATE": "",
@@ -46,8 +46,8 @@
       "value": "Deluxe Room",
       "roomType": "DOUBLE_BED",
       "ghName": "Grand Hotel",
-      "totalBed": 32,
-      "totalRoom": 16,
+      "totalBed": 64,
+      "totalRoom": 32,
       "occupancy": "DOUBLE",
       "roomImg": [
         "https://aakash2330-drippy.s3.amazonaws.com/NITTTR/saran/fwdsaranguesthouselatestphotograph/_DSC0346+(2).JPG",
@@ -62,7 +62,7 @@
       "geaser": "YES",
       "airCooled": "NO",
       "remark": "Experience comfort and convenience in our single rooms at NITTTR Bhopal. Perfect for solo travelers or individuals seeking privacy. Explore our affordable accommodation options today!",
-      "roomTarrif": "EXECTIVE_3500",
+      "roomTarrif": 1500,
       "price":{
           "CENTRAL_GOVT": "",
           "PRIVATE": "",
@@ -103,7 +103,7 @@
       "geaser": "YES",
       "airCooled": "NO",
       "remark": "Experience comfort and convenience in our single rooms at NITTTR Bhopal. Perfect for solo travelers or individuals seeking privacy. Explore our affordable accommodation options today!",
-      "roomTarrif": "EXECTIVE_3500",
+      "roomTarrif": 1500,
       "price":{
           "CENTRAL_GOVT": "",
           "PRIVATE": "",
@@ -144,7 +144,7 @@
       "geaser": "YES",
       "airCooled": "NO",
       "remark": "Experience comfort and convenience in our single rooms at NITTTR Bhopal. Perfect for solo travelers or individuals seeking privacy. Explore our affordable accommodation options today!",
-      "roomTarrif": "EXECTIVE_3500",
+      "roomTarrif": 1500,
       "price": {
         "CENTRAL_GOVT": "",
         "PRIVATE": "",
@@ -185,7 +185,7 @@
       "geaser": "YES",
       "airCooled": "NO",
       "remark": "Experience comfort and convenience in our single rooms at NITTTR Bhopal. Perfect for solo travelers or individuals seeking privacy. Explore our affordable accommodation options today!",
-      "roomTarrif": "EXECTIVE_3500",
+      "roomTarrif": 1500,
       "price":{
           "CENTRAL_GOVT": "",
           "PRIVATE": "",

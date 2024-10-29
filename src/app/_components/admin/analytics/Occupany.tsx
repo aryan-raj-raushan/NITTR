@@ -28,10 +28,10 @@ import { IoChevronDownOutline } from "react-icons/io5";
 export default function OccupancyReport({
   bookings,
   roomDetails,
-}: {
+}: Readonly<{
   bookings: RouterOutputs["booking"]["getAllBookings"]["bookings"];
-  roomDetails: any[]; // Replace with the actual type of roomDetails
-}) {
+  roomDetails: any[];
+}>) {
   const [hostel, setHostel] = useState<any>();
 
   console.log("bookings", bookings);
@@ -131,7 +131,7 @@ export default function OccupancyReport({
       filteredRoomDetails.forEach((room) => {
         const roomType = room.roomType;
         if (!groupedData[formattedDate][roomType]) {
-          groupedData[formattedDate][roomType] = room.totalBed; // Total beds
+          groupedData[formattedDate][roomType] = room.totalRoom;
         }
 
         futureBookings.forEach((booking: any) => {
@@ -141,7 +141,7 @@ export default function OccupancyReport({
             booking.roomType === roomType &&
             booking.hostelName === hostel
           ) {
-            groupedData[formattedDate][roomType] -= booking.bookedBed; // Subtract booked beds
+            groupedData[formattedDate][roomType] -= booking.totalRoom;
           }
         });
       });
@@ -177,12 +177,17 @@ export default function OccupancyReport({
       );
     });
 
-    return filteredBookings.sort((a: any, b: any) => {
+    // Filter the bookings based on the selected hostel
+    const hostelFilteredBookings = filteredBookings.filter(
+      (booking:any) => booking.hostelName === hostel,
+    );
+
+    return hostelFilteredBookings.sort((a: any, b: any) => {
       const dateA = new Date(a.bookedFromDt);
       const dateB = new Date(b.bookedFromDt);
       return dateA.getTime() - dateB.getTime();
     });
-  }, [bookings]);
+  }, [bookings, hostel]);
 
   return (
     <TooltipProvider>
@@ -301,10 +306,13 @@ export default function OccupancyReport({
                 </th>
                 <th className="border border-gray-300 px-2 py-2">Room Type</th>
                 <th className="border border-gray-300 px-2 py-2">
-                  Booked Beds
+                  Booked Room
                 </th>
                 <th className="border border-gray-300 px-2 py-2">
-                  Booking Date
+                  Allocated Room
+                </th>
+                <th className="border border-gray-300 px-2 py-2">
+                  Checkin Date
                 </th>
                 <th className="border border-gray-300 px-2 py-2">
                   Checkout Date
@@ -315,38 +323,52 @@ export default function OccupancyReport({
               </tr>
             </thead>
             <tbody className="text-center">
-              {confirmedAndTodayCheckoutBookings.map(
-                (booking: any, index: number) => (
-                  <tr key={booking.id}>
-                    <td className="border border-gray-300 px-2 py-2">
-                      {index + 1}
-                    </td>
-                    <td className="border border-gray-300 px-2 py-2">
-                      {booking.id}
-                    </td>
-                    <td className="border border-gray-300 px-2 py-2">
-                      {booking.userName}
-                    </td>
-                    <td className="border border-gray-300 px-2 py-2">
-                      {booking.hostelName.replace(/_/g, " ")}
-                    </td>
-                    <td className="border border-gray-300 px-2 py-2">
-                      {booking.roomType.replace(/_/g, " ")}
-                    </td>
-                    <td className="border border-gray-300 px-2 py-2">
-                      {booking.bookedBed}
-                    </td>
-                    <td className="border border-gray-300 px-2 py-2">
-                      {format(new Date(booking.bookedFromDt), "dd-MM-yyyy")}
-                    </td>
-                    <td className="border border-gray-300 px-2 py-2">
-                      {format(new Date(booking.bookedToDt), "dd-MM-yyyy")}
-                    </td>
-                    <td className="border border-gray-300 px-2 py-2">
-                      {booking.bookingStatus}
-                    </td>
-                  </tr>
-                ),
+              {confirmedAndTodayCheckoutBookings.length > 0 ? (
+                confirmedAndTodayCheckoutBookings.map(
+                  (booking: any, index: number) => (
+                    <tr key={booking.id}>
+                      <td className="border border-gray-300 px-2 py-2">
+                        {index + 1}
+                      </td>
+                      <td className="border border-gray-300 px-2 py-2">
+                        {booking.id}
+                      </td>
+                      <td className="border border-gray-300 px-2 py-2">
+                        {booking.userName}
+                      </td>
+                      <td className="border border-gray-300 px-2 py-2">
+                        {booking.hostelName.replace(/_/g, " ")}
+                      </td>
+                      <td className="border border-gray-300 px-2 py-2">
+                        {booking.roomType.replace(/_/g, " ")}
+                      </td>
+                      <td className="border border-gray-300 px-2 py-2">
+                        {booking.totalRoom}
+                      </td>
+                      <td className="border border-gray-300 px-2 py-2">
+                        {booking.roomOccupied?.join(", ") || "N/A"}
+                      </td>
+                      <td className="border border-gray-300 px-2 py-2">
+                        {format(new Date(booking.bookedFromDt), "dd-MM-yyyy")}
+                      </td>
+                      <td className="border border-gray-300 px-2 py-2">
+                        {format(new Date(booking.bookedToDt), "dd-MM-yyyy")}
+                      </td>
+                      <td className="border border-gray-300 px-2 py-2">
+                        {booking.bookingStatus}
+                      </td>
+                    </tr>
+                  ),
+                )
+              ) : (
+                <tr>
+                  <td
+                    colSpan={10}
+                    className="border border-gray-300 px-2 py-2 text-center"
+                  >
+                    No bookings available for this date.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>

@@ -118,12 +118,6 @@ enum Answer {
   NO
 }
 
-enum RoomTariff {
-  SINGLE_BEDDED_1200
-  DOUBLE_BEDDED_2500
-  EXECTIVE_3500
-}
-
 enum BookingStatus {
   UNCONFIRMED
   CONFIRMED
@@ -268,6 +262,7 @@ model GuestProfile {
   guestsList    String[]
   paymentStatus String?
   paymentMode   String?
+  roomOccupied  String[]
   userName      String?
   userEmail     String?
   userId        String?
@@ -311,7 +306,7 @@ model RoomDetails {
   geaser           Answer?
   airCooled        Answer?
   remark           String?
-  roomTarrif       RoomTariff?
+  roomTarrif       Int?
   bookingStatus    BookingStatus?
   cleaningStatus   CleaningStatus?
   lastCleaningDate DateTime        @default(now())

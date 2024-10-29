@@ -4,7 +4,7 @@ import { BookingDetails, BookingStatus } from "@prisma/client";
 import { api } from "~/trpc/react";
 import { Separator } from "~/components/ui/separator";
 
-export function RecentBookings({ bookings, setSelectedBooking, selectedBooking }: { bookings: BookingDetails[], setSelectedBooking: Function, selectedBooking: BookingDetails }) {
+export function RecentBookings({ bookings, setSelectedBooking, selectedBooking }: Readonly<{ bookings: BookingDetails[], setSelectedBooking: Function, selectedBooking: BookingDetails }>) {
 
   const sortedBookings = bookings.sort((a, b) => {
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
