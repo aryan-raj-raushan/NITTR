@@ -58,8 +58,6 @@ const SearchPage = ({ bookings }: any) => {
         (booking: any) => booking.hostelName === location,
       );
 
-      console.log("confirm", confirmedBookings);
-
       const calculateAvailability = (
         roomDetails: any,
         locationFilteredBookings: any,

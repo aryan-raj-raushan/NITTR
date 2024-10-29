@@ -250,8 +250,6 @@ export default function Checkout({
       OTHER: "Other",
     };
 
-    console.log("min & max value", minRooms, maxRooms);
-
     const typeBody = (category: any) => categoryConst[category?.typeOrg];
 
     return (

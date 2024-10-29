@@ -75,11 +75,11 @@ export const bookingRouter = createTRPCRouter({
           paymentStatus,
           subtotal,
           paymentMode: paymentMode,
-          roomOccupied : [],
+          roomOccupied: [],
         },
       });
 
-      if (rooms.length === nosRooms) {
+      if (rooms[0]?.totalRoom >= nosRooms) {
         await ctx.db.roomDetails.updateMany({
           where: {
             id: { in: rooms.map((r: any) => r.id) },
