@@ -382,6 +382,7 @@ export default function Login() {
   //hi
   const handleGoogleSignin = useGoogleLogin({
     onSuccess: async (res) => {
+      setLoading(true);
       try {
         const token = res.access_token;
         const userInfoResponse = await axios.post(SinginWithGoogle, {
@@ -441,9 +442,12 @@ export default function Login() {
           theme: "light",
           transition: Bounce,
         });
+      } finally {
+        setLoading(false);
       }
     },
     onError: () => {
+      setLoading(false);
       console.error("Google sign-in failed");
       toast.error("Google sign-in failed", {
         position: "top-center",
@@ -518,9 +522,20 @@ export default function Login() {
 
   const [isLogin, setIsLogin] = useState(true);
   const [usePhone, setUsePhone] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   return (
     <>
+      {loading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="loader"></div>
+          <div className="flex flex-row gap-2">
+            <div className="w-4 h-4 rounded-full bg-blue-700 animate-bounce"></div>
+            <div className="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:-.3s]"></div>
+            <div className="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:-.5s]"></div>
+          </div>
+        </div>
+      )}
       <div className="hidden md:block">
         <div className="relative my-10 flex min-h-full items-center justify-center">
           <div className="relative min-h-[480px] w-full max-w-7xl overflow-hidden rounded-lg bg-white shadow-lg">
